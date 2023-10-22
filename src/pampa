@@ -1,0 +1,23 @@
+#!/usr/bin/env python3
+
+import argparse
+import main_assign
+
+def main():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("-s", "--spectra", help="Path to the spectra files (one spectrum per file). Authorized formats: cvs, mgd, mzML.", type=str, required=True)
+    parser.add_argument("-p", "--peptide_table", help="List of peptide markers (TSV file)", type=str)
+    parser.add_argument("-f", "--fasta", help="Fasta sequences", type=str)
+    parser.add_argument("-E", "--Entry",  help="List of Fasta files (TSV files)", type=str)
+    parser.add_argument("-d", "--directory",  help="Directory where to find  Fasta files.", type=str)
+    parser.add_argument("-r", "--resolution", help="Resolution. Recommended values: 0.01 for maldi FT and 0.1 for maldi TOF.", type=float, required=True)
+    parser.add_argument("-t", "--taxonomy", help="Taxonomy (TSV file)", type=str)
+    parser.add_argument("-a", "--amplitude", help="Minimal number of markers (percentage between 0 and 100)", type=int, required=False,  default=100)
+    parser.add_argument("-o", "--outfile", help="Output file name", type=str, required=True) 
+    args = parser.parse_args()
+
+    main_assign.main(args.spectra, args.taxonomy, args.peptide_table, args.fasta, args.Entry, args.directory, args.resolution, args.outfile, args.amplitude)  
+    
+if __name__ == "__main__":
+    main()
