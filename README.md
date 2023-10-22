@@ -84,7 +84,7 @@ Resolution refers to the mass spectrometer's ability to distinguish closely spac
 
 The program offers the optional possibility to add taxonomic information to the species identification. In this case, you should supply a taxonomy file.
 
-The taxonomy should in the form of a Tab-Separated Values (TSV) file comprising five columns: Taxid, Common name, Scientific name, Parent (taxid), and Rank (species, genus, etc.). 
+The taxonomy must be in the form of a Tab-Separated Values (TSV) file comprising five columns: Taxid, Common name, Scientific name, Parent (taxid), and Rank (species, genus, etc.). 
 You can obtain this type of file directly from UniProt (https://www.uniprot.org/taxonomy) by following these steps:
 
   1. Use the search bar to find your desired clade, entering its common name, scientific name, or taxid.
