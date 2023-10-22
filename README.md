@@ -40,6 +40,12 @@ options:
 
 The program processes a batch of mass spectra simultaneously. All mass spectra files are contained within the same folder, with one file dedicated to each mass spectrum. These files should have one of the following extensions: .csv (in CSV format), .mgf (in MGF format), or .mzML (in mzML format). Any other files present will be disregarded. You can specify the path to the folder using the '-s' option.
 
+**CSV format**: It consists of two columns. The first column is designated for mass (m/z), and the second column records intensity (I). Columns are separated by either a comma (',') or a semicolon (';'). The initial row serves as the header.
+
+**MGF format**: Mascot Generic Format
+
+**mzML format**: see https://www.psidev.info/mzML
+
 ## Peptide tables (-p)
 
 The list of peptide markers used for species identification should be organized within a Tab-Separated Values (TSV) file, featuring the following columns
