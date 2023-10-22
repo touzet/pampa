@@ -8,8 +8,6 @@ Pampa (Protein Analysis by Mass Spectrometry for Ancient Species) is a versatile
 - The software facilitates the incorporation of taxonomic data.
 - It enables in-depth exploration of various assignment possibilities within the taxonomic space.
 
-## Installation
-
 ## How to run the program ?
 
 ```
