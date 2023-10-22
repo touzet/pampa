@@ -11,6 +11,31 @@ Pampa (Protein Analysis by Mass Spectrometry for Ancient Species) is a versatile
 
 ## How to run the program ?
 
+```
+usage: pampa [-h] -s SPECTRA [-p PEPTIDE_TABLE] [-f FASTA] [-E ENTRY] [-d DIRECTORY] -r RESOLUTION [-t TAXONOMY] [-a AMPLITUDE] -o OUTFILE
+
+options:
+  -h, --help            show this help message and exit
+  -s SPECTRA, --spectra SPECTRA
+                        Path to the spectra files (one spectrum per file). Authorized formats: cvs, mgd, mzML.
+  -p PEPTIDE_TABLE, --peptide_table PEPTIDE_TABLE
+                        List of peptide markers (TSV file)
+  -f FASTA, --fasta FASTA
+                        Fasta sequences
+  -E ENTRY, --Entry ENTRY
+                        List of Fasta files (TSV files)
+  -d DIRECTORY, --directory DIRECTORY
+                        Directory where to find Fasta files.
+  -r RESOLUTION, --resolution RESOLUTION
+                        Resolution. Recommended values: 0.01 for maldi FT and 0.1 for maldi TOF.
+  -t TAXONOMY, --taxonomy TAXONOMY
+                        Taxonomy (TSV file)
+  -a AMPLITUDE, --amplitude AMPLITUDE
+                        Minimal number of markers (percentage between 0 and 100)
+  -o OUTFILE, --outfile OUTFILE
+                        Output file name
+```
+
 ## Mass spectra
 
 
