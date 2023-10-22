@@ -76,13 +76,17 @@ In cases where the 'PTM' field is omitted, the program will estimate the potenti
 The first row of the file should contain column headings. 
 
 
-For reference and guidance, sample peptide tables can be found in the 'Peptide_tables' directory.
+Sample peptide tables can be found in the 'Peptide_tables' folder.
 
-## Running the program without peptide tables
+## Running the program without peptide tables (-f, -E and -d options)
 
-## Taxonomy
+## Resolution (-r)
 
-Taxonomy information should be provided in the form of a Tab-Separated Values (TSV) file comprising five columns: Taxid, Common name, Scientific name, Parent (taxid), and Rank (species, genus, etc.). 
+## Taxonomy (-t)
+
+The program offers the optional possibility to add taxonomic information to the species identification. In this case, you should supply a taxonomy file.
+
+The taxonomy should in the form of a Tab-Separated Values (TSV) file comprising five columns: Taxid, Common name, Scientific name, Parent (taxid), and Rank (species, genus, etc.). 
 You can obtain this type of file directly from UniProt (https://www.uniprot.org/taxonomy) by following these steps:
 
   1. Use the search bar to find your desired clade, entering its common name, scientific name, or taxid.
@@ -90,5 +94,6 @@ You can obtain this type of file directly from UniProt (https://www.uniprot.org/
   3. Locate the 'download' link.
   4. Choose the TSV format and customize the columns in the following order: Common name, Scientific name, Parent, and Rank.
   5. Proceed to download the taxonomy file.
+Some examples are available in the folder 'Taxonomy'.
 
-Some examples are available in the directory 'Taxonomy'.
+## Output files (-o)
