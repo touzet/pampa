@@ -3,6 +3,7 @@
 
 Pampa (Protein Analysis by Mass Spectrometry for Ancient Species) is a versatile software program designed for species identification in ZooMS (Zooarcheological by Mass Spectrometry) through the usage of marker peptides. It offers the following features :
 
+- It can handle any number of mass spectra in a single run.
 - Users can define their own markers by creating custom peptide tables. 
 - The software facilitates the incorporation of taxonomic data.
 - It enables in-depth exploration of various assignment possibilities within the taxonomic space.
