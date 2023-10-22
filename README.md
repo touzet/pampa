@@ -92,7 +92,8 @@ You can obtain this type of file directly from UniProt (https://www.uniprot.org/
   3. Locate the 'download' link.
   4. Choose the TSV format and customize the columns in the following order: Common name, Scientific name, Parent, and Rank.
   5. Proceed to download the taxonomy file.
-Some examples are available in the folder 'Taxonomy'.
+
+**Examples**: Some examples are available in the folder 'Taxonomy'.
 
 ## Amplitude (-a)
 
