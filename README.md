@@ -49,7 +49,7 @@ The program processes a batch of mass spectra simultaneously. All mass spectra f
 
 ## Peptide tables (-p)
 
-The list of peptide markers used for species identification should be organized within a Tab-Separated Values (TSV) file, featuring the following columns
+The list of peptide markers used for species identification should be organized within a Tab-Separated Values (TSV) file, featuring the following columns:
 
 - Rank: Taxonomic rank
 - Taxid: Taxonomic identifier
@@ -64,19 +64,17 @@ The list of peptide markers used for species identification should be organized 
 - End: End position of the peptide marker within the protein sequence
 - Comment: Additional comments about the marker
 
+The first row of the file should contain column headings. 
+
 Most of these fields are optional and are here for reference. The following information is mandatory:
 
 - You must provide a taxid for the peptide marker. Rank and taxon names are included primarily to enhance the clarity of results.
 - You should furnish either a sequence or a mass for your marker peptide. If the sequence is provided without a mass, the program will automatically compute the mass from it. To do so, it will utilize either the PTM description (when available) or infer potential PTMs from the sequence.
 
-A 'PTM description' provides a concise representation of the number of proline oxidations (P) and deamidations (D) necessary to compute the mass of a peptide sequence. For instance, '2P1D' signifies two oxyprolines and one deamidation, '1D4P' represents one deamidation and four oxyprolines, '2P' corresponds to two oxyprolines without any deamidation, and '1D' indicates one deamidation without oxyprolines. To specify that no PTM should be applied, use '0P' or '0D'.
+**PTM description**: This is a concise representation of the number of proline oxidations (P) and deamidations (D) necessary to compute the mass of a peptide sequence. For instance, '2P1D' signifies two oxyprolines and one deamidation, '1D4P' represents one deamidation and four oxyprolines, '2P' corresponds to two oxyprolines without any deamidation, and '1D' indicates one deamidation without oxyprolines. To specify that no PTM should be applied, use '0P' or '0D'.
 In cases where the 'PTM' field is omitted, the program will estimate the potential oxyprolines from the peptide sequence, but deamidations will not be considered.
 
-
-The first row of the file should contain column headings. 
-
-
-Sample peptide tables can be found in the 'Peptide_tables' folder.
+**Examples**: Sample peptide tables can be found in the 'Peptide_tables' folder.
 
 ## Running the program without peptide tables (-f, -E and -d options)
 
