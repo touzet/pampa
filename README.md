@@ -17,7 +17,7 @@ usage: pampa [-h] -s SPECTRA [-p PEPTIDE_TABLE] [-f FASTA] [-E ENTRY] [-d DIRECT
 options:
   -h, --help            show this help message and exit
   -s SPECTRA, --spectra SPECTRA
-                        Path to the spectra files (one spectrum per file). Authorized formats: cvs, mgd, mzML.
+                        Path to the spectra files (one spectrum per file). Authorized formats: cvs, mgf, mzML.
   -p PEPTIDE_TABLE, --peptide_table PEPTIDE_TABLE
                         List of peptide markers (TSV file)
   -f FASTA, --fasta FASTA
@@ -36,9 +36,9 @@ options:
                         Output file name
 ```
 
-## Mass spectra
+## Mass spectra (-s)
 
-
+The program processes a batch of mass spectra simultaneously. All mass spectra files are contained within the same folder, with one file dedicated to each mass spectrum. These files should have one of the following extensions: .csv (in CSV format), .mgf (in MGF format), or .mzML (in mzML format). Any other files present will be disregarded. You can specify the path to the folder using the '-s' option.
 
 ## Peptide tables (-p)
 
