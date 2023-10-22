@@ -80,6 +80,8 @@ In cases where the 'PTM' field is omitted, the program will estimate the potenti
 
 ## Resolution (-r)
 
+Resolution refers to the mass spectrometer's ability to distinguish closely spaced peaks. In the program, we employ it to set an upper limit on the deviation between a peak and the theoretical mass of the marker peptide. This option is mandatory. Recommended values are  0.1 for maldi TOF, and 0.01 for maldi FT.
+
 ## Taxonomy (-t)
 
 The program offers the optional possibility to add taxonomic information to the species identification. In this case, you should supply a taxonomy file.
@@ -93,5 +95,7 @@ You can obtain this type of file directly from UniProt (https://www.uniprot.org/
   4. Choose the TSV format and customize the columns in the following order: Common name, Scientific name, Parent, and Rank.
   5. Proceed to download the taxonomy file.
 Some examples are available in the folder 'Taxonomy'.
+
+## Amplitude (-a)
 
 ## Output files (-o)
