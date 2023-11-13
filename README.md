@@ -105,5 +105,5 @@ Default value is 100.
 Name of the main output file, in TSV format. This file contains the list of species found for each mass spectrum.
 Two other accompanying files are automatically created:
 
-- ++detail_++<outputfile> (TSV file): this file contains the detail of the assignment (which markers are found for which species)
-- ++report_++<outputfile> (TXT file): this file contains a report on the inputs of the run (number of mass spectra, number of species tested,  parameters...)
+- //detail_//<outputfile> (TSV file): this file contains the detail of the assignment (which markers are found for which species)
+- //report_//<outputfile> (TXT file): this file contains a report on the inputs of the run (number of mass spectra, number of species tested,  parameters...)
