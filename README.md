@@ -16,7 +16,8 @@ usage: pampa [-h] -s SPECTRA [-p PEPTIDE_TABLE] [-f FASTA] [-E ENTRY] [-d DIRECT
 options:
   -h, --help            show this help message and exit
   -s SPECTRA, --spectra SPECTRA
-                        Path to the spectra files (one spectrum per file). Authorized formats: cvs, mgf, mzML.
+                        Path to the spectra files (one spectrum per file).
+                        Authorized formats: CSV, MGF, mzML.
   -p PEPTIDE_TABLE, --peptide_table PEPTIDE_TABLE
                         List of peptide markers (TSV file)
   -f FASTA, --fasta FASTA
@@ -97,4 +98,12 @@ You can obtain this type of file directly from UniProt (https://www.uniprot.org/
 
 ## Amplitude (-a)
 
+Default value is 100. 
+
 ## Output files (-o)
+
+Name of the main output file, in TSV format. This file contains the list of species found for each mass spectrum.
+Two other accompanying files are automatically created:
+
+- ++detail_++<outputfile> (TSV file): this file contains the detail of the assignment (which markers are found for which species)
+- ++report_++<outputfile> (TXT file): this file contains a report on the inputs of the run (number of mass spectra, number of species tested,  parameters...)
