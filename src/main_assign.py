@@ -17,8 +17,6 @@ import mass_spectrum
 from assignment import *
 from peptide_table import *
 from sequences import *
-
-
 from taxonomy import*
 from markers import *
 from fasta_parsing import *
