@@ -24,51 +24,84 @@ from markers import *
 from fasta_parsing import *
 from compute_masses import *
 
+def escape(message):
+    print("\n "+message)
+    sys.exit(" Stopping execution.\n\n Type <pampa assign -h> for more help.\n")
 
-def check_parameters(SPECTRA, taxonomy, peptide_table, fasta, Entry, directory, resolution, outfile, amplitude):
+
+def check_and_update_parameters(spectra, taxonomy, peptide_table, fasta, directory, limit, error, neighbour, all, output, mammals):
     """
     Parameters checking and fixing
     """
 
-    if SPECTRA is None:
-        sys.exit("Missing parameter: SPECTRA")
-    if not os.path.isdir(SPECTRA):    
-        sys.exit("\n Directory "+SPECTRA+" not found. \n Stopping execution.\n")
-    if resolution is None:
-        sys.exit("\n Missing parameter: resolution. \n Stopping execution.\n")
-    if outfile is None:
-        sys.exit("\n Missing parameter: output.  \n Stopping execution.\n")
-    
+    if spectra is None:
+        escape("Missing parameter: spectra (-s). ")
+    if not os.path.isdir(spectra):    
+        escape("Directory "+spectra+" not found.")
+    if error is None:
+        escape("Missing parameter: error (-e)")
+    if error<0:
+        escape("Parameter error (-e) should be positive.")
+    if output is None:
+        escape("Missing parameter: output (-o)")
+
+    if mammals :
+        if taxonomy:
+            print("Ignored option: -t "+taxonomy+"\n")
+        if peptide_table:
+            print("Ignored option: -p "+peptide_table+"\n")
+        if fasta:
+            print("Ignored option: -f "+fasta+"\n")
+        if  limit:
+          print("Ignored option: -l "+limit+"\n")
+        taxonomy="../Taxonomy/taxonomy_mammals.tsv"
+        peptide_table="../Peptide_tables/table_mammals_with_deamidation.tsv"
 
     if taxonomy:
         if not os.path.isfile(taxonomy):
-            sys.exit("\n File "+taxonomy+" not found. Stopping execution.\n")
+            escape("File "+taxonomy+" not found.")
 
-    if amplitude not in range(101):
-        amplitude=100
+    if limit:
+        if not os.path.isfile(limit):
+            escape("File "+limit+" not found")
+            
+    if neighbour not in range(101):
+        neighbour=100
+
+    if all and neighbour is None:
+        print ("Ignored parameter: -a (all). This parameter comes with -n (near-optimal solutions).")
         
-    q = (peptide_table, fasta, Entry, directory)
+    q = (peptide_table, fasta, directory)
     if not (q[0] or q[1] or q[2]):
-        sys.exit("\n Missing information for marker peptides (-p, -f or -E).\n")
-    if q[0] and q[1]:
-        sys.exit("\n Options -p (peptide_table) and  -f (fasta) are mutually incompatible. \n")
-    if q[0] and q[2]:
-        sys.exit("\n Options -p (peptide_table) and  -E  are mutually incompatible. \n")
-    if  q[1] and q[2]:
-        print ("\n Options -f (fasta) and  -E  are mutually incompatible. \n")
-        sys.exit(-1)
-    if q[3] and not q[2]:
-        sys.exit("\n Missing options: -E . \n")
-
+        escape("Missing information for marker peptides (-p, -f or -d).")
+    if (q[0] and q[1]) or (q[0] and q[2]) or (q[1] and q[2]) :
+        escape("Options -p (peptide_table), -f (fasta) and -d (directory of fasta files) are mutually incompatible.")
+    
     if q[0]:
         if not os.path.isfile(peptide_table):
-           sys.exit("\n File "+peptide_table+" not found. Stopping execution.\n")
-
-    if directory is None:
-        dir='.'
+           sys.exit("File "+peptide_table+" not found.")
 
 
-def create_report(report_name,SPECTRA, list_of_spectra, taxonomy, taxonomy_tree, peptide_table, fasta, Entry, directory, resolution, outfile, amplitude, set_of_markers):
+    output_dir, output_file = os.path.split(output)
+    # Ensure the output directory exists
+    if len(output_dir)>0 and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    
+    extension=output_file[-4:].lower()
+    if extension!=".tsv":
+        output_file=output_file+".tsv"
+    else:
+        output_file=output_file[:-4]+".tsv"
+
+    output=os.path.join(output_dir, output_file)
+    output2=os.path.join(output_dir, "detail_"+output_file)
+    report_file="report_"+output_file.replace("tsv", "txt")
+    report_path=os.path.join(output_dir, report_file)
+        
+    return (spectra, taxonomy, peptide_table, fasta, directory, limit, error, neighbour, all, output, output2, report_path, mammals)
+
+        
+def create_report(report_name, spectra, list_of_spectra, taxonomy, taxonomy_tree, lost_taxid, peptide_table, fasta, limit, directory, error, neighbour, output, output2,  set_of_markers):
     
     sys.stdout=open(report_name, 'w')
     print (time.ctime())
@@ -81,19 +114,23 @@ def create_report(report_name,SPECTRA, list_of_spectra, taxonomy, taxonomy_tree,
     elif fasta:
         print("  Fasta file (markers)    : "+str(fasta))
     else:
-        print("  Fasta file (markers)    : "+str(Entry))
+        print("  Fasta file (markers)    : "+str(directory))
     print("  Taxonomy                : "+str(taxonomy))
-    print("  Mass spectra            : "+SPECTRA)
-    print("  Amplitude               : "+str(amplitude)+"%")
-    print("  Resolution              : "+str(resolution))
+    print("  Mass spectra            : "+spectra)
+    print("  Near-optimal solutions  : ",end="")
+    if neighbour==100:
+        print("only optimal solutions")
+    else:
+        print("up to "+str(neighbour)+"% suboptimality")
+    print("  Error margin            : "+str(error)+"Da/ppm")
     print("")
     print("---------------------------------")
     print("   OUTPUT FILES")
     print("---------------------------------\n")
-    print("  Main result file         : "+outfile)
-    print("  More details             : detail_"+outfile)
+    print("  Main result file         : "+output)
+    print("  More details             : "+output2)
     if not peptide_table:
-        print("  Table of peptides        : table_"+outfile)
+        print("  Table of peptides        : table_"+output) #/!\
     print("  Report (this file)       : " + report_name)
     print("")
     print("---------------------------------")
@@ -107,72 +144,75 @@ def create_report(report_name,SPECTRA, list_of_spectra, taxonomy, taxonomy_tree,
         print("---------------------------------")
         print("  PEPTIDE TABLE")
         print("---------------------------------\n")
-    if fasta or Entry:
+    if fasta or directory:
        print("---------------------------------")
        print("  FASTA SEQUENCES")
        print("---------------------------------\n")
+    colinearity(set_of_markers)
     check_set_of_markers(set_of_markers)
     if taxonomy is not None:
         print("---------------------------------")
         print("  TAXONOMY")
         print("---------------------------------")
         table_print(taxonomy_tree)
+        if len(lost_taxid)>0:
+            print ("\nTaxid not found : "+str(lost_taxid))
+            print ("The associated markers are removed from the remaining of the analysis.")
     sys.stdout = sys.__stdout__
     
-def main(SPECTRA=None, taxonomy=None, peptide_table=None, fasta=None, Entry=None, directory=None, resolution=None, outfile=None, amplitude=None):
+def main(spectra=None, taxonomy=None, peptide_table=None, fasta=None, directory=None, limit=None, error=None, neighbour=None, all=None, output=None, mammals=None):
 
-    check_parameters(SPECTRA, taxonomy, peptide_table, fasta, Entry, directory, resolution, outfile, amplitude)
     
-    extension=outfile[-4:].lower()
-    if extension!=".tsv":
-        outfile_name=outfil+".tsv"
-    else:
-        outfile=outfile[:-4]+".tsv"
-    report_name="report_"+outfile.replace("tsv", "txt")
+    (spectra, taxonomy, peptide_table, fasta, directory, limit, error, neighbour, allsolutions, output, output2, report_path, mammals)=check_and_update_parameters(spectra, taxonomy, peptide_table, fasta, directory, limit, error, neighbour, all, output,mammals)
 
+    # parsing spectra files
     list_of_spectra=[]
-    spectra_dir=os.listdir(SPECTRA)
+    spectra_dir=os.listdir(spectra)
     for f in spectra_dir:
-        file_name= join(SPECTRA, f)
+        file_name= os.path.join(spectra, f)
         spectrum=mass_spectrum.parser(file_name,f)
         list_of_spectra.append(spectrum)
         list_of_spectra.sort(key=lambda x: x.name)
 
+    # parsing models for organisms    
     if peptide_table:
         set_of_markers = parse_peptide_table(peptide_table)
-    if fasta or Entry:
-        if fasta:
-           set_of_sequences= build_set_of_sequences_from_fasta_file(fasta,True)
-        else: 
-           set_of_sequences=build_set_of_sequences_from_TSV_fasta_dir(Entry,directory)
-        set_of_markers=add_PTM_or_masses_to_markers(in_silico_digestion(set_of_sequences,1,12, False))
-        build_peptide_table_from_set_of_markers(set_of_markers,"table_"+outfile,"")
+        if limit:
+            set_of_markers = extract_relevant_markers(set_of_markers, limit)
+    if fasta :
+        set_of_sequences= build_set_of_sequences_from_fasta_file(fasta,True)
+        if limit:
+            set_of_sequences=extract_relevant_sequences(set_of_sequences, limit)
+        set_of_markers=add_PTM_or_masses_to_markers(in_silico_digestion(set_of_sequences,1,12,33, False))
+        #build_peptide_table_from_set_of_markers(set_of_markers,"t able_"+output,"")
+    if directory:
+        set_of_sequences=build_set_of_sequences_from_fasta_dir(directory)
+        if limit:
+            set_of_sequences=extract_relevant_sequences(set_of_sequences, limit)
+        set_of_markers=add_PTM_or_masses_to_markers(in_silico_digestion(set_of_sequences,1,12,33, False))
+        #build_peptide_table_from_set_of_markers(set_of_markers,"table_"+output,"")
 
-    mass_taxid_name_list, set_of_marker_names, set_of_taxid, taxid_to_taxidname = build_markers_dictionnaries_from_set_of_markers(set_of_markers)
-    list_of_marker_names=list(set_of_marker_names)
-    list_of_marker_names.sort()
-    list_of_taxid=list(set_of_taxid)
-    list_of_taxid.sort()
-   
-    ## construction of the taxonomy  
+    # extraction of taxid, masses and names    
+    mass_taxid_name_list, set_of_taxid, taxid_to_taxidname = build_marker_dictionnaries_from_set_of_markers(set_of_markers)
+ 
+    # construction of the taxonomy  
     if taxonomy is not None:   
         primary_taxonomy=parse_taxonomy_simple_file(taxonomy)
-        secondary_taxonomy=primary_taxonomy.intersection(set_of_taxid)
+        secondary_taxonomy, lost_taxid=primary_taxonomy.intersection(set_of_taxid)
+        set_of_markers= remove_lost_taxid(set_of_markers, lost_taxid)
     else:
         secondary_taxonomy=build_flat_taxonomy(set_of_markers)
 
-    create_report(report_name,SPECTRA, list_of_spectra, taxonomy, secondary_taxonomy, peptide_table, fasta, Entry, directory, resolution, outfile, amplitude, set_of_markers)
+    create_report(report_path, spectra, list_of_spectra, taxonomy, secondary_taxonomy, lost_taxid, peptide_table, fasta,  directory, limit, error, neighbour, output, output2, set_of_markers)
         
-    ## species identification
-    assign_all_spectra(list_of_spectra, mass_taxid_name_list, list_of_taxid, list_of_marker_names, resolution, taxonomy, secondary_taxonomy, SPECTRA, "XXXXXX", amplitude, outfile)
+    # species identification
+    assign_all_spectra(list_of_spectra, mass_taxid_name_list, error, taxonomy, secondary_taxonomy, neighbour,allsolutions, output,output2)
 
     print("")
     print("   Job completed.")
     print("   All results are available in the three following files.") 
     print("")
-    print("   - Assignments       : "+outfile)
-    print("   - More details      : detail_"+outfile)
-    print("   - Report on the run : " + report_name)
+    print(f"   - Assignments       : {output}")
+    print(f"   - More details      : {output2}")
+    print(f"   - Report on the run : {report_path}")
     print("")
-
-
