@@ -1,7 +1,5 @@
 """
 fasta_parsing.py              
-
-
 """
 
 
