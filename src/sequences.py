@@ -5,13 +5,6 @@ sequences.py
 
 """
 
-f"""
-
-sequences.py                         
-
-
-"""
-
 from pyteomics import parser
 from Bio import SeqIO
 from Bio import pairwise2
