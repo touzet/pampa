@@ -2,7 +2,6 @@
 fasta_parsing.py              
 """
 
-
 from Bio import SeqIO
 from Bio.SeqIO import parse 
 from Bio.SeqRecord import SeqRecord
@@ -34,7 +33,7 @@ def parse_fasta_NCBI_header(header, gene_name, taxonomy):
     new_sequence.seqid=fields[0]
     return new_sequence
 
-##    
+  
 def parse_fasta_uniprot_header(header):
     """ parsing fasta uniprot headers  """
     new_sequence=sequences.Sequence()
@@ -77,8 +76,6 @@ def build_set_of_sequences_from_fasta_file(fasta_file_name, gene_name="", taxono
     return set_of_sequences
 
 
-# prend en entrée un fichier texte qui contient une liste de fichiers au format Fasta
-#PROT: TRUE if protein, FALSE if peptide 
 def build_set_of_sequences_from_fasta_files(list_of_files):
     set_of_sequences=set()
     summary_file=open(list_of_files).read().splitlines()
@@ -105,7 +102,6 @@ def build_set_of_sequences_from_line_fasta_files(line, dir):
         set_of_sequences.update(set_of_new_sequences)
     return  set_of_sequences
     
-
 
 def build_set_of_sequences_from_fasta_dir(fasta_dir):
     set_of_sequences=set()
