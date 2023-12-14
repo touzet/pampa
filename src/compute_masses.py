@@ -15,6 +15,7 @@ from utils import *
 
 OXYPROLINE=15.994915
 DEAMIDATION=0.984016
+CARBOXYLATION= 43.009
 
         
 def peptide_mass(sequence):
@@ -30,7 +31,7 @@ def PTM_mass(PTM_string):
     mass=0
     # proline oxydation
     proline="0"
-    if 'P' in ptm_string:
+    if 'P' in PTM_string:
         re_proline=re.compile('[0-9]*P')
         m = re_proline.search(PTM_string)
         proline=m.group().replace('P','')
@@ -42,6 +43,12 @@ def PTM_mass(PTM_string):
         m = re_deamidation.search(PTM_string)
         deamidation=m.group().replace('D','')
         mass+= int(deamidation) * DEAMIDATION
+    carboxylation="0"
+    if 'C' in PTM_string:
+        re_carboxylation=re.compile('[0-9]*C')
+        m = re_carboxylation.search(PTM_string)
+        carboxylation=m.group().replace('C','')
+        mass+= int(carboxylation) * CARBOXYLATION
     return mass
 
 def peptide_mass_with_PTM(sequence, PTM_string):
@@ -109,12 +116,11 @@ def add_PTM_or_masses_to_markers(set_of_markers):
                     new_marker=copy.deepcopy(marker)
                     new_marker.ptm=ma[0]
                     new_marker.masses={ma[1]}
+                    new_marker.code=sequence 
                     set_of_new_markers.add(new_marker)
                 set_of_deprecated_markers.add(marker)
             else:
-                mass=peptide_mass_with_PTM(sequence)
+                mass=peptide_mass_with_PTM(sequence,marker.ptm)
                 marker.masses={mass}
     return set_of_markers.union(set_of_new_markers) - set_of_deprecated_markers
     
-        
-
