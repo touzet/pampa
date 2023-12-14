@@ -108,24 +108,16 @@ def build_set_of_sequences_from_line_fasta_files(line, dir):
     return  set_of_sequences
     
 
-# prend en entrée un fichier TVS qui contient une description de fichiers au format Fasta:
-# Taxa | Gene name | Seq ID  
-# dir: directory where to find Fasta sequences
-def build_set_of_sequences_from_TSV_fasta_dir(tsv_file, fasta_dir):
-    set_of_sequences=set()
-    summary_file=open(tsv_file).read().splitlines()
-    for line in summary_file:
-        set_of_new_sequences=build_set_of_sequences_from_line_fasta_files(line, fasta_dir)
-        set_of_sequences.update(set_of_new_sequences)
-    return set_of_sequences
 
 def build_set_of_sequences_from_fasta_dir(fasta_dir):
     set_of_sequences=set()
-    for fasta_file in listdir(fasta_dir):
-        file_name= join(fasta_dir, fasta_file)
-        set_of_new_sequences=build_set_of_sequences_from_fasta_file(file_name)
+    fasta_files = [file for file in glob.glob(join(fasta_dir, "*.fasta"))]
+    for fasta_file in fasta_files:
+        file_name= os.path.join(fasta_dir, fasta_file)
+        set_of_new_sequences= build_set_of_sequences_from_fasta_file(file_name)
         set_of_sequences.update(set_of_new_sequences)
     return set_of_sequences
+
 
 def build_set_of_sequences_from_TSV_fasta_file(entry_file, fasta_file):
     summary_file=open(entry_file).read().splitlines()
@@ -176,4 +168,3 @@ def build_set_of_sequences(entry, fasta):
         else:
             return build_set_of_sequences_from_fasta_file(fasta, gene_name="",taxonomy=None)
     
-            
