@@ -2,22 +2,59 @@
 
 import argparse
 import main_assign
+import main_build
+
+class CustomFormatter(argparse.HelpFormatter):
+    def add_argument(self, action):
+        pass
+    def format_help(self):
+        custom_paragraph = "\npampa has two modules: \n\n  - assign, for species identifications \n  - build, for construction of custom marker peptides.\n\nType <pampa assign -h> or <pampa build -h> respectively to print the help.\n\n"
+        return custom_paragraph + super(CustomFormatter, self).format_help()
+
 
 def main():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(formatter_class=CustomFormatter, usage=argparse.SUPPRESS, epilog="Bye")
+    subparsers = parser.add_subparsers(dest='modules',help='Choose a module')
 
-    parser.add_argument("-s", "--spectra", help="Path to the spectra files (one spectrum per file). Authorized formats: cvs, mgd, mzML.", type=str, required=True)
-    parser.add_argument("-p", "--peptide_table", help="List of peptide markers (TSV file)", type=str)
-    parser.add_argument("-f", "--fasta", help="Fasta sequences", type=str)
-    parser.add_argument("-E", "--Entry",  help="List of Fasta files (TSV files)", type=str)
-    parser.add_argument("-d", "--directory",  help="Directory where to find  Fasta files.", type=str)
-    parser.add_argument("-r", "--resolution", help="Resolution. Recommended values: 0.01 for maldi FT and 0.1 for maldi TOF.", type=float, required=True)
-    parser.add_argument("-t", "--taxonomy", help="Taxonomy (TSV file)", type=str)
-    parser.add_argument("-a", "--amplitude", help="Minimal number of markers (percentage between 0 and 100)", type=int, required=False,  default=100)
-    parser.add_argument("-o", "--outfile", help="Output file name", type=str, required=True) 
+    ## assign module
+    assign_parser = subparsers.add_parser('assign',
+        usage="\n \n pampa assign [-h] (-s SPECTRA PATH) (-e ERROR MARGIN) (-o OUTPUT FILE) (-p PEPTIDE TABLE | -f FASTA file | -d FASTA dir) [-l LIMIT] [-t TAXONOMY] [-n NEIGHBOURING] [-a]",
+        description='This module is for species identification.',
+        help="This module is for species identification.")
+    group2=assign_parser.add_argument_group('\ngeneral options')
+    group2.add_argument("-s", dest="spectra", help="Path to the spectra files (one spectrum per file). Authorized formats: cvs, mgd, mzML.", type=str, required=True)
+    group2.add_argument("-e", dest="error", help="Maximal error margin for the observation (in Dalton or ppm). Recommended values: 0.02 for maldi FT and 0.1 for maldi TOF.", type=float, required=True) 
+    group2.add_argument("-o", dest="output", help="Output path (should include the output file name)", type=str, required=True)
+    group3=assign_parser.add_argument_group('\noptions for organism selection')
+    group3.add_argument("-p", dest="peptide_table", help="Peptide table (TSV file)", type=str)
+    group3.add_argument("-f", dest="fasta", help="Fasta sequences", type=str)
+    group3.add_argument("-d", dest="directory",  help="Directory where to find  Fasta files.", type=str)
+    group3.add_argument("-l", dest="limit",  help="Limit the set of peptides or fasta sequences to organisms, molecules or sequence ID specified in this file  (TSV files)", type=str, required=False)
+    group3.add_argument("-t", dest="taxonomy", help="Taxonomy (TSV file), optional.", type=str)
+    group4=assign_parser.add_argument_group('\noptions for suboptimal solutions')
+    group4.add_argument("-n", dest="neighbour", help="Provide near-optimal solutions within a specified percentage margin, ranging between 0 and 100. Default is 100. With this value, only optimal solutions are provided.", type=int, required=False, default=100)
+    group4.add_argument("-a","--all", dest="all", action='store_true', help="Provide all solutions, and not only suboptimal solutions, within the percentage margin specified with option  -n.  Default is False.", required=False)  
+  
+    ## build module
+    build_parser=  subparsers.add_parser('build',
+        usage='\n \n pampa [-h] build (-p PEPTIDE TABLE) (-o OUTPUT FILE) (-f FASTA file | -d FASTA dir) [-l LIMIT]', 
+        description='This module is for the construction of custom peptide tables.', 
+        help='This module is for the construction of custom peptide tables.')
+    build_parser.add_argument("-p", dest="peptide_table", help="TSV file that contains model peptide markers, with sequences.", type=str)
+    build_parser.add_argument("-o", dest="output", help="Output path (should include the output file name)", type=str)
+    build_parser.add_argument("-f", dest="fasta", help="FASTA file that contains new sequences with header with species.", type=str)
+    build_parser.add_argument("-d", dest="directory", help="Directory that contains FASTA files", type=str)
+    build_parser.add_argument("-l", dest="limit",  help="TSV file ", type=str)
+  
     args = parser.parse_args()
 
-    main_assign.main(args.spectra, args.taxonomy, args.peptide_table, args.fasta, args.Entry, args.directory, args.resolution, args.outfile, args.amplitude)  
-    
+    if args.modules == "assign":
+        main_assign.main(args.spectra, args.taxonomy, args.peptide_table, args.fasta, args.directory, args.limit, args.error, args.neighbour, args.all, args.output, args.mammals)  
+    elif args.modules == "build":
+        main_build.main(args.peptide_table, args.fasta, args.directory, args.limit,  args.output) 
+    else:
+        print("\nPAMPA: Invalid module selection. Existing modules are assign and build.\n")
+
+
 if __name__ == "__main__":
     main()
