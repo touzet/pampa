@@ -5,9 +5,6 @@
 from utils import *
 import math
 
-
-
-
 class Assignment(object):
     def __init__(self, spectrum_name="",  peak_to_taxid_name_ptm={}, combinations_of_peaks=[], results=set(), taxid_to_peak_name_ptm={}):
         self.spectrum_name = spectrum_name
