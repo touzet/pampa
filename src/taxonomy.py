@@ -86,13 +86,23 @@ class Taxonomy(object):
 
 
     def intersection(self, set_of_taxid):
-        """ccreate a sub-taxonomy that contains only taxid from set_of_taxid, with their ancestors""" 
-        set_of_survivors={ m for m in set_of_taxid}
-        for taxid in set_of_taxid :
-            t=taxid
-            while t in self.parent:
-                t=self.parent[t]
-                set_of_survivors.add(t)
+        """ create a sub-taxonomy that contains only taxid from set_of_taxid, with their ancestors"""
+        """ elements of set_of_taxid not present in the taxonomy are lost. """
+        set_of_survivors=set()
+        lost_taxid=set()
+        for taxid in set_of_taxid:
+            if taxid not in self.parent:
+                lost_taxid.add(taxid)
+            else:
+                t=taxid
+                while t in self.parent:
+                    t=self.parent[t]
+                    print(t)
+                    set_of_survivors.add(t)
+        set_of_survivors.update(set_of_taxid-lost_taxid)
+                    
+        print("Lost TAXID: "+str(lost_taxid))
+        print("Survivor TAXID: "+str(set_of_survivors))
         taxid_to_children_dict= {taxid: self.children[taxid] & set_of_survivors for taxid in set_of_survivors & self.children.keys()}
         taxid_to_name_dict = {taxid: self.taxidname[taxid]  for taxid in set_of_survivors} 
         taxid_to_rank_dict = {taxid: self.rank[taxid]  for taxid in set_of_survivors}
@@ -104,7 +114,7 @@ class Taxonomy(object):
         B.init_root()
         B.init_descendants()
         B.init_parent()
-        return B
+        return B, lost_taxid
 
   
     def intersection_with_descendants(self, set_of_taxid):
