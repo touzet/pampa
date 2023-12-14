@@ -5,6 +5,13 @@ sequences.py
 
 """
 
+f"""
+
+sequences.py                         
+
+
+"""
+
 from pyteomics import parser
 from Bio import SeqIO
 from Bio import pairwise2
@@ -12,6 +19,7 @@ from Bio.pairwise2 import format_alignment
 from utils import *
 from markers import *
 from peptide_table import *
+import re
 
 class Sequence(object):
     def __init__(self, sequence="", taxid="", taxon_name="", seqid="", protein="", rank="", comment=""):
@@ -30,7 +38,7 @@ class Sequence(object):
         return f"Sequence{self.seqid} \t{self.taxid}\t{self.taxon_name.lstrip()}\t{self.sequence}\t{self.protein}\t{self.rank}\t{self.comment}"
 
 
-def in_silico_digestion(set_of_sequences, number_of_misscleavages, min_length, mature):
+def in_silico_digestion(set_of_sequences, number_of_misscleavages, min_length, max_length, mature):
     """ build a set of markers from a set of sequences by in silico digestion"""
     set_of_markers=set()
     for s in set_of_sequences:
@@ -42,6 +50,8 @@ def in_silico_digestion(set_of_sequences, number_of_misscleavages, min_length, m
         set_of_peptides=parser.icleave(mature_seq, parser.expasy_rules['trypsin'], number_of_misscleavages, min_length)
         for (pos, peptide) in set_of_peptides:
             if ('Z' in peptide or 'B' in peptide or 'X' in peptide):
+                continue
+            if len(peptide)>max_length:
                 continue
             new_marker=Marker()
             new_marker.sequence=peptide
@@ -84,3 +94,26 @@ def mature_sequence(seq):
 
     return (min,max)
         
+
+def extract_relevant_sequences(set_of_sequences, extract_file):
+    """
+    build a new set of markers which is complinat with the specification of the summary file extract_file (TSV file) 
+    """
+    new_set=set()
+    summary_file=open(extract_file).read().splitlines()
+    for line in summary_file:
+        entry= re.split('\t', line)
+        entry = [item for item in entry if len(item)>0] 
+        if len(entry)==1: # selection of the organism
+            supp_set=(s for s in  set_of_sequences if (s.taxon_name).replace(" ", "").lower()==(entry[0]).replace(" ", "").lower() )
+        elif len(entry)==2:
+            supp_set=(s for s in  set_of_sequences if (s.taxon_name).replace(" ", "").lower()==(entry[0]).replace(" ", "").lower() and s.protein==entry[1])
+        elif len(entry)==3:
+             supp_set=(s for s in  set_of_sequences if s.seqid==entry[2])
+        else:
+            supp_set=set()
+        new_set=new_set.union(supp_set)
+    return new_set
+
+    
+
