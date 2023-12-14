@@ -60,5 +60,3 @@ def build_peptide_table_from_set_of_markers(set_of_markers,tsv_outfile_name, app
         tsv_file.write(str(marker)+"\n")
     tsv_file.close()
 
-
-
