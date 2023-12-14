@@ -4,6 +4,7 @@
 
 import copy
 import sys
+import re
 from utils import *
 
 class Marker(object):
@@ -33,17 +34,15 @@ def sort_by_masses(set_of_markers):
     mass_taxid_name_list=create_mass_Xid_list_from_dict(taxid_name_ptm_to_mass_dict)
     return mass_taxid_name_list
     
-def build_markers_dictionnaries_from_set_of_markers(set_of_markers):
-    set_of_codes=set()
+def build_marker_dictionnaries_from_set_of_markers(set_of_markers):
     set_of_taxid=set()
     taxid_to_taxidname={}
     for current_marker in set_of_markers:
         taxid=current_marker.taxid
         taxid_to_taxidname[taxid]=current_marker.taxon_name
         set_of_taxid.add(taxid)
-        set_of_codes.add(current_marker.code)
     mass_taxid_name_list=sort_by_masses(set_of_markers)
-    return  mass_taxid_name_list, set_of_codes, set_of_taxid, taxid_to_taxidname
+    return  mass_taxid_name_list, set_of_taxid, taxid_to_taxidname
 
 
 def build_markers_pepid_taxid_dictionnaries_from_set_of_markers(set_of_markers):
@@ -201,18 +200,19 @@ def check_set_of_markers(set_of_markers, file=""):
         s={(x[0],dict_count[(x[0],taxid)]) for x in dict_count if x[1]==taxid}
         dict_t[taxid]=s
 
-    print("  Number of species : "+str(len(dict_taxid_to_name))+"\n")
+    #print("  Number of species : "+str(len(dict_taxid_to_name))+"\n")
         
-    set_of_values={frozenset(x) for x in dict_t.values()}
-    for v in set_of_values:
-        print("  ", end="")
-        for (x,y) in v:
-            print(str(y)+" "+str(x)+" ", end="")
-        print("")
-        key_list=[str(t) for t in dict_t if dict_t[t]==v]
-        for t in key_list:
-            print("  "+dict_taxid_to_name[t]+" ["+str(t)+"]  ")
-        print("")
+    #set_of_values={frozenset(x) for x in dict_t.values()}
+    #for v in set_of_values:
+    #    print("  ", end="")
+    #    for (x,y) in v:
+    #        print(str(y)+" "+str(x)+" ", end="")
+    #    print("")
+    #    key_list=[str(t) for t in dict_t if dict_t[t]==v]
+    #    for t in key_list:
+    #        print("  "+dict_taxid_to_name[t]+" ["+str(t)+"]  ")
+    #    print("")
+
     dict_equiv={}
     is_included=set()
    
@@ -236,10 +236,10 @@ def check_set_of_markers(set_of_markers, file=""):
     for taxid in dict_set:
         if len(dict_set[taxid])>1:
             existence=True
-            print("  "+str(dict_set[taxid]))
-            #print("  - ", end="")
-            #for t in dict_set[taxid]:
-            #    print(dict_taxid_to_name[t]+", ", end=" ")        
+            print("  - ", end="")
+            for t in dict_set[taxid]:
+                print(dict_taxid_to_name[t], end="   ")
+            print("")
     if not existence:
         print("  None")
     print("")
@@ -276,3 +276,66 @@ def build_marker_dict_from_set_of_marker(set_of_markers):
     return dict_of_markers
 
 
+def remove_lost_taxid(set_of_markers, lost_taxid):
+    set_of_markers={m for m in set_of_markers if m.taxid not in lost_taxid}
+    return set_of_markers
+    
+def extract_relevant_markers(set_of_markers, extract_file):
+    """
+    build a new set of markers that is compliant with the specification of the summary file extract_file (TSV file) 
+    """
+    new_set=set()
+    summary_file=open(extract_file).read().splitlines()
+    for line in summary_file:
+        entry= re.split('\t', line)
+        entry = [item for item in entry if len(item)>0] 
+        if len(entry)==1: # selection of the organism
+            supp_set={m for m in  set_of_markers if (m.taxon_name).replace(" ", "").lower()==(entry[0]).replace(" ", "").lower() }
+        elif len(entry)==2:
+            supp_set={m for m in  set_of_markers if (m.taxon_name).replace(" ", "").lower()==(entry[0]).replace(" ", "").lower() and m.protein==entry[1]}
+        elif len(entry)==3:
+             supp_set={m for m in  set_of_markers if m.seqid==entry[2]}
+        else:
+            supp_set=set()
+        new_set.update(supp_set)
+        
+    return new_set
+
+    
+# détermine si les marqueurs sont tous bien ordonnés entre les différentes séquences
+# et si oui, renvoie la liste ordonnée.
+def colinearity(set_of_markers):
+
+    dict_taxon_name_to_taxid={m.taxon_name:m.taxid for m in set_of_markers}    
+
+    print("Total number of species: "+str(len( dict_taxon_name_to_taxid))+"\n")
+    
+    list_of_proteins=list({m.protein for m in set_of_markers})
+    for prot in list_of_proteins:
+        print("\nMolecule :"+prot)
+        list_of_seqid=list({(m.taxon_name, m.seqid) for m in set_of_markers if m.protein==prot})
+        list_of_seqid.sort(key=lambda x: x[0])
+        seqid_length=max({len(s[1]) for s in list_of_seqid})
+        taxon_length=max({len(s[0]) for s in list_of_seqid})
+        list_of_codes=list({m.code for m in set_of_markers if m.protein==prot})
+        matrix = [[" " for j in range(len(list_of_codes)+2)] for i in range(len(list_of_seqid)+1)]
+        for code in list_of_codes:
+             matrix[0]=["",""]+list_of_codes
+        for (i,seq) in enumerate(list_of_seqid):
+            matrix[i+1][0]= seq[0]
+            matrix[i+1][1]= seq[1]
+        for m in set_of_markers:
+            if m.protein==prot:
+                matrix[list_of_seqid.index((m.taxon_name, m.seqid))+1][list_of_codes.index(m.code)+2]=m.begin
+
+        s=" "*taxon_length+"\t"+" "*seqid_length
+        for code in list_of_codes:
+            s=s+"\t"+"{:<5}".format(code)
+        print(s)
+        for i in range(len(list_of_seqid)):
+            s="{:<{}}".format(list_of_seqid[i][0], taxon_length)+"\t"+"{:<{}}".format(list_of_seqid[i][1], seqid_length)
+            for j in range(len(list_of_codes)):
+                s=s+"\t"+"{:<5}".format(str(matrix[i+1][j+2]))
+            print(s)
+    print("")
+ 
