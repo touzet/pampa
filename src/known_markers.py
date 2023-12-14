@@ -1,23 +1,16 @@
-#########################################
-##                                     ##
-##         known_markers.py            ##
-##                                     ##
-#########################################
+"""
+known_markers.py            
+
+"""
 
 from utils import *
-from hamming import *
 from compute_masses import *
 from sequences import *
 
-    
-    
-def add_marker(set_of_new_markers, new_marker, set_of_markers):
-    s={m for m in set_of_markers if (m.sequence, m.taxid, m.ptm)==(new_marker.sequence, new_marker.taxid, new_marker.ptm)}
-    if len(s)==0:
-        set_of_new_markers.add(new_marker)
-    else :
-        print("already there: "+new_marker.taxon_name+", "+new_marker.code)
-    return set_of_new_markers
+def hamming_distance(chaine1, chaine2):
+    if len(chaine1)!=len(chaine2):
+        return -1
+    return sum(c1 != c2 for c1, c2 in zip(chaine1, chaine2))
         
 def find_markers_single_sequence(seq,  set_of_digested_peptides, dict_of_model_markers, set_of_markers):
     # seq: protein (object defined in sequences.py)
@@ -126,5 +119,4 @@ def find_markers_all_sequences(set_of_sequences, set_of_markers):
         set_of_markers.update(s)
 
     return set_of_markers
-
 
