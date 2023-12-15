@@ -138,7 +138,7 @@ This module allows to build a new peptide table by homology.
 ```
 usage: 
  
- pampa [-h] build (-p PEPTIDE TABLE) (-o OUTPUT FILE) (-f FASTA file | -d FASTA dir) [-l LIMIT]
+ pampa build [-h] (-p PEPTIDE TABLE) (-o OUTPUT FILE) (-f FASTA file | -d FASTA dir) [-l LIMIT]
 
 This module is for the construction of custom peptide tables.
 
@@ -150,3 +150,13 @@ options:
   -d DIRECTORY      Directory that contains FASTA files
   -l LIMIT          TSV file
   ```
+
+#### Peptide table (-p)
+
+This table contains the list of marker peptides that will be used as models to find new markers in new sequences by homology.
+
+#### Output files (-o)
+
+
+#### Target sequences (-f, -d and -l)
+
