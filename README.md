@@ -21,15 +21,12 @@ Type `pampa assign -h` or `pampa build -h` respectively to print the help.
 
 ## Assign module
 
-This module takes as input a set of mass spectra and tries to find the best taxonomic assignment for each of them. 
-The assignment uses marker peptides, that are gathered in a peptide table. 
+This module takes a set of mass spectra as input and attempts to determine the best taxonomic assignment for each of them. The assignment utilizes marker peptides from representative species, which are compiled in a peptide table. In cases where no marker peptides are available, it is possible to supply FASTA sequences for the automatic inference of peptides through in silico digestion.
 
 ```
 usage: 
  
  pampa assign [-h] (-s SPECTRA PATH) (-e ERROR MARGIN) (-o OUTPUT FILE) (-p PEPTIDE TABLE | -f FASTA file | -d FASTA dir) [-l LIMIT] [-t TAXONOMY] [-n NEIGHBOURING] [-a]
-
-This module is for species identification.
 
 options:
   -h, --help        show this help message and exit
@@ -41,8 +38,8 @@ general options:
 
 options for organism selection:
   -p PEPTIDE_TABLE  Peptide table (TSV file)
-  -f FASTA          Fasta sequences
-  -d DIRECTORY      Directory where to find Fasta files.
+  -f FASTA          Fasta sequences, for in silico digestion
+  -d DIRECTORY      Directory where to find Fasta files
   -l LIMIT          Limit the set of peptides or fasta sequences to organisms, molecules or sequence ID specified in this file (TSV file), optional.
   -t TAXONOMY       Taxonomy (TSV file), optional.
 
@@ -80,7 +77,7 @@ Two other accompanying files are automatically created, in the same directory.
 
 ### Peptide table (-p)
 
-The first way to use pampa for species identification is to provide a list of marker peptides. This list should be organized within a Tab-Separated Values (TSV) file, featuring the following columns:
+The first way to use PAMPA for species identification is to provide a list of marker peptides. This list should be organized within a Tab-Separated Values (TSV) file, featuring the following columns:
 
 - Rank: Taxonomic rank
 - Taxid: Taxonomic identifier
