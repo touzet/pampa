@@ -17,9 +17,14 @@ pampa has two modules:
 - _assign_, for species identifications 
 - _build_, for construction of custom marker peptides.
 
+which are described below.
+
 Type `pampa assign -h` or `pampa build -h` respectively to print the help.
 
 ## Assign module
+
+This module takes as input a set of mass spectra and tries to find the best taxonomic assignment for each of them. 
+The assignment uses marker peptides, that are gathered in a peptide table. 
 
 ```
 usage: 
@@ -58,6 +63,8 @@ _CSV format_: It consists of two columns. The first column is designated for mas
 _MGF format_: Mascot Generic Format
 
 _mzML format_: see https://www.psidev.info/mzML
+
+We recommend deisotoping the mass spectra before processing them.
 
 ### Error margin (-e)
 
@@ -191,7 +198,9 @@ EquusCaballus
 ```          
 The search will be limited to sequences coming from those five organisms.
 
-`    COL1A1`  
+```
+	COL1A1
+```  
 The search will be limited to COL1A1 sequences.  
 
 ```
@@ -201,14 +210,14 @@ StruthioCamelusAustralis  COL1A1  XP_009685373.1
 StruthioCamelusAustralis  COL1A2  XP_009672566.1  
 ```
 
-The search will be limited to four sequences, the ones with the designated identifiers.
+The search will be limited to four sequences, the ones with the designated identifiers.  
 In this example, it would have been equivalent to have 
 
 ```  
-   XP_021136665.1  
-   XP_005504983.1  
-   XP_009685373.1  
-   XP_009672566.1
+		XP_021136665.1  
+		XP_005504983.1
+		XP_009685373.1  
+		XP_009672566.1
 ```  
 
 
