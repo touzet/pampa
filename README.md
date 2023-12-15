@@ -19,7 +19,7 @@ pampa has two modules:
 
 Type `pampa assign -h` or `pampa build -h` respectively to print the help.
 
-### Assign module
+## Assign module
 
 ```
 usage: 
@@ -49,23 +49,23 @@ options for suboptimal solutions:
 
 ```
 
-#### Mass spectra (-s)
+### Mass spectra (-s)
 
 The program processes a batch of mass spectra simultaneously. All mass spectra files are contained within the same folder, with one file dedicated to each mass spectrum. These files should have one of the following extensions: .csv (in CSV format), .mgf (in MGF format), or .mzML (in mzML format). Any other files present will be disregarded. You can specify the path to the folder using the '-s' option.
 
-**CSV format**: It consists of two columns. The first column is designated for mass (m/z), and the second column records intensity (I). Columns are separated by either a comma (',') or a semicolon (';'). The initial row serves as the header.
+_CSV format_: It consists of two columns. The first column is designated for mass (m/z), and the second column records intensity (I). Columns are separated by either a comma (',') or a semicolon (';'). The initial row serves as the header.
 
-**MGF format**: Mascot Generic Format
+_MGF format_: Mascot Generic Format
 
-**mzML format**: see https://www.psidev.info/mzML
+_mzML format_: see https://www.psidev.info/mzML
 
-#### Error margin (-e)
+### Error margin (-e)
 
 The error margin is related to the resolution of the mass spectrometer, that is its ability to distinguish closely spaced peaks. We employ it to set an upper bound on the deviation between a peak and the theoretical mass of the marker peptide. This option is mandatory, and can be expressed in Daltons or in ppm.
  -  If the value is smaller than 1, it is assumed to be in Da. In this case, recommended values are  0.1 for maldi TOF, and 0.01 for maldi FT.
  -  If the value is larger than 1, it is assumend to be in ppm. In this case, recommended values are  XXfor maldi TOF, and 5 for maldi FT.
 
-#### Output files (-o)
+### Output files (-o)
 
 Name of the main output file, in TSV format. This file contains the list of species found for each mass spectrum.
 Two other accompanying files are automatically created, in the same directory.
@@ -73,7 +73,7 @@ Two other accompanying files are automatically created, in the same directory.
 - detail_<outputfile> (TSV file): this file contains the detail of the assignment (which markers are found for which species)
 - report_<outputfile> (TXT file): this file contains a report on the run's inputs (number of mass spectra, number of species tested,  parameters...)
 
-#### Peptide table (-p)
+### Peptide table (-p)
 
 The first way to use pampa for species identification is to provide a list of marker peptides. This list should be organized within a Tab-Separated Values (TSV) file, featuring the following columns:
 
@@ -97,16 +97,16 @@ Most of these fields are optional and are here for reference. The following info
 - You must provide a taxid for the peptide marker. Rank and taxon names are included primarily to enhance the clarity of results.
 - You should furnish either a sequence or a mass for your marker peptide. If the sequence is provided without a mass, the program will automatically compute the mass from it. To do so, it will utilize either the PTM description (when available) or infer potential PTMs from the sequence.
 
-**PTM description**: This is a concise representation of the number of proline oxidations (P) and deamidations (D) necessary to compute the mass of a peptide sequence. For instance, '2P1D' signifies two oxyprolines and one deamidation, '1D4P' represents one deamidation and four oxyprolines, '2P' corresponds to two oxyprolines without any deamidation, and '1D' indicates one deamidation without oxyprolines. To specify that no PTM should be applied, use '0P' or '0D'.
+_PTM description_: This is a concise representation of the number of proline oxidations (P) and deamidations (D) necessary to compute the mass of a peptide sequence. For instance, '2P1D' signifies two oxyprolines and one deamidation, '1D4P' represents one deamidation and four oxyprolines, '2P' corresponds to two oxyprolines without any deamidation, and '1D' indicates one deamidation without oxyprolines. To specify that no PTM should be applied, use '0P' or '0D'.
 In cases where the 'PTM' field is omitted, the program will estimate the potential oxyprolines from the peptide sequence, but deamidations will not be considered.
 
-**Examples**: Sample peptide tables can be found in the 'Peptide_tables' folder.
+_Examples_: Sample peptide tables can be found in the 'Peptide_tables' folder.
 
-## Running the program without peptide tables (-f, -d and -l options)
+### Running the program without peptide tables (-f, -d and -l options)
 
 
 
-#### Taxonomy (-t)
+### Taxonomy (-t)
 
 The program offers the optional possibility to add taxonomic information to the species identification. In this case, you should supply a taxonomy file.
 
@@ -119,19 +119,17 @@ You can obtain this type of file directly from UniProt (https://www.uniprot.org/
   4. Choose the TSV format and customize the columns in the following order: Common name, Scientific name, Parent, and Rank.
   5. Proceed to download the taxonomy file.
 
-**Examples**: Some examples are available in the folder 'Taxonomy'.
+_Examples_: Some examples are available in the folder 'Taxonomy'.
 
-#### Neighbouring (-n)
+### Neighbouring (-n and -a)
 
-This option allows to obtain also near-optimal solutions for species identification.
+The option -n allows to obtain also near-optimal solutions for species identification.
 The suboptimality range is specified as a percentage, ranging between 0 and 100. 
 Default value is 100, meaning that only optimal solutions (with the maximal number of marker petides) are provided. 
 
-#### All solutions (-a)
+The option -a comes with -n. By default, the -n option will generate near-optimal solutions that are not included in any other solution. When the option -a is activated, the program computes all solutions, even those that are included in other solutions.  
 
-This option comes with the preceding option, -n. By default, the -n option will generate near-optimal solutions that are not included in any other solution. When the option -a is activated, the program computes all solutions, even those that are included in other solutions.  
-
-### Build module
+## Build module
 
 This module allows to build a new peptide table by homology.
 
@@ -151,25 +149,25 @@ options:
   -l LIMIT          TSV file
   ```
 
-#### Peptide table (-p)
+### Peptide table (-p)
 
 This table contains the list of marker peptides that will be used as models to find new markers in new sequences by homology.
 
-#### Output files (-o)
+### Output files (-o)
 
 
-#### Target sequences (-f, -d and -l)
+### Target sequences (-f, -d and -l)
 
 The target sequences are the amino-acids sequences in which the new markers are searched. Those sequences can be available either in a (multi-)FASTA file (option -f), or in a directory containing FASTA files (option -d). In both cases, the set of sequences can be 
 _limited_ to a subset of organisms, molecules or sequence identifiers with option -l.
 
-**** Option -f : **** The specified file can contain an arbitrary number of FASTA sequences, coming from various organisms. Two types of FASTA heading are recognized. 
+_Option -f : _ The specified file can contain an arbitrary number of FASTA sequences, coming from various organisms. Two types of FASTA heading are recognized. 
  - Uniprot compliant, with the sequence identifier at the beginning of the heading SeqID and mandatory fields OS, OX and GN:
    `>P02453 CO1A1_BOVIN Collagen alpha-1(I) chain OS=Bos taurus OX=9913 GN=COL1A1 `
 
  - NCBI compliant: 
 
-**** Option -d:****
+_ Option -d:_
 
 
 
