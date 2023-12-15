@@ -13,11 +13,9 @@ Dependencies: Biopython, pyteomics.
 
 ## How to run the program ?
 
-pampa has two modules: 
+pampa has two modules, which are described below:
 - _assign_, for species identifications 
 - _build_, for construction of custom marker peptides.
-
-which are described below.
 
 Type `pampa assign -h` or `pampa build -h` respectively to print the help.
 
