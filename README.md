@@ -169,7 +169,7 @@ _Option -f : _ The specified file can contain an arbitrary number of FASTA seque
 
  - NCBI compliant: 
 
-_ Option -d:_
+_Option -d:_
 
 
 
