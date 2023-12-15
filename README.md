@@ -17,7 +17,7 @@ pampa has two modules:
 - _assign_, for species identifications 
 - _build_, for construction of custom marker peptides.
 
-Type _pampa assign -h_ or _pampa build -h_ respectively to print the help.
+Type `pampa assign -h` or `pampa build -h` respectively to print the help.
 
 ### Assign module
 
@@ -160,3 +160,17 @@ This table contains the list of marker peptides that will be used as models to f
 
 #### Target sequences (-f, -d and -l)
 
+The target sequences are the amino-acids sequences in which the new markers are searched. Those sequences can be available either in a (multi-)FASTA file (option -f), or in a directory containing FASTA files (option -d). In both cases, the set of sequences can be 
+_limited_ to a subset of organisms, molecules or sequence identifiers with option -l.
+
+**** Option -f : **** The specified file can contain an arbitrary number of FASTA sequences, coming from various organisms. Two types of FASTA heading are recognized. 
+ - Uniprot compliant, with the sequence identifier at the beginning of the heading SeqID and mandatory fields OS, OX and GN:
+   `>P02453 CO1A1_BOVIN Collagen alpha-1(I) chain OS=Bos taurus OX=9913 GN=COL1A1 `
+
+ - NCBI compliant: 
+
+**** Option -d:****
+
+
+
+New petides are found by sequence alignment, allowing up to 10% mismatches. Masses are automatically computed.
