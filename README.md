@@ -7,6 +7,10 @@ Pampa (Protein Analysis by Mass Spectrometry for Ancient Species) is a versatile
 - It allows to automatically generate marker peptides, and users can also define their own markers by creating custom peptide tables. 
 - It enables in-depth exploration of various assignment possibilities within the taxonomic space.
 
+## How to install the program ? 
+
+Dependencies: Biopython, pyteomics.
+
 ## How to run the program ?
 
 pampa has two modules: 
@@ -45,7 +49,7 @@ options for suboptimal solutions:
 
 ```
 
-## Mass spectra (-s)
+#### Mass spectra (-s)
 
 The program processes a batch of mass spectra simultaneously. All mass spectra files are contained within the same folder, with one file dedicated to each mass spectrum. These files should have one of the following extensions: .csv (in CSV format), .mgf (in MGF format), or .mzML (in mzML format). Any other files present will be disregarded. You can specify the path to the folder using the '-s' option.
 
@@ -55,13 +59,13 @@ The program processes a batch of mass spectra simultaneously. All mass spectra f
 
 **mzML format**: see https://www.psidev.info/mzML
 
-## Error margin (-e)
+#### Error margin (-e)
 
 The error margin is related to the resolution of the mass spectrometer, that is its ability to distinguish closely spaced peaks. We employ it to set an upper bound on the deviation between a peak and the theoretical mass of the marker peptide. This option is mandatory, and can be expressed in Daltons or in ppm.
  -  If the value is smaller than 1, it is assumed to be in Da. In this case, recommended values are  0.1 for maldi TOF, and 0.01 for maldi FT.
  -  If the value is larger than 1, it is assumend to be in ppm. In this case, recommended values are  XXfor maldi TOF, and 5 for maldi FT.
 
-## Output files (-o)
+#### Output files (-o)
 
 Name of the main output file, in TSV format. This file contains the list of species found for each mass spectrum.
 Two other accompanying files are automatically created, in the same directory.
@@ -69,7 +73,7 @@ Two other accompanying files are automatically created, in the same directory.
 - detail_<outputfile> (TSV file): this file contains the detail of the assignment (which markers are found for which species)
 - report_<outputfile> (TXT file): this file contains a report on the run's inputs (number of mass spectra, number of species tested,  parameters...)
 
-## Peptide table (-p)
+#### Peptide table (-p)
 
 The first way to use pampa for species identification is to provide a list of marker peptides. This list should be organized within a Tab-Separated Values (TSV) file, featuring the following columns:
 
@@ -102,7 +106,7 @@ In cases where the 'PTM' field is omitted, the program will estimate the potenti
 
 
 
-## Taxonomy (-t)
+#### Taxonomy (-t)
 
 The program offers the optional possibility to add taxonomic information to the species identification. In this case, you should supply a taxonomy file.
 
@@ -117,14 +121,32 @@ You can obtain this type of file directly from UniProt (https://www.uniprot.org/
 
 **Examples**: Some examples are available in the folder 'Taxonomy'.
 
-## Neighbouring (-n)
+#### Neighbouring (-n)
 
 This option allows to obtain also near-optimal solutions for species identification.
 The suboptimality range is specified as a percentage, ranging between 0 and 100. 
 Default value is 100, meaning that only optimal solutions (with the maximal number of marker petides) are provided. 
 
-## All solutions (-a)
+#### All solutions (-a)
 
 This option comes with the preceding option, -n. By default, the -n option will generate near-optimal solutions that are not included in any other solution. When the option -a is activated, the program computes all solutions, even those that are included in other solutions.  
 
+### Build module
 
+This module allows to build a new peptide table by homology.
+
+```
+usage: 
+ 
+ pampa [-h] build (-p PEPTIDE TABLE) (-o OUTPUT FILE) (-f FASTA file | -d FASTA dir) [-l LIMIT]
+
+This module is for the construction of custom peptide tables.
+
+options:
+  -h, --help        show this help message and exit
+  -p PEPTIDE_TABLE  TSV file that contains model peptide markers, with sequences.
+  -o OUTPUT         Output path (should include the output file name)
+  -f FASTA          FASTA file that contains new sequences with header with species.
+  -d DIRECTORY      Directory that contains FASTA files
+  -l LIMIT          TSV file
+  ```
