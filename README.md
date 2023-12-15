@@ -4,36 +4,45 @@
 Pampa (Protein Analysis by Mass Spectrometry for Ancient Species) is a versatile software program designed for species identification in ZooMS (Zooarcheological by Mass Spectrometry) through the usage of marker peptides. It offers the following features :
 
 - It can handle any number of mass spectra in a single run.
-- Users can define their own markers by creating custom peptide tables. 
-- The software facilitates the incorporation of taxonomic data.
+- It allows to automatically generate marker peptides, and users can also define their own markers by creating custom peptide tables. 
 - It enables in-depth exploration of various assignment possibilities within the taxonomic space.
 
 ## How to run the program ?
 
+pampa has two modules: 
+- //assign//, for species identifications 
+- //build//, for construction of custom marker peptides.
+
+Type <pampa assign -h> or <pampa build -h> respectively to print the help.
+
+### Assign module
+
 ```
-usage: pampa [-h] -s SPECTRA [-p PEPTIDE_TABLE] [-f FASTA] [-E ENTRY] [-d DIRECTORY] -r RESOLUTION [-t TAXONOMY] [-a AMPLITUDE] -o OUTFILE
+usage: 
+ 
+ pampa assign [-h] (-s SPECTRA PATH) (-e ERROR MARGIN) (-o OUTPUT FILE) (-p PEPTIDE TABLE | -f FASTA file | -d FASTA dir) [-l LIMIT] [-t TAXONOMY] [-n NEIGHBOURING] [-a]
+
+This module is for species identification.
 
 options:
-  -h, --help            show this help message and exit
-  -s SPECTRA, --spectra SPECTRA
-                        Path to the spectra files (one spectrum per file).
-                        Authorized formats: CSV, MGF, mzML.
-  -p PEPTIDE_TABLE, --peptide_table PEPTIDE_TABLE
-                        List of peptide markers (TSV file)
-  -f FASTA, --fasta FASTA
-                        Fasta sequences
-  -E ENTRY, --Entry ENTRY
-                        List of Fasta files (TSV files)
-  -d DIRECTORY, --directory DIRECTORY
-                        Directory where to find Fasta files.
-  -r RESOLUTION, --resolution RESOLUTION
-                        Resolution. Recommended values: 0.01 for maldi FT and 0.1 for maldi TOF.
-  -t TAXONOMY, --taxonomy TAXONOMY
-                        Taxonomy (TSV file)
-  -a AMPLITUDE, --amplitude AMPLITUDE
-                        Minimal number of markers (percentage between 0 and 100)
-  -o OUTFILE, --outfile OUTFILE
-                        Output file name
+  -h, --help        show this help message and exit
+
+general options:
+  -s SPECTRA        Path to the spectra files (one spectrum per file). Authorized formats: cvs, mgd, mzML.
+  -e ERROR          Maximal error margin for the observation (in Dalton or ppm). 
+  -o OUTPUT         Output path (should include the output file name)
+
+options for organism selection:
+  -p PEPTIDE_TABLE  Peptide table (TSV file)
+  -f FASTA          Fasta sequences
+  -d DIRECTORY      Directory where to find Fasta files.
+  -l LIMIT          Limit the set of peptides or fasta sequences to organisms, molecules or sequence ID specified in this file (TSV file), optional.
+  -t TAXONOMY       Taxonomy (TSV file), optional.
+
+options for suboptimal solutions:
+  -n NEIGHBOUR      Provide near-optimal solutions within a specified percentage margin, ranging between 0 and 100. Default is 100. With this value, only optimal solutions are provided.
+  -a                Provide all solutions, and not only suboptimal solutions, within the percentage margin specified with option -n. 
+
 ```
 
 ## Mass spectra (-s)
