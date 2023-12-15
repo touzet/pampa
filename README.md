@@ -106,7 +106,57 @@ _Examples_: Sample peptide tables can be found in the 'Peptide_tables' folder.
 
 ### Running the program without peptide tables (-f, -d and -l options)
 
+When no marker peptides are available, it is possible to provide FASTA sequences for the representative species instead. These sequences will undergo in silico digestion to identify all tryptic peptides, allowing for up to one missed cleavage. Masses are then automatically computed. 
 
+The provided sequences can be available either in a (multi-)FASTA file ('-f'option), or in a directory containing FASTA files ('-d' option). In both cases, the set of sequences can optionnally be _limited_ to a subset of organisms, molecules or sequence identifiers with '-l' option.
+
+_Option -f :_ The specified file can contain an arbitrary number of FASTA sequences, coming from various organisms. Two types of FASTA heading are recognized. 
+ - UniprotKB-like, with some sequence identifier at the beginning of the heading, and mandatory fields OS (scientific name of the organism) , OX (taxonomomic identifier of the sorganism, such as assigned by the NCBI) and GN (Gene Name):
+     
+   `>P02453 CO1A1_BOVIN Collagen alpha-1(I) chain OS=Bos taurus OX=9913 GN=COL1A1 `
+
+ - NCBI-like 
+
+_Option -d:_ The directory can contain an arbitrary number of FASTA files, following the same requirements as with '-f' option.
+Only files with extension _.fa_ or _.fasta_ will be examined. 
+
+_Option -l:_ This option allows to filter the set of FASTA sequences according to the organism, the molecule (gene name) or the sequence identifier. It takes as paramater a user-defined TSV file, the limit file, that should contain three columns:
+ - the first column is for the name of the organism,
+ - the second column is for the gene name,
+ - the third column is for the sequence identifier.  
+
+Empty fields will apply no contraints.  Here are some examples.
+
+```
+CastorCanadensis  
+DicerosBicornis  
+CervusElaphus           
+BosTaurus               
+EquusCaballus   
+```          
+The search will be limited to sequences coming from those five organisms.
+
+```
+	COL1A1
+```  
+The search will be limited to COL1A1 sequences.  
+
+```
+ColumbaLivia              COL1A1  XP_021136665.1    
+ColumbaLivia              COL1A2  XP_005504983.1  
+StruthioCamelusAustralis  COL1A1  XP_009685373.1  
+StruthioCamelusAustralis  COL1A2  XP_009672566.1  
+```
+
+The search will be limited to four sequences, the ones with the designated identifiers.  
+In this example, it would have been equivalent to have 
+
+```  
+		XP_021136665.1  
+		XP_005504983.1
+		XP_009685373.1  
+		XP_009672566.1
+```  
 
 ### Taxonomy (-t)
 
