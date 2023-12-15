@@ -163,7 +163,7 @@ This table contains the list of marker peptides that will be used as models to f
 The target sequences are the amino-acids sequences in which the new markers are searched. Those sequences can be available either in a (multi-)FASTA file (option -f), or in a directory containing FASTA files (option -d). In both cases, the set of sequences can be 
 _limited_ to a subset of organisms, molecules or sequence identifiers with option -l.
 
-_Option -f : _ The specified file can contain an arbitrary number of FASTA sequences, coming from various organisms. Two types of FASTA heading are recognized. 
+_Option -f :_ The specified file can contain an arbitrary number of FASTA sequences, coming from various organisms. Two types of FASTA heading are recognized. 
  - Uniprot compliant, with the sequence identifier at the beginning of the heading SeqID and mandatory fields OS, OX and GN:  
    `>P02453 CO1A1_BOVIN Collagen alpha-1(I) chain OS=Bos taurus OX=9913 GN=COL1A1 `
 
