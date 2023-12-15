@@ -169,8 +169,9 @@ _Option -f :_ The specified file can contain an arbitrary number of FASTA sequen
 
  - NCBI compliant: 
 
-_Option -d:_
+_Option -d:_ The directory can contain an arbitrary number of FASTA files, following the same requirements as with '-f' option.
+Only files with extension _.fa_ or _.fasta_ are taken into consideration.
 
-
+_Option -l:_ 
 
 New petides are found by sequence alignment, allowing up to 10% mismatches. Masses are automatically computed.
