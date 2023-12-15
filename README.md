@@ -182,28 +182,27 @@ _Option -l:_ This option allows to filter the set of FASTA sequences according t
 
 Empty fields will apply no contraints.  Here are some examples.
 
-`CastorCanadensis
-DicerosBicornis
+`CastorCanadensis  
+DicerosBicornis  
 CervusElaphus           
 BosTaurus               
-EquusCaballus `          
+EquusCaballus   `          
 The search will be limted to sequences coming from those five organisms.
 
-`    COL1A1`
+`    COL1A1`  
 The search will be limited to COL1A1 sequences.
 
-`ColumbaLivia    COL1A1  XP_021136665.1
-ColumbaLivia    COL1A2  XP_005504983.1
-StruthioCamelusAustralis        COL1A1  XP_009685373.1
-StruthioCamelusAustralis        COL1A2  XP_009672566.1`
+`
+ColumbaLivia              COL1A1  XP_021136665.1    
+ColumbaLivia              COL1A2  XP_005504983.1  
+StruthioCamelusAustralis  COL1A1  XP_009685373.1  
+StruthioCamelusAustralis  COL1A2  XP_009672566.1  `
 The search will be limited to four sequences, the ones with the designated identifiers.
-
-In this example, it would have been equivalent to have
-`  XP_021136665.1
-   XP_005504983.1
-   XP_009685373.1
-   XP_009672566.1`
-
+In this example, it would have been equivalent to have  
+`  XP_021136665.1  
+   XP_005504983.1  
+   XP_009685373.1  
+   XP_009672566.1`  
 
 
 
