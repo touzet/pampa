@@ -13,7 +13,7 @@ Dependencies: Biopython, pyteomics.
 
 ## How to run the program ?
 
-pampa has two modules, which are described below:
+pampa has two main modules, which are described below:
 - _assign_, for species identifications 
 - _build_, for construction of custom marker peptides.
 
@@ -171,7 +171,11 @@ You can obtain this type of file directly from UniProt (https://www.uniprot.org/
   4. Choose the TSV format and customize the columns in the following order: Common name, Scientific name, Parent, and Rank.
   5. Proceed to download the taxonomy file.
 
-_Examples_: Some examples are available in the folder 'Taxonomy'.
+When a taxonomy is provided, the software will indicate, for each spectrum, the taxonomic resolution of the assignment. This is computed as the largest clade of the taxonomy that is compatible with the prediction.
+
+_Examples_: example files are available in the folder 'Taxonomy'.
+
+
 
 ### Neighbouring (-n and -a)
 
