@@ -1,6 +1,9 @@
 """
 fasta_parsing.py              
+
+
 """
+
 
 from Bio import SeqIO
 from Bio.SeqIO import parse 
@@ -9,8 +12,6 @@ import Bio.SwissProt
 import re
 import glob
 import os
-from os.path import join
-
 import markers 
 import sequences 
 from taxonomy import *
@@ -27,13 +28,13 @@ def parse_fasta_NCBI_header(header, gene_name, taxonomy):
     new_sequence.taxon_name=taxon_name
     new_sequence.taxid=search_taxid_from_taxon_name(taxon_name, taxonomy)
     if new_sequence.taxid==None:
-        print("Taxon manquant: "+taxon_name)
+        print("Missing taxon: "+taxon_name)
     new_sequence.protein=gene_name
     fields=header.split(" ") # pour le SeqID - ne marche pas avec le "vrai" format uniprot
     new_sequence.seqid=fields[0]
     return new_sequence
 
-  
+ 
 def parse_fasta_uniprot_header(header):
     """ parsing fasta uniprot headers  """
     new_sequence=sequences.Sequence()
@@ -76,6 +77,8 @@ def build_set_of_sequences_from_fasta_file(fasta_file_name, gene_name="", taxono
     return set_of_sequences
 
 
+# prend en entrée un fichier texte qui contient une liste de fichiers au format Fasta
+#PROT: TRUE if protein, FALSE if peptide 
 def build_set_of_sequences_from_fasta_files(list_of_files):
     set_of_sequences=set()
     summary_file=open(list_of_files).read().splitlines()
@@ -89,12 +92,11 @@ def build_set_of_sequences_from_line_fasta_files(line, dir):
     entry= re.split('\t', line)
     entry = [item for item in entry if len(item)>0] 
     if len(entry)==1:
-        files = [file for file in glob.glob(join(dir, entry[0]+"*.fasta"))]
-        #print(files)
+        files = [file for file in glob.glob(os.path.join(dir, entry[0]+"*.fasta"))]
     elif len(entry)==2:
-        files = [file for file in glob.glob(join(dir, entry[0]+"_"+entry[1]+"*.fasta"))]
+        files = [file for file in glob.glob(os.path.join(dir, entry[0]+"_"+entry[1]+"*.fasta"))]
     elif len(entry)==3:
-        files= [join(dir, entry[0]+"_"+entry[1]+"_"+entry[2]+".fasta")]
+        files= [os.path.join(dir, entry[0]+"_"+entry[1]+"_"+entry[2]+".fasta")]
     else:
         return set()
     for fasta_file in files:
@@ -105,10 +107,9 @@ def build_set_of_sequences_from_line_fasta_files(line, dir):
 
 def build_set_of_sequences_from_fasta_dir(fasta_dir):
     set_of_sequences=set()
-    fasta_files = [file for file in glob.glob(join(fasta_dir, "*.fasta"))]
+    fasta_files = [file for file in glob.glob(os.path.join(fasta_dir, "*.f*a"))]
     for fasta_file in fasta_files:
-        file_name= os.path.join(fasta_dir, fasta_file)
-        set_of_new_sequences= build_set_of_sequences_from_fasta_file(file_name)
+        set_of_new_sequences= build_set_of_sequences_from_fasta_file(fasta_file)
         set_of_sequences.update(set_of_new_sequences)
     return set_of_sequences
 
@@ -162,3 +163,4 @@ def build_set_of_sequences(entry, fasta):
         else:
             return build_set_of_sequences_from_fasta_file(fasta, gene_name="",taxonomy=None)
     
+            
