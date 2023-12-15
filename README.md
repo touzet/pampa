@@ -133,7 +133,10 @@ When used together with '-n,'  the '-a' option allows to change this, so that th
 
 ## Build module
 
-This module allows to build a new peptide table by homology.
+This module allows the construction of a new peptide table based on homology. The input consists of a set of well-defined marker peptides, and the goal is to search a set of target protein sequences for similar peptides.
+
+New peptides are discovered through sequence alignment, allowing up to 10% mismatches. The algorithm also verifies that the new peptides can undergo tryptic digestion and infers new cleavage sites when necessary. Masses are automatically computed.
+
 
 ```
 usage: 
@@ -160,18 +163,48 @@ This table contains the list of marker peptides that will be used as models to f
 
 ### Target sequences (-f, -d and -l)
 
-The target sequences are the amino-acids sequences in which the new markers are searched. Those sequences can be available either in a (multi-)FASTA file (option -f), or in a directory containing FASTA files (option -d). In both cases, the set of sequences can be 
-_limited_ to a subset of organisms, molecules or sequence identifiers with option -l.
+The target sequences are the amino-acids sequences in which the new markers are searched. Those sequences can be available either in a (multi-)FASTA file ('-f'option), or in a directory containing FASTA files ('-d' option). In both cases, the set of sequences can optionnally be _limited_ to a subset of organisms, molecules or sequence identifiers with '-l' option.
 
 _Option -f :_ The specified file can contain an arbitrary number of FASTA sequences, coming from various organisms. Two types of FASTA heading are recognized. 
- - Uniprot compliant, with the sequence identifier at the beginning of the heading SeqID and mandatory fields OS, OX and GN:  
+ - UniprotKB-like, with some sequence identifier at the beginning of the heading, and mandatory fields OS (scientific name of the organism) , OX (taxonomomic identifier of the sorganism, such as assigned by the NCBI) and GN (Gene Name):
+     
    `>P02453 CO1A1_BOVIN Collagen alpha-1(I) chain OS=Bos taurus OX=9913 GN=COL1A1 `
 
- - NCBI compliant: 
+ - NCBI-like 
 
 _Option -d:_ The directory can contain an arbitrary number of FASTA files, following the same requirements as with '-f' option.
-Only files with extension _.fa_ or _.fasta_ are taken into consideration.
+Only files with extension _.fa_ or _.fasta_ will be examined. 
 
-_Option -l:_ 
+_Option -l:_ This option allows to filter the set of FASTA sequences according to the organism, the molecule (gene name) or the sequence identifier. It takes as paramater a user-defined TSV file, the limit file, that should contain three columns:
+ - the first column is for the name of the organism,
+ - the second column is for the gene name,
+ - the third column is for the sequence identifier.  
 
-New petides are found by sequence alignment, allowing up to 10% mismatches. Masses are automatically computed.
+Empty fields will apply no contraints.  Here are some examples.
+
+`CastorCanadensis
+DicerosBicornis
+CervusElaphus           
+BosTaurus               
+EquusCaballus `          
+The search will be limted to sequences coming from those five organisms.
+
+`    COL1A1`
+The search will be limited to COL1A1 sequences.
+
+`ColumbaLivia    COL1A1  XP_021136665.1
+ColumbaLivia    COL1A2  XP_005504983.1
+StruthioCamelusAustralis        COL1A1  XP_009685373.1
+StruthioCamelusAustralis        COL1A2  XP_009672566.1`
+The search will be limited to four sequences, the ones with the designated identifiers.
+
+In this example, it would have been equivalent to have
+`  XP_021136665.1
+   XP_005504983.1
+   XP_009685373.1
+   XP_009672566.1`
+
+
+
+
+
