@@ -10,7 +10,7 @@ Pampa (Protein Analysis by Mass Spectrometry for Ancient Species) is a versatile
 ## How to run the program ?
 
 pampa has two modules: 
-- //assign//, for species identifications 
+- \\assign\\, for species identifications 
 - //build//, for construction of custom marker peptides.
 
 Type <pampa assign -h> or <pampa build -h> respectively to print the help.
@@ -55,9 +55,23 @@ The program processes a batch of mass spectra simultaneously. All mass spectra f
 
 **mzML format**: see https://www.psidev.info/mzML
 
-## Peptide tables (-p)
+## Error margin (-e)
 
-The list of peptide markers used for species identification should be organized within a Tab-Separated Values (TSV) file, featuring the following columns:
+The error margin is related to the resolution of the mass spectrometer, that is its ability to distinguish closely spaced peaks. We employ it to set an upper bound on the deviation between a peak and the theoretical mass of the marker peptide. This option is mandatory, and can be expressed in Daltons or in ppm.
+ -  If the value is smaller than 1, it is assumed to be in Da. In this case, recommended values are  0.1 for maldi TOF, and 0.01 for maldi FT.
+ -  If the value is larger than 1, it is assumend to be in ppm. In this case, recommended values are  XXfor maldi TOF, and 5 for maldi FT.
+
+## Output files (-o)
+
+Name of the main output file, in TSV format. This file contains the list of species found for each mass spectrum.
+Two other accompanying files are automatically created, in the same directory.
+
+- detail_<outputfile> (TSV file): this file contains the detail of the assignment (which markers are found for which species)
+- report_<outputfile> (TXT file): this file contains a report on the run's inputs (number of mass spectra, number of species tested,  parameters...)
+
+## Peptide table (-p)
+
+The first way to use pampa for species identification is to provide a list of marker peptides. This list should be organized within a Tab-Separated Values (TSV) file, featuring the following columns:
 
 - Rank: Taxonomic rank
 - Taxid: Taxonomic identifier
@@ -84,11 +98,9 @@ In cases where the 'PTM' field is omitted, the program will estimate the potenti
 
 **Examples**: Sample peptide tables can be found in the 'Peptide_tables' folder.
 
-## Running the program without peptide tables (-f, -E and -d options)
+## Running the program without peptide tables (-f, -d and -l options)
 
-## Resolution (-r)
 
-Resolution refers to the mass spectrometer's ability to distinguish closely spaced peaks. In the program, we employ it to set an upper limit on the deviation between a peak and the theoretical mass of the marker peptide. This option is mandatory. Recommended values are  0.1 for maldi TOF, and 0.01 for maldi FT.
 
 ## Taxonomy (-t)
 
@@ -105,14 +117,14 @@ You can obtain this type of file directly from UniProt (https://www.uniprot.org/
 
 **Examples**: Some examples are available in the folder 'Taxonomy'.
 
-## Amplitude (-a)
+## Neighbouring (-n)
 
-Default value is 100. 
+This option allows to obtain also near-optimal solutions for species identification.
+The suboptimality range is specified as a percentage, ranging between 0 and 100. 
+Default value is 100, meaning that only optimal solutions (with the maximal number of marker petides) are provided. 
 
-## Output files (-o)
+## All solutions (-a)
 
-Name of the main output file, in TSV format. This file contains the list of species found for each mass spectrum.
-Two other accompanying files are automatically created:
+This option comes with the preceding option, -n. By default, the -n option will generate near-optimal solutions that are not included in any other solution. When the option -a is activated, the program computes all solutions, even those that are included in other solutions.  
 
-- detail_<outputfile> (TSV file): this file contains the detail of the assignment (which markers are found for which species)
-- report_<outputfile> (TXT file): this file contains a report on the run's inputs (number of mass spectra, number of species tested,  parameters...)
+
