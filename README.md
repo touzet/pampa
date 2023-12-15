@@ -123,11 +123,13 @@ _Examples_: Some examples are available in the folder 'Taxonomy'.
 
 ### Neighbouring (-n and -a)
 
-The option -n allows to obtain also near-optimal solutions for species identification.
-The suboptimality range is specified as a percentage, ranging between 0 and 100. 
-Default value is 100, meaning that only optimal solutions (with the maximal number of marker petides) are provided. 
+The option -n allows to obtain near-optimal solutions for species identification.
+You can set the suboptimality range as a percentage from 0 to 100, with the default being 100 
+(corresponding to solutions with the maximal number of marker peptides found). 
+For example, if the optimal solutions has 11 marker peptides, '-n 80' will provide solutions with 9 markers or more.
 
-The option -a comes with -n. By default, the -n option will generate near-optimal solutions that are not included in any other solution. When the option -a is activated, the program computes all solutions, even those that are included in other solutions.  
+By default, the '-n' option will generate only near-optimal solutions that are not included in any other solution.
+When used together with '-n,'  the '-a' option allows to change this, so that the program computes all solutions, even those that are included in other solutions.  
 
 ## Build module
 
