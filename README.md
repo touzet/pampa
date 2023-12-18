@@ -9,15 +9,23 @@ Pampa (Protein Analysis by Mass Spectrometry for Ancient Species) is a versatile
 
 ## How to install the program ? 
 
-Dependencies: Biopython, pyteomics.
+PAMPA  can be installed either by downloading the source code or cloning this repository. It is written sin Python 3.7 and necessitates the Biopython and pyteomics librairies.
+
+	- downloading, as a zip file: button on the right-hand side of the screen
+ 	- cloning: 
+  	- biopython (https://biopython.org/): `pip install biopython`
+ 	- pyteomics (https://pypi.org/project/pyteomics/): `pip install pyteomics`
+  
+
+
 
 ## How to run the program ?
 
-pampa has two main modules, which are described below:
+PAMPA has two main modules, which are described below:
 - _assign_, for species identifications 
 - _build_, for construction of custom marker peptides.
 
-Type `pampa assign -h` or `pampa build -h` respectively to print the help.
+Type `python3 pampa assign -h` or `python3 pampa build -h` respectively to print the help.
 
 ## Assign module
 
@@ -26,7 +34,7 @@ This module takes a set of mass spectra as input and attempts to determine the b
 ```
 usage: 
  
- pampa assign [-h] (-s SPECTRA PATH) (-e ERROR MARGIN) (-o OUTPUT FILE) (-p PEPTIDE TABLE | -f FASTA file | -d FASTA dir) [-l LIMIT] [-t TAXONOMY] [-n NEIGHBOURING] [-a]
+ python3 pampa assign [-h] (-s SPECTRA PATH) (-e ERROR MARGIN) (-o OUTPUT FILE) (-p PEPTIDE TABLE | -f FASTA file | -d FASTA dir) [-l LIMIT] [-t TAXONOMY] [-n NEIGHBOURING] [-a]
 
 options:
   -h, --help        show this help message and exit
@@ -197,7 +205,7 @@ New peptides are discovered through sequence alignment, allowing up to 10% misma
 ```
 usage: 
  
- pampa build [-h] (-p PEPTIDE TABLE) (-o OUTPUT FILE) (-f FASTA file | -d FASTA dir) [-l LIMIT]
+ python3 pampa build [-h] (-p PEPTIDE TABLE) (-o OUTPUT FILE) (-f FASTA file | -d FASTA dir) [-l LIMIT]
 
 This module is for the construction of custom peptide tables.
 
