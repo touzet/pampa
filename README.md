@@ -11,8 +11,8 @@ Pampa (Protein Analysis by Mass Spectrometry for Ancient Species) is a versatile
 
 PAMPA  can be installed either by downloading the source code or cloning this repository. It is written sin Python 3.7 and necessitates the Biopython and pyteomics librairies.
 
- - downloading, as a zip file: button 'code<>' on the right-hand side of the screen
- - cloning:   
+ - downloading, as a zip file: button _code<>_ on the right-hand side of the screen
+ - cloning: `git clone `  
  - biopython (https://biopython.org/): `pip install biopython`
  - pyteomics (https://pypi.org/project/pyteomics/): `pip install pyteomics`
   
