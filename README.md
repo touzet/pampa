@@ -49,8 +49,10 @@ options for organism selection:
   -t TAXONOMY       Taxonomy (TSV file), optional.
 
 options for suboptimal solutions:
-  -n NEIGHBOUR      Provide near-optimal solutions within a specified percentage margin, ranging between 0 and 100. Default is 100. With this value, only optimal solutions are provided.
-  -a                Provide all solutions, and not only suboptimal solutions, within the percentage margin specified with option -n. 
+  -n NEIGHBOUR      Provide near-optimal solutions within a specified percentage margin, ranging between 0 and 100.
+                    Default is 100. With this value, only optimal solutions are provided.
+  -a                Provide all solutions, and not only suboptimal solutions, within the percentage margin specified
+                    with option -n. 
 
 ```
 
