@@ -9,29 +9,59 @@ Pampa (Protein Analysis by Mass Spectrometry for Ancient Species) is a versatile
 
 ## How to install the program ? 
 
-PAMPA  can be installed either by downloading the source code or cloning this repository. It is written in Python 3.7 and necessitates the Biopython and pyteomics librairies.
+PAMPA is written in Python 3.7, and comes in two versions:
+ - pampa_light, that provides preset options and easier usage for taxomic assignment, 
+ - pampa, that provides the full functionnalities of the programm
+
+Both versions can be installed either by downloading the source code or cloning this repository.  Additionaly, the full version of pampa necessitates the Biopython and pyteomics libraries.  pampa_light has no external dependencies
 
  - downloading, as a zip file: button _code<>_ on the right-hand side of the screen
  - cloning: `git clone https://github.com/touzet/anc_prot.git`  
  - biopython (https://biopython.org/): `pip install biopython`
  - pyteomics (https://pypi.org/project/pyteomics/): `pip install pyteomics`
 
+
 ## How to run the program ?
+
+The usage of pampa_light is described below. 
 
 PAMPA has two main modules, which are described below:
 - _assign_, for species identifications 
 - _build_, for construction of custom marker peptides.
 
-Type `python3 pampa assign -h` or `python3 pampa build -h` respectively to print the help.
+Type `python3 pampa.py assign -h` or `python3 pampa build -h` respectively to print the help.
 
-## Assign module
+## PAMPA light
+
+```
+usage: 
+ 
+ python3 pampa.py assign [-h]
+	(-s SPECTRA PATH)
+	(-e ERROR MARGIN)
+	(-o OUTPUT FILE)
+	(-p PEPTIDE TABLE)
+	[-l LIMIT]
+	[-n NEIGHBOURING]
+	[-a]
+```
+
+## PAMPA ASSIGN 
 
 This module takes a set of mass spectra as input and attempts to determine the best taxonomic assignment for each of them. The assignment utilizes marker peptides from representative species, which are compiled in a peptide table. In cases where no marker peptides are available, it is possible to supply FASTA sequences for the automatic inference of peptides through in silico digestion.
 
 ```
 usage: 
  
- python3 pampa assign [-h] (-s SPECTRA PATH) (-e ERROR MARGIN) (-o OUTPUT FILE) (-p PEPTIDE TABLE | -f FASTA file | -d FASTA dir) [-l LIMIT] [-t TAXONOMY] [-n NEIGHBOURING] [-a]
+ python3 pampa.py assign [-h]
+	(-s SPECTRA PATH)
+	(-e ERROR MARGIN)
+	(-o OUTPUT FILE)
+	(-p PEPTIDE TABLE | -f FASTA file | -d FASTA dir)
+	[-l LIMIT]
+	[-t TAXONOMY]
+	[-n NEIGHBOURING]
+	[-a]
 
 options:
   -h, --help        show this help message and exit
@@ -194,7 +224,7 @@ For example, if the optimal solutions has 11 marker peptides, '-n 80' will provi
 By default, the '-n' option will generate only near-optimal solutions that are not included in any other solution.
 When used together with '-n,'  the '-a' option allows to change this, so that the program computes all solutions, even those that are included in other solutions.  
 
-## Build module
+## PAMPA BUILD 
 
 This module allows the construction of a new peptide table based on homology. The input consists of a set of well-defined marker peptides, and the goal is to search a set of target protein sequences for similar peptides.
 
