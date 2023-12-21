@@ -50,7 +50,9 @@ usage: python3 pampa.py assign [-h]
 	[-a]
 ```
 
-### Mass spectra (-s)
+### Mass spectra (-s) 
+
+__This option in mandatory.__
 
 The program processes a batch of mass spectra simultaneously. All mass spectra files are contained within the same folder, with one file dedicated to each mass spectrum. These files should have one of the following extensions: .csv or .txt (in CSV format), .mgf (in MGF format), or .mzML (in mzML format). Any other files present will be disregarded. You can specify the path to the folder using the '-s' option.
 
@@ -64,13 +66,17 @@ We recommend deisotoping the mass spectra before processing them.
 
 ### Error margin (-e)
 
+__This option in mandatory.__
+
 The error margin is related to the resolution of the mass spectrometer, that is its ability to distinguish closely spaced peaks. We employ it to set an upper bound on the deviation between a peak and the theoretical mass of the marker peptide. This option is mandatory, and can be expressed in Daltons or in ppm.
  -  If the value is smaller than 1, it is assumed to be in Da (Daltons). In this case, recommended values are  0.1 for maldi TOF, and 0.01 for maldi FT.
  -  If the value is larger than 1, it is assumed to be in ppm (parts per million). In this case, recommended values are 50 for maldi TOF, and 5 for maldi FTICR.
 
 ### Output files (-o)
 
-This option enables you to specify the name of the main output file in TSV format. You can include the desired path to the directory where the file should be created. If the specified directory does not exist, it will be created automatically.
+__This option in mandatory.__
+
+This option enables you to specify the name of the main output file, in TSV format. You can include the desired path to the directory where the file should be created. If the specified directory does not exist, it will be created automatically.
 
 For each spectrum, the output file will give the best assignment, based the highest number of marker peptides. It contains the following information:
 - Peaks from the spectrum that match the marker petides,  
@@ -82,7 +88,7 @@ For each spectrum, the output file will give the best assignment, based the high
 Two other accompanying files are automatically created, in the same directory.
 
 - detail_&lt;outputfile&gt; (TSV file): this file contains the detail of the assignment (which markers are found for which species). It alos provides the intensity of the peaks used in the assignment.
-- report_@lt;outputfile&lt; (TXT file): this file contains a report on the run's inputs (number of mass spectra, number of species tested,  parameters...)
+- report_&lt;outputfile&lt; (TXT file): this file contains a report on the run's inputs (number of mass spectra, number of species tested,  parameters...)
 
 ### Organism selection (-- mammals, -l)
 
