@@ -129,9 +129,10 @@ PTM=O
 
 ### Neighbouring (-n and -a)
 
-The option -n allows to obtain near-optimal solutions for species identification.
-You can set the suboptimality range as a percentage from 0 to 100, with the default being 100 
-(corresponding to solutions with the maximal number of marker peptides found). 
+By default, PAMPA identifies the species with the highest number of marker peptides. 
+The -n option allows to obtain also near-optimal solutions. For that, you can set the suboptimality 
+range as a percentage from 0 to 100, with the default being 100 
+(corresponding to solutions with the highest number of marker peptides). 
 For example, if the optimal solutions has 11 marker peptides, '-n 80' will provide solutions with 9 markers or more.
 
 By default, the '-n' option will generate only near-optimal solutions that are not included in any other solution.
