@@ -79,38 +79,38 @@ Two other accompanying files are automatically created, in the same directory.
 
 pampa_light uses predefined peptide tables, accompanied by the NCBI taxonomy.
 
-The -l option allows to filter the peptide table according to several criteria:  organism,  molecule (gene name),  sequence identifier or the set of PTMs (post-translational modifications) to apply. 
-For that, the option takes as parameter a text file, that describes the constraints to make. Each line should begin with the following syntax: 
-- The prefix "OS=" is for the set of authorized organisms
-- The prefix "GN=" is for the set of authorized gene names
-- The prefix "PTM" is for the set of authorized PTMs
-- The prefix "SeqID" is for the set of authorized sequence identifiers.
+
+It is possible to filter the peptide table to select elements  according to various criteria such as organism, gene name, sequence identifier, or post-translational modifications (PTMs). For that, you can use the -l option and follow these guidelines:
+
+- Create a text file that outlines your filtering criteria.
+
+- Each line in the file should start with one of these prefixes:
+	- "OS=" for authorized organisms
+	- "GN=" for authorized gene names
+	- "PTM=" for authorized PTMs
+	- "SeqID=" for authorized sequence identifiers
+- Separate elements on a line with commas.
+
+For example, if you want to limit the search to a selection of organisms, your file might look like this:
+```
+OS= Castor Canadensis, Diceros Bicornis, Cervus Elaphus, Bos Taurus, Equus Caballus   
+```   
+Of course, you can combine constraints to narrow down your search. For instance, limiting the search to markers coming from COL1A2 gives:
+```
+OS= Castor Canadensis, Diceros Bicornis, Cervus Elaphus, Bos Taurus, Equus Caballus
+GN=COL1A2
+```  
+This means that the search will focus on markers from COL1A2 within the specified organisms.
+
+Assume that you want to refine further this selection and  exclude certain PRMs, such as deamidation and  phosporylation. Then you have to add one contraint to authorize only proline oxylation. This gives:
+```
+OS= Castor Canadensis, Diceros Bicornis, Cervus Elaphus, Bos Taurus, Equus Caballus
+GN=COL1A1
+PTM=O
+```  
 
 PAMPA recognizes three types of PTMs: oxylation of prolines, deamidation of , phosphorilation of , represented by the single-letter code 'O', 'D4 and 'P' respetively.
 
-Here are some examples.
-
-```
-OS= Castor Canadensis, Diceros Bicornis, Cervus Elaphus, Bos Taurus, Equus Caballus   
-```          
-The search will be limited to those five organisms.
-
-```
-GN=COL1A1
-```  
-The search will be limited to COL1A2 markers.  
-
-```
-OS= Columba Livia, Struthio Camelus Australis
-GN=COL1A1
-PTM=O
-```
-
-The search will be limited to markers from those two organisms, for markers coming from COL1A1, and the only PTMs to consider are oxyprolines (O). 
-
-```  
-SeqID= XP_021136665.1,  XP_005504983.1, XP_009685373.1  XP_009672566.1
-```  
 
 
 ### Neighbouring (-n and -a)
