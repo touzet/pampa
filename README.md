@@ -76,44 +76,37 @@ Two other accompanying files are automatically created, in the same directory.
 
 pampa_light uses predefined peptide tables, accompanied by the NCBI taxonomy.
 
-The -l option allows to filter the peptide table according to the organism, the molecule (gene name), the sequence identifier or the set of PTMs to apply. 
-It takes as paramater a user-defined TSV file, that should contain three columns:
- - the first column is for the name of the organism,
- - the second column is for the gene name,
- - the third column is for the sequence identifier,
- - the fourth column is for the authorized PTMs (post-translational modifications).
+The -l option allows to filter the peptide table according to several criteria:  organism,  molecule (gene name),  sequence identifier or the set of PTMs (post-translational modifications) to apply. 
+For that, the option takes as parameter a text file, that describes the constraints to make. Each line should begin with the following syntax: 
+- The prefix "OS=" is for the set of authorized organisms
+- The prefix "GN=" is for the set of authorized gene names
+- The prefix "PTM" is for the set of authorized PTMs
+- The prefix "SeqID" is for the set of authorized sequence identifiers.
 
-Empty fields will apply no contraints.  Here are some examples.
+PAMPA recognizes three types of PTMs: oxylation of prolines, deamidation of , phosphorilation of , represented by the single-letter code 'O', 'D4 and 'P' respetively.
+
+Here are some examples.
 
 ```
-CastorCanadensis  
-DicerosBicornis  
-CervusElaphus           
-BosTaurus               
-EquusCaballus   
+OS= Castor Canadensis, Diceros Bicornis, Cervus Elaphus, Bos Taurus, Equus Caballus   
 ```          
 The search will be limited to those five organisms.
 
 ```
-	COL1A1
+GN=COL1A1
 ```  
-The search will be limited to COL1A1 markers.  
+The search will be limited to COL1A2 markers.  
 
 ```
-ColumbaLivia              COL1A1  XP_021136665.1    
-ColumbaLivia              COL1A2  XP_005504983.1  
-StruthioCamelusAustralis  COL1A1  XP_009685373.1  
-StruthioCamelusAustralis  COL1A2  XP_009672566.1  
+OS= Columba Livia, Struthio Camelus Australis
+GN=COL1A1
+PTM=O
 ```
 
-The search will be limited to markers from those four sequences.  
-In this example, it would have been equivalent to have 
+The search will be limited to markers from those two organisms, for markers coming from COL1A1, and the only PTMs to consider are oxyprolines (O). 
 
 ```  
-		XP_021136665.1  
-		XP_005504983.1
-		XP_009685373.1  
-		XP_009672566.1
+SeqID= XP_021136665.1,  XP_005504983.1, XP_009685373.1  XP_009672566.1
 ```  
 
 
