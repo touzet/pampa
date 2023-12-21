@@ -70,11 +70,19 @@ The error margin is related to the resolution of the mass spectrometer, that is 
 
 ### Output files (-o)
 
-Name of the main output file, in TSV format. This file contains the list of species found for each mass spectrum.
+This option enables you to specify the name of the main output file in TSV format. You can include the desired path to the directory where the file should be created. If the specified directory does not exist, it will be created automatically.
+
+For each spectrum, the output file will give the best assignment, based the highest number of marker peptides. It contains the following information:
+- Peaks from the spectrum that match the marker petides,  
+- Score: the total number of marker peptides, 
+- Assignment: largest subtree of the taxonomy that is compatible with the marker peptides found,
+- Rank: Taxonomic rank of the assignment (e.g. species, genus, family),
+- Species: the list of species supporting the assignment.
+
 Two other accompanying files are automatically created, in the same directory.
 
-- detail_<outputfile> (TSV file): this file contains the detail of the assignment (which markers are found for which species)
-- report_<outputfile> (TXT file): this file contains a report on the run's inputs (number of mass spectra, number of species tested,  parameters...)
+- detail_&lt;outputfile&gt; (TSV file): this file contains the detail of the assignment (which markers are found for which species). It alos provides the intensity of the peaks used in the assignment.
+- report_@lt;outputfile&lt; (TXT file): this file contains a report on the run's inputs (number of mass spectra, number of species tested,  parameters...)
 
 ### Organism selection (-- mammals, -l)
 
