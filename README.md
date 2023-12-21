@@ -37,9 +37,7 @@ Type `python3 pampa.py assign -h` or `python3 pampa build -h` respectively to pr
 ## PAMPA light
 
 ```
-usage: 
- 
- python3 pampa.py assign [-h]
+usage: python3 pampa.py assign [-h]
 	(-s SPECTRA PATH)
 	(-e ERROR MARGIN)
 	(-o OUTPUT FILE)
@@ -91,7 +89,7 @@ It is possible to filter the peptide table to select elements  according to vari
 	- "SeqID=" for authorized sequence identifiers
 - Separate elements on a line with commas.
 
-For example, if you want to limit the search to a selection of organisms, your file might look like this:
+For example, If you want to limit your search to a specific set of organisms, your file might look like this: 
 ```
 OS= Castor Canadensis, Diceros Bicornis, Cervus Elaphus, Bos Taurus, Equus Caballus   
 ```   
@@ -102,16 +100,14 @@ GN=COL1A2
 ```  
 This means that the search will focus on markers from COL1A2 within the specified organisms.
 
-Assume that you want to refine further this selection and  exclude certain PRMs, such as deamidation and  phosporylation. Then you have to add one contraint to authorize only proline oxylation. This gives:
+Assume now that you want to further refine this selection and  exclude certain PTMs, such as deamidation and  phosporylation. Then you have to add one contraint to authorize only proline oxylation. This gives:
 ```
 OS= Castor Canadensis, Diceros Bicornis, Cervus Elaphus, Bos Taurus, Equus Caballus
 GN=COL1A1
 PTM=O
 ```  
 
-PAMPA recognizes three types of PTMs: oxylation of prolines, deamidation of , phosphorilation of , represented by the single-letter code 'O', 'D4 and 'P' respetively.
-
-
+Be aware that PAMPA recognizes three types of PTMs: oxylation of prolines (indicated by the single-letter code 'O'), deamidation of asparagine and glutamine (indicated by the single-letter code 'D'), and phosphorylation of serine, threonine, and tyrosine (indicated by the single-letter code 'P'). 
 
 ### Neighbouring (-n and -a)
 
