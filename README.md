@@ -36,6 +36,8 @@ Type `python3 pampa.py assign -h` or `python3 pampa build -h` respectively to pr
 
 ## PAMPA light
 
+
+
 ```
 usage: python3 pampa.py assign [-h]
 	(-s SPECTRA PATH)
@@ -62,8 +64,8 @@ We recommend deisotoping the mass spectra before processing them.
 ### Error margin (-e)
 
 The error margin is related to the resolution of the mass spectrometer, that is its ability to distinguish closely spaced peaks. We employ it to set an upper bound on the deviation between a peak and the theoretical mass of the marker peptide. This option is mandatory, and can be expressed in Daltons or in ppm.
- -  If the value is smaller than 1, it is assumed to be in Da. In this case, recommended values are  0.1 for maldi TOF, and 0.01 for maldi FT.
- -  If the value is larger than 1, it is assumend to be in ppm. In this case, recommended values are  XXfor maldi TOF, and 5 for maldi FT.
+ -  If the value is smaller than 1, it is assumed to be in Da (Daltons). In this case, recommended values are  0.1 for maldi TOF, and 0.01 for maldi FT.
+ -  If the value is larger than 1, it is assumed to be in ppm (parts per million). In this case, recommended values are 50 for maldi TOF, and 5 for maldi FTICR.
 
 ### Output files (-o)
 
@@ -75,10 +77,26 @@ Two other accompanying files are automatically created, in the same directory.
 
 ### Organism selection (-- mammals, -l)
 
-pampa_light uses predefined peptide tables, accompanied by the NCBI taxonomy.
+PAMPA_light utilizes a predefined set of marker peptides in conjunction with the NCBI taxonomy for species identification. These markers are accessible through _peptide tables_, which are stored in TSV files distributed with the code. Each peptide table includes the following columns: 
 
+- Rank: Taxonomic rank
+- Taxid: Taxonomic identifier
+- Taxon name: Scientific name
+- Sequence: Marker peptide sequence
+- PTM: Description of post-translational modifications applied to the marker peptide
+- Name: Marker name
+- Masses: Peptide mass
+- Gene: Gene name, e.g., COL1A1
+- SeqId: Sequence identifier(s) of the protein sequence from which the marker peptide is derived
+- Begin: Start position of the peptide marker within the protein sequence
+- End: End position of the peptide marker within the protein sequence
+- Comment: Additional comments about the marker
 
-It is possible to filter the peptide table to select elements  according to various criteria such as organism, gene name, sequence identifier, or post-translational modifications (PTMs). For that, you can use the -l option and follow these guidelines:
+The first row of the file should contain column headings. 
+
+_PTM description_: PAMPA recognizes three types of PTMs: oxylation of prolines (indicated by the single-letter code 'O'), deamidation of asparagine and glutamine (indicated by the single-letter code 'D'), and phosphorylation of serine, threonine, and tyrosine (indicated by the single-letter code 'P'). The PTM description is  a concise representation of the number of oxylations, deamidations and phosphorylations necessary to compute the mass of a peptide sequence. For instance, '2O1D' signifies two oxyprolines and one deamidation, '1P4O' represents one phosphorylation and four oxyprolines, '2O' corresponds to two oxyprolines without any deamidation and phosphorylation.
+
+It is possible to filter the peptide table to limit the search according to various criteria such as organism, gene name, sequence identifier, or PTMs. For that, you can use the -l option and follow these guidelines:
 
 - Create a text file that outlines your filtering criteria.
 
@@ -107,7 +125,6 @@ GN=COL1A1
 PTM=O
 ```  
 
-Be aware that PAMPA recognizes three types of PTMs: oxylation of prolines (indicated by the single-letter code 'O'), deamidation of asparagine and glutamine (indicated by the single-letter code 'D'), and phosphorylation of serine, threonine, and tyrosine (indicated by the single-letter code 'P'). 
 
 ### Neighbouring (-n and -a)
 
