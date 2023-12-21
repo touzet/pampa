@@ -18,11 +18,12 @@ Both versions can be installed either by downloading the source code or cloning 
  - downloading, as a zip file: button _code<>_ on the right-hand side of the screen
  - cloning: `git clone https://github.com/touzet/anc_prot.git`
 
-Additionaly, the full version of pampa necessitates the Biopython and pyteomics libraries.  pampa_light has no external dependencies.
+Additionaly, the full version of pampa necessitates the Biopython and pyteomics libraries.  
 
  - biopython (https://biopython.org/): `pip install biopython`
  - pyteomics (https://pypi.org/project/pyteomics/): `pip install pyteomics`
 
+pampa_light requires no external dependencies.
 
 ## How to run the program ?
 
