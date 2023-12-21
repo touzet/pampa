@@ -7,7 +7,7 @@ Pampa (Protein Analysis by Mass Spectrometry for Ancient Species) is a versatile
 - It allows to automatically generate marker peptides, and users can also define their own markers by creating custom peptide tables. 
 - It enables in-depth exploration of various assignment possibilities within the taxonomic space.
 
-## How to install the program ? 
+## How to install the program ?
 
 PAMPA is written in Python 3.7, and comes in two versions:
  - pampa_light, which offers preset options and simplified usage for taxonomic assignment,
