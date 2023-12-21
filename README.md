@@ -10,8 +10,8 @@ Pampa (Protein Analysis by Mass Spectrometry for Ancient Species) is a versatile
 ## How to install the program ? 
 
 PAMPA is written in Python 3.7, and comes in two versions:
- - pampa_light, that provides preset options and easier usage for taxomic assignment, 
- - pampa, that provides the full functionnalities of the programm
+ - pampa_light, which offers preset options and simplified usage for taxonomic assignment,
+ - pampa, providing the full functionality of the program, with custom peptides tables and many other possibilities. 
 
 Both versions can be installed either by downloading the source code or cloning this repository.  Additionaly, the full version of pampa necessitates the Biopython and pyteomics libraries.  pampa_light has no external dependencies
 
@@ -23,9 +23,9 @@ Both versions can be installed either by downloading the source code or cloning 
 
 ## How to run the program ?
 
-The usage of pampa_light is described below. 
+**PAMPA light** : the usage of pampa_light is described below. 
 
-PAMPA has two main modules, which are described below:
+**PAMPA, full version**  has two main commands, that are described below: 
 - _assign_, for species identifications 
 - _build_, for construction of custom marker peptides.
 
