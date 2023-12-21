@@ -13,10 +13,13 @@ PAMPA is written in Python 3.7, and comes in two versions:
  - pampa_light, which offers preset options and simplified usage for taxonomic assignment,
  - pampa, providing the full functionality of the program, with custom peptides tables and many other possibilities. 
 
-Both versions can be installed either by downloading the source code or cloning this repository.  Additionaly, the full version of pampa necessitates the Biopython and pyteomics libraries.  pampa_light has no external dependencies
+Both versions can be installed either by downloading the source code or cloning this repository.  
 
  - downloading, as a zip file: button _code<>_ on the right-hand side of the screen
- - cloning: `git clone https://github.com/touzet/anc_prot.git`  
+ - cloning: `git clone https://github.com/touzet/anc_prot.git`
+
+Additionaly, the full version of pampa necessitates the Biopython and pyteomics libraries.  pampa_light has no external dependencies.
+
  - biopython (https://biopython.org/): `pip install biopython`
  - pyteomics (https://pypi.org/project/pyteomics/): `pip install pyteomics`
 
