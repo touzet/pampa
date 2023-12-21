@@ -40,7 +40,8 @@ Type `python3 pampa.py assign -h` or `python3 pampa build -h` respectively to pr
 
 
 ```
-usage: python3 pampa.py assign [-h]
+usage: python3 pampa_light.py assign
+	[-h]
 	(-s SPECTRA PATH)
 	(-e ERROR MARGIN)
 	(-o OUTPUT FILE)
