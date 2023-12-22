@@ -192,7 +192,7 @@ options for suboptimal solutions:
 
 ```
 
-The three first options, **-s (mass spectra)**, **-e (error margin)** and **-o (output)**, are the same with PAMPA light and the documentaiotn can be found [here](pampa-ligth).
+The  options, **-s (mass spectra)**, **-e (error margin)**, **-o (output)**, **-l (limit)**, **-n (neighbouring)** and **-a**  are the same as with PAMPA light and the documentation can be found [here](PAMPA-light).
 
 ### Peptide table (-p)
 
