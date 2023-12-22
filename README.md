@@ -29,11 +29,11 @@ pampa_light requires no external dependencies.
 
 **PAMPA light** : the usage is described just below. 
 
-**PAMPA, full version**  has two main commands, that are described in the sequel : 
+**PAMPA, full version**  has two main commands.  
 - _assign_, for species identifications 
 - _build_, for construction of custom marker peptides.
 
-Type `python3 pampa.py assign -h` or `python3 pampa build -h` respectively to print the help.
+We suggest starting by reviewing the instructions for PAMPA light first, as it covers fundamental concepts shared across all versions, such as peptide tables, handling PTMs, format of output files. Afterward, if you x-want to use the full version of PAMPa, you may refer to the comprehensive documentation (PAMPA ASSIGN and PAMPA build) for more in-depth details.
 
 ## PAMPA light
 
