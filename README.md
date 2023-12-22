@@ -33,7 +33,7 @@ pampa_light requires no external dependencies.
 - _assign_, for species identifications 
 - _build_, for construction of custom marker peptides.
 
-We suggest starting by reviewing the instructions for PAMPA light first, as it covers fundamental concepts shared across all versions, such as peptide tables, format of mass spectra, error margin, handling PTMs, format of output files. Afterward, if you x-want to use the full version of PAMPA, you may refer to the comprehensive documentation (PAMPA ASSIGN and PAMPA build) for more in-depth details.
+We suggest starting by reviewing the instructions for PAMPA light first, as it covers fundamental concepts shared across all versions, such as peptide tables, format of mass spectra, error margin, handling PTMs, format of output files, etc. Afterward, if you want to use the full version of PAMPA, you may refer to the comprehensive documentation (PAMPA ASSIGN and PAMPA BUILD) for more in-depth details.
 
 ## PAMPA light
 
@@ -89,7 +89,9 @@ Two other accompanying files are automatically created, in the same directory.
 - detail_&lt;outputfile&gt; (TSV file): this file contains the detail of the assignment (which markers are found for which species). It alos provides the intensity of the peaks used in the assignment.
 - report_&lt;outputfile&lt; (TXT file): this file contains a report on the run's inputs (number of mass spectra, number of species tested,  parameters...)
 
-### Organism selection (-- mammals, -l)
+### Organism selection (-- mammals)
+
+__This option in mandatory.__
 
 PAMPA_light utilizes a predefined set of marker peptides in conjunction with the NCBI taxonomy for species identification. These markers are accessible through _peptide tables_, which are stored in TSV files distributed with the code. Each peptide table includes the following columns: 
 
@@ -109,6 +111,8 @@ PAMPA_light utilizes a predefined set of marker peptides in conjunction with the
 The first row of the file should contain column headings. 
 
 _PTM description_: PAMPA recognizes three types of PTMs: oxylation of prolines (indicated by the single-letter code 'O'), deamidation of asparagine and glutamine (indicated by the single-letter code 'D'), and phosphorylation of serine, threonine, and tyrosine (indicated by the single-letter code 'P'). The PTM description is  a concise representation of the number of oxylations, deamidations and phosphorylations necessary to compute the mass of a peptide sequence. For instance, '2O1D' signifies two oxyprolines and one deamidation, '1P4O' represents one phosphorylation and four oxyprolines, '2O' corresponds to two oxyprolines without any deamidation and phosphorylation.
+
+###  Limiting search (-l)
 
 It is possible to filter the peptide table to limit the search according to various criteria such as organism, gene name, sequence identifier, or PTMs. For that, you can use the -l option and follow these guidelines:
 
@@ -192,7 +196,7 @@ options for suboptimal solutions:
 
 ```
 
-The  options, **-s (mass spectra)**, **-e (error margin)**, **-o (output)**, **-l (limit)**, **-n (neighbouring)** and **-a**  are the same as with PAMPA light and the documentation can be found [here](PAMPA-light).
+The  options, **-s (mass spectra)**, **-e (error margin)**, **-o (output)**, **-l (limit)**, **-n (neighbouring)** and **-a**  are the same as with PAMPA light and the documentation can be found [here](#PAMPA-light).
 
 ### Peptide table (-p)
 
