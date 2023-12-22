@@ -33,14 +33,12 @@ pampa_light requires no external dependencies.
 - _assign_, for species identifications 
 - _build_, for construction of custom marker peptides.
 
-We suggest starting by reviewing the instructions for PAMPA light first, as it covers fundamental concepts shared across all versions, such as peptide tables, handling PTMs, format of output files. Afterward, if you x-want to use the full version of PAMPa, you may refer to the comprehensive documentation (PAMPA ASSIGN and PAMPA build) for more in-depth details.
+We suggest starting by reviewing the instructions for PAMPA light first, as it covers fundamental concepts shared across all versions, such as peptide tables, format of mass spectra, error margin, handling PTMs, format of output files. Afterward, if you x-want to use the full version of PAMPA, you may refer to the comprehensive documentation (PAMPA ASSIGN and PAMPA build) for more in-depth details.
 
 ## PAMPA light
 
-
-
 ```
-usage: python3 pampa_light.py assign
+usage: python3 pampa_light.py 
 	[-h]
 	(-s SPECTRA PATH)
 	(-e ERROR MARGIN)
@@ -160,7 +158,8 @@ This module takes a set of mass spectra as input and attempts to determine the b
 ```
 usage: 
  
- python3 pampa.py assign [-h]
+ python3 pampa.py assign
+	[-h]
 	(-s SPECTRA PATH)
 	(-e ERROR MARGIN)
 	(-o OUTPUT FILE)
@@ -193,58 +192,17 @@ options for suboptimal solutions:
 
 ```
 
-### Mass spectra (-s)
-
-The program processes a batch of mass spectra simultaneously. All mass spectra files are contained within the same folder, with one file dedicated to each mass spectrum. These files should have one of the following extensions: .csv or .txt (in CSV format), .mgf (in MGF format), or .mzML (in mzML format). Any other files present will be disregarded. You can specify the path to the folder using the '-s' option.
-
-_CSV format_: It consists of two columns. The first column is designated for mass (m/z), and the second column records intensity (I). Columns are separated by either a comma (',') or a semicolon (';'). The initial row serves as the header.
-
-_MGF format_: Mascot Generic Format
-
-_mzML format_: see https://www.psidev.info/mzML
-
-We recommend deisotoping the mass spectra before processing them.
-
-### Error margin (-e)
-
-The error margin is related to the resolution of the mass spectrometer, that is its ability to distinguish closely spaced peaks. We employ it to set an upper bound on the deviation between a peak and the theoretical mass of the marker peptide. This option is mandatory, and can be expressed in Daltons or in ppm.
- -  If the value is smaller than 1, it is assumed to be in Da. In this case, recommended values are  0.1 for maldi TOF, and 0.01 for maldi FT.
- -  If the value is larger than 1, it is assumend to be in ppm. In this case, recommended values are  XXfor maldi TOF, and 5 for maldi FT.
-
-### Output files (-o)
-
-Name of the main output file, in TSV format. This file contains the list of species found for each mass spectrum.
-Two other accompanying files are automatically created, in the same directory.
-
-- detail_<outputfile> (TSV file): this file contains the detail of the assignment (which markers are found for which species)
-- report_<outputfile> (TXT file): this file contains a report on the run's inputs (number of mass spectra, number of species tested,  parameters...)
+The three first options, **-s (mass spectra)**, **-e (error margin)** and **-o (output)**, are the same with PAMPA light and the documentaiotn can be found [here](pampa-ligth).
 
 ### Peptide table (-p)
 
-The first way to use PAMPA for species identification is to provide a list of marker peptides. This list should be organized within a Tab-Separated Values (TSV) file, featuring the following columns:
-
-- Rank: Taxonomic rank
-- Taxid: Taxonomic identifier
-- Taxon name: Scientific name
-- Sequence: Marker peptide sequence
-- PTM: Description of post-translational modifications applied to the marker peptide
-- Name: Marker name
-- Masses: Peptide mass
-- Gene: Gene name, e.g., COL1A1
-- SeqId: Sequence identifier(s) of the protein sequence from which the marker peptide is derived
-- Begin: Start position of the peptide marker within the protein sequence
-- End: End position of the peptide marker within the protein sequence
-- Comment: Additional comments about the marker
-
-The first row of the file should contain column headings. 
-
-Most of these fields are optional and are here for reference. The following information is mandatory:
+Compared to PAMPA light, PAMPA allows you to define and use you own peptide table to provide the list of marker peptides. The syntax of this TSV file, wich contains 12 columns  corresponding to  Rank, Taxid, Taxon name, Sequence, PTM, Name, Masses, Gene, SeqID, Begin, End, Comment,   is esxplained in Section 
+Not that  most of these fields are optional and are here for reference and traceability. Only the following information is mandatory:
 
 - You must provide a taxid for the peptide marker. Rank and taxon names are included primarily to enhance the clarity of results.
-- You should furnish either a sequence or a mass for your marker peptide. If the sequence is provided without a mass, the program will automatically compute the mass from it. To do so, it will utilize either the PTM description (when available) or infer potential PTMs from the sequence.
+- You should furnish either a sequence, possibly with a PTM description,  or a mass for your marker peptide. If the sequence is provided without a mass, the program will automatically compute the mass from it. To do so, it will utilize either the PTM description (when available) or infer potential PTMs from the sequence.
 
-_PTM description_: This is a concise representation of the number of proline oxidations (P) and deamidations (D) necessary to compute the mass of a peptide sequence. For instance, '2P1D' signifies two oxyprolines and one deamidation, '1D4P' represents one deamidation and four oxyprolines, '2P' corresponds to two oxyprolines without any deamidation, and '1D' indicates one deamidation without oxyprolines. To specify that no PTM should be applied, use '0P' or '0D'.
-In cases where the 'PTM' field is omitted, the program will estimate the potential oxyprolines from the peptide sequence, but deamidations will not be considered.
+_Inference of PTMs_:  TO DO 
 
 _Examples_: Sample peptide tables can be found in the 'Peptide_tables' folder.
 
