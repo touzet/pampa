@@ -159,7 +159,7 @@ When used together with '-n,'  the '-a' option allows to change this, so that th
 
 ## PAMPA ASSIGN 
 
-XXX In cases where no marker peptides are available, it is possible to supply FASTA sequences for the automatic inference of peptides through in silico digestion.
+PAMPA ASSIGN represents an advanced version of PAMPA light, offering users the capability to utilize their personalized set of marker peptides for taxonomic assignment. This functionality is achieved through the definition of custom peptide tables.  Additionally, in situations where no marker peptides are available, it is possible to supply FASTA sequences for the automatic inference of peptides through in silico digestion.
 
 ```
 usage: 
@@ -198,14 +198,13 @@ options for suboptimal solutions:
 
 ```
 
-The  options, **-s (mass spectra)**, **-e (error margin)**, **-o (output)**, **-l (limit)**, **-n (neighbouring)** and **-a**  are the same as with PAMPA light and the documentation can be found in the (#PAMPA-light) section.
+The  options, **-s** (mass spectra), **-e** (error margin), **-o** (output), **-l** (limit), **-n** (neighbouring) and **-a**  are the same as with PAMPA light and the documentation can be found in the [dedicated section](#PAMPA-light).
 
-We describe hereafter -p, -f, -d and -t options, which are specific to this module.
+Hereafter, we provide description of **-p**, **-f**, **-d** and **-t** options,  each of which is specific to this module.
 
 ### Peptide table (-p)
 
-Compared to PAMPA light, PAMPA allows you to use your own set of marker peptides. 
- This set should be structured within a _peptide table_, formatted as a TSV (Tab-Separated Values) file. The specific format details are descrided  in the [PAMPA light](#PAMPA-light) section.  Such file can be created manually with any spreadsheet software by opting for the TSV export format. Alternatively, the module [PAMPA BUILD](#PAMPA-BUILD) provides automated methods to generate  peptide tables.  
+This option allows you to employ your own set of marker peptides. This set should be structured within a _peptide table_, formatted as a TSV (Tab-Separated Values) file. The specific format details for peptide tables are descrided  in the [PAMPA light](#PAMPA-light) section.  Such file can be created manually with any spreadsheet software by opting for the TSV export format. Alternatively, the module [PAMPA BUILD](#PAMPA-BUILD) provides automated methods to generate  peptide tables.  
 
 Peptide tables should contain 12 columns corresponding to  Rank, Taxid, Taxon name, Sequence, PTM, Name, Masses, Gene, SeqID, Begin, End, Comment. Most of these fields are optional and are here for reference and traceability. Only the following information is mandatory:
 
