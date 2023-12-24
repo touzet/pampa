@@ -37,6 +37,8 @@ We suggest starting by reviewing the instructions for PAMPA light first, as it c
 
 ## PAMPA light
 
+This version takes a set of mass spectra as input and attempts to determine the best taxonomic assignment for each of them. The assignment utilizes marker peptides from representative species, which are compiled into peptide tables that are included with the code of the program.
+
 ```
 usage: python3 pampa_light.py 
 	[-h]
@@ -157,7 +159,7 @@ When used together with '-n,'  the '-a' option allows to change this, so that th
 
 ## PAMPA ASSIGN 
 
-This module takes a set of mass spectra as input and attempts to determine the best taxonomic assignment for each of them. The assignment utilizes marker peptides from representative species, which are compiled in a peptide table. In cases where no marker peptides are available, it is possible to supply FASTA sequences for the automatic inference of peptides through in silico digestion.
+XXX In cases where no marker peptides are available, it is possible to supply FASTA sequences for the automatic inference of peptides through in silico digestion.
 
 ```
 usage: 
@@ -196,7 +198,9 @@ options for suboptimal solutions:
 
 ```
 
-The  options, **-s (mass spectra)**, **-e (error margin)**, **-o (output)**, **-l (limit)**, **-n (neighbouring)** and **-a**  are the same as with PAMPA light and the documentation can be found [here](#PAMPA-light).
+The  options, **-s (mass spectra)**, **-e (error margin)**, **-o (output)**, **-l (limit)**, **-n (neighbouring)** and **-a**  are the same as with PAMPA light and the documentation can be found in the (#PAMPA-light) section.
+
+We describe hereafter -p, -f, -d and -t options, which are specific to this module.
 
 ### Peptide table (-p)
 
