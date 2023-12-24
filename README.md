@@ -252,9 +252,8 @@ _Examples_: example files are available in the folder 'Taxonomy'.
 
 ## PAMPA BUILD 
 
-This module allows the construction of a new peptide table based on homology. The input consists of a set of well-defined marker peptides, and the goal is to search a set of target protein sequences for similar peptides.
+PAMPA BUILD is dedicated to the constuction of new peptide tables based on homology. The input consists of a set of well-defined marker peptides, and the goal is to search a set of target protein sequences for similar peptides. New peptides are discovered through sequence alignment, allowing up to 10% mismatches between peptides. The algorithm also ensures that the new peptides can undergo tryptic digestion and infers new cleavage sites when necessary. Masses are automatically computed. The resulting peptide table can then be utilized by [PAMPA ASSIGN](#PAMPA-ASSIGN).
 
-New peptides are discovered through sequence alignment, allowing up to 10% mismatches. The algorithm also verifies that the new peptides can undergo tryptic digestion and infers new cleavage sites when necessary. Masses are automatically computed.
 
 
 ```
