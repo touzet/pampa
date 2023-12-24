@@ -200,8 +200,10 @@ The  options, **-s (mass spectra)**, **-e (error margin)**, **-o (output)**, **-
 
 ### Peptide table (-p)
 
-Compared to PAMPA light, PAMPA allows you to define and use you own peptide table to provide the list of marker peptides. The syntax of this TSV file, wich contains 12 columns  corresponding to  Rank, Taxid, Taxon name, Sequence, PTM, Name, Masses, Gene, SeqID, Begin, End, Comment,   is esxplained in Section 
-Not that  most of these fields are optional and are here for reference and traceability. Only the following information is mandatory:
+Compared to PAMPA light, PAMPA allows you to use your own set of marker peptides. 
+ This set should be structured within a _peptide table_, formatted as a TSV (Tab-Separated Values) file. The specific format details are descrided  in the [PAMPA light](#PAMPA-light) section.  Such file can be created manually with any spreadsheet software by opting for the TSV export format. Alternatively, the module [PAMPA BUILD](#PAMPA-BUILD) provides automated methods to generate  peptide tables.  
+
+Peptide tables should contain 12 columns corresponding to  Rank, Taxid, Taxon name, Sequence, PTM, Name, Masses, Gene, SeqID, Begin, End, Comment. Most of these fields are optional and are here for reference and traceability. Only the following information is mandatory:
 
 - You must provide a taxid for the peptide marker. Rank and taxon names are included primarily to enhance the clarity of results.
 - You should furnish either a sequence, possibly with a PTM description,  or a mass for your marker peptide. If the sequence is provided without a mass, the program will automatically compute the mass from it. To do so, it will utilize either the PTM description (when available) or infer potential PTMs from the sequence.
@@ -226,45 +228,6 @@ _Option -f :_ The specified file can contain an arbitrary number of FASTA sequen
 _Option -d:_ The directory can contain an arbitrary number of FASTA files, following the same requirements as with '-f' option.
 Only files with extension _.fa_ or _.fasta_ will be examined. 
 
-### Limiting the set of organisms (-l)
-
-This option allows to filter the set of markers according to the organism, the molecule (gene name) or the sequence identifier. It takes as paramater a user-defined TSV file, that should contain three columns:
- - the first column is for the name of the organism,
- - the second column is for the gene name,
- - the third column is for the sequence identifier.  
-
-Empty fields will apply no contraints.  Here are some examples.
-
-```
-CastorCanadensis  
-DicerosBicornis  
-CervusElaphus           
-BosTaurus               
-EquusCaballus   
-```          
-The search will be limited to those five organisms.
-
-```
-	COL1A1
-```  
-The search will be limited to COL1A1 sequences.  
-
-```
-ColumbaLivia              COL1A1  XP_021136665.1    
-ColumbaLivia              COL1A2  XP_005504983.1  
-StruthioCamelusAustralis  COL1A1  XP_009685373.1  
-StruthioCamelusAustralis  COL1A2  XP_009672566.1  
-```
-
-The search will be limited to four sequences, the ones with the designated identifiers.  
-In this example, it would have been equivalent to have 
-
-```  
-		XP_021136665.1  
-		XP_005504983.1
-		XP_009685373.1  
-		XP_009672566.1
-```  
 
 ### Taxonomy (-t)
 
@@ -283,17 +246,6 @@ When a taxonomy is provided, the software will indicate, for each spectrum, the 
 
 _Examples_: example files are available in the folder 'Taxonomy'.
 
-
-
-### Neighbouring (-n and -a)
-
-The option -n allows to obtain near-optimal solutions for species identification.
-You can set the suboptimality range as a percentage from 0 to 100, with the default being 100 
-(corresponding to solutions with the maximal number of marker peptides found). 
-For example, if the optimal solutions has 11 marker peptides, '-n 80' will provide solutions with 9 markers or more.
-
-By default, the '-n' option will generate only near-optimal solutions that are not included in any other solution.
-When used together with '-n,'  the '-a' option allows to change this, so that the program computes all solutions, even those that are included in other solutions.  
 
 ## PAMPA BUILD 
 
