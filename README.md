@@ -53,7 +53,7 @@ usage: python3 pampa_light.py
 
 ### Mass spectra (-s) 
 
-__This option in mandatory.__
+__This option is mandatory.__
 
 The program processes a batch of mass spectra simultaneously. All mass spectra files are contained within the same folder, with one file dedicated to each mass spectrum. These files should have one of the following extensions: .csv or .txt (in CSV format), .mgf (in MGF format), or .mzML (in mzML format). Any other files present will be disregarded. You can specify the path to the folder using the '-s' option.
 
@@ -67,7 +67,7 @@ We recommend deisotoping the mass spectra before processing them.
 
 ### Error margin (-e)
 
-__This option in mandatory.__
+__This option is mandatory.__
 
 The error margin is related to the resolution of the mass spectrometer, that is its ability to distinguish closely spaced peaks. We employ it to set an upper bound on the deviation between a peak and the theoretical mass of the marker peptide. This option is mandatory, and can be expressed in Daltons or in ppm.
  -  If the value is smaller than 1, it is assumed to be in Da (Daltons). In this case, recommended values are  0.1 for maldi TOF, and 0.01 for maldi FT.
@@ -75,7 +75,7 @@ The error margin is related to the resolution of the mass spectrometer, that is 
 
 ### Output files (-o)
 
-__This option in mandatory.__
+__This option is mandatory.__
 
 This option enables you to specify the name of the main output file, in TSV format. You can include the desired path to the directory where the file should be created. If the specified directory does not exist, it will be created automatically.
 
@@ -93,7 +93,7 @@ Two other accompanying files are automatically created, in the same directory.
 
 ### <a id="peptide"></a>Organism selection (-- mammals)
 
-__This option in mandatory.__
+__This option is mandatory.__
 
 PAMPA_light utilizes a predefined set of marker peptides in conjunction with the NCBI taxonomy for species identification. These markers are accessible through _peptide tables_, which are stored in TSV files distributed with the code. Each peptide table includes the following columns: 
 
@@ -283,20 +283,27 @@ options:
   -h, --help        show this help message and exit
   -p PEPTIDE_TABLE  TSV file that contains model peptide markers, with sequences.
   -o OUTPUT         Output path (should include the output file name)
-  -f FASTA          FASTA file that contains new sequences with header with species.
+  -f FASTA          FASTA file that contains new sequences 
   -d DIRECTORY      Directory that contains FASTA files
-  -l LIMIT          TSV file
+  -l LIMIT          TXT file
   ```
 
 ### Peptide table (-p)
 
+__This option is mandatory.__
+
 This table contains the list of marker peptides that will be used as models to find new markers in new sequences by homology.
 The format of this table is described in section [Organism selection](#peptide).
 
-### Output files (-o)
+### Output file (-o)
 
+__This option is mandatory.__
+
+This is the name of the new peptide table created by the program. 
 
 ### Target sequences (-f, -d and -l)
+
+__The use of either -f or -d is mandatory.__
 
 The target sequences are the amino-acids sequences in which the new markers are searched. Those sequences can be available either in a (multi-)FASTA file (-f option), or in a directory containing FASTA files (-d option). In both cases, the set of sequences can optionnally be _limited_ to a subset of organisms, molecules or sequence identifiers with -l option.
 
