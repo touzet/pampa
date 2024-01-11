@@ -26,11 +26,12 @@ def escape(message):
     print("\n "+message)
     sys.exit(" Stopping execution.\n\n Type -h for more help.\n")
 
-def check_and_update_parameters(spectra, taxonomy, peptide_table, fasta, directory, limit, error, neighbour, all, output, mammals):
+def check_and_update_parameters(spectra, taxonomy, peptide_table, fasta, directory, limit, error, neighbour, all, output, mammals, light):
     """
     Parameters checking and fixing
     """
 
+    
     if spectra is None:
         escape("Missing parameter: spectra (-s). ")
     if not os.path.isdir(spectra):    
@@ -43,16 +44,8 @@ def check_and_update_parameters(spectra, taxonomy, peptide_table, fasta, directo
         escape("Missing parameter: output (-o)")
 
     if mammals :
-        if taxonomy:
-            print("Ignored option: -t "+taxonomy+"\n")
-        if peptide_table:
-            print("Ignored option: -p "+peptide_table+"\n")
-        if fasta:
-            print("Ignored option: -f "+fasta+"\n")
-        if  limit:
-          print("Ignored option: -l "+limit+"\n")
-        taxonomy="../Taxonomy/taxonomy_mammals.tsv"
-        peptide_table="../Peptide_tables/table_mammals_with_deamidation.tsv"
+        taxonomy="Taxonomy/taxonomy_mammals.tsv"
+        peptide_table=["Peptide_tables/table_mammals_with_deamidation.tsv"]
 
     if taxonomy:
         if not os.path.isfile(taxonomy):
@@ -68,16 +61,16 @@ def check_and_update_parameters(spectra, taxonomy, peptide_table, fasta, directo
     if all and neighbour is None:
         print ("Ignored parameter: -a (all). This parameter comes with -n (near-optimal solutions).")
         
-    q = (peptide_table, fasta, directory)
-    if not (q[0] or q[1] or q[2]):
-        escape("Missing information for marker peptides (-p, -f or -d).")
-    if (q[0] and q[1]) or (q[0] and q[2]) or (q[1] and q[2]) :
-        escape("Options -p (peptide_table), -f (fasta) and -d (directory of fasta files) are mutually incompatible.")
-    
-    if q[0]:
-        for pep in peptide_table:
-            if not os.path.isfile(pep):
-                escape("File "+pep+" not found.")
+    if not light:    
+        q = (peptide_table, fasta, directory)
+        if not (q[0] or q[1] or q[2]):
+            escape("Missing information for marker peptides (-p, -f or -d).")
+        if (q[0] and q[1]) or (q[0] and q[2]) or (q[1] and q[2]) :
+            escape("Options -p (peptide_table), -f (fasta) and -d (directory of fasta files) are mutually incompatible.")
+        if q[0]:
+            for pep in peptide_table:
+                if not os.path.isfile(pep):
+                    escape("File "+pep+" not found.")
 
     output_dir, output_file = os.path.split(output)
     # Ensure the output directory exists. If not, create it.
@@ -95,12 +88,12 @@ def check_and_update_parameters(spectra, taxonomy, peptide_table, fasta, directo
     report_file="report_"+output_file.replace("tsv", "txt")
     report_path=os.path.join(output_dir, report_file)
 
-    if not peptide_table:
+    if not light and not peptide_table:
         new_table=os.path.join(output_dir, "table_"+output_file)
     else:
         new_table=None
 
-    light=mammals
+
     
     return (spectra, taxonomy, peptide_table, fasta, directory, limit, error, neighbour, all, output, output2, report_path, new_table, light)
 
@@ -170,7 +163,7 @@ def create_report(report_name, spectra, list_of_spectra, taxonomy, taxonomy_tree
     
 def main(spectra=None, taxonomy=None, peptide_table=None, fasta=None, directory=None, limit=None, error=None, neighbour=None, all=None, output=None,  mammals=None, light=False):
 
-    (spectra, taxonomy, peptide_table, fasta, directory, limit, error, neighbour, allsolutions, output, output2, report_path, new_table, light)=check_and_update_parameters(spectra, taxonomy, peptide_table, fasta, directory, limit, error, neighbour, all, output, mammals)
+    (spectra, taxonomy, peptide_table, fasta, directory, limit, error, neighbour, allsolutions, output, output2, report_path, new_table, light)=check_and_update_parameters(spectra, taxonomy, peptide_table, fasta, directory, limit, error, neighbour, all, output, mammals,light)
 
     # parsing spectra files
     list_of_spectra=[]
@@ -186,7 +179,7 @@ def main(spectra=None, taxonomy=None, peptide_table=None, fasta=None, directory=
         primary_taxonomy=ta.parse_taxonomy_simple_file(taxonomy)
     else:
         primary_taxonomy=None
-        
+    
     # parsing models for organisms and applying limits    
     if peptide_table :
         set_of_markers = pt.parse_peptide_tables(peptide_table, limit, primary_taxonomy)
