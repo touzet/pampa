@@ -27,13 +27,13 @@ PAMPA light requires no external dependencies.
 
 ## How to run the program ?
 
-**PAMPA light** : the usage is described just below. 
+**PAMPA light** : the usage is described just [below](#PAMPA-light). 
 
 **PAMPA, full version**  has two main commands.  
 - _assign_, for species identifications 
 - _build_, for construction of custom marker peptides.
 
-We suggest starting by reviewing the instructions for PAMPA light first, as it covers fundamental concepts shared across all versions, such as peptide tables, format of mass spectra, error margin, handling PTMs, format of output files, etc. Afterward, if you want to use the full version of PAMPA, you may refer to the comprehensive documentation (PAMPA ASSIGN and PAMPA BUILD) for more in-depth details.
+We suggest starting by reviewing the instructions for PAMPA light first, as it covers fundamental concepts shared across all versions, such as peptide tables, format of mass spectra, error margin, handling PTMs, format of output files, etc. Afterward, if you want to use the full version of PAMPA, you may refer to the comprehensive documentation ([PAMPA ASSIGN](#PAMPA-ASSIGN) and [PAMPA BUILD](#PAMPA-BUILD)) for more in-depth details.
 
 ## PAMPA light
 
@@ -116,35 +116,42 @@ _PTM description_: PAMPA recognizes three types of PTMs: oxylation of prolines (
 
 ###  Limiting search (-l)
 
-It is possible to filter the peptide table to limit the search according to various criteria such as organism, gene name, sequence identifier, or PTMs. For that, you can use the -l option and follow these guidelines:
+It is possible to filter the peptide table to limit the search according to various criteria such as organism, gene name, sequence identifier, or PTMs. For that, you can use the '-l' option and follow these guidelines:
 
 - Create a text file that outlines your filtering criteria.
-
-- Each line in the file should start with one of these prefixes:
-	- "OS=" for authorized organisms
+- Each line in the file should comprise these fields:
+	- "OS=" for authorized taxon names  
+ 	- "OX=" for authorized taxids	
 	- "GN=" for authorized gene names
 	- "PTM=" for authorized PTMs
 	- "SeqID=" for authorized sequence identifiers
-- Separate elements on a line with commas.
+- Separate multiple elements for a field with commas.
 
 For example, If you want to limit your search to a specific set of organisms, your file might look like this: 
 ```
-OS= Castor Canadensis, Diceros Bicornis, Cervus Elaphus, Bos Taurus, Equus Caballus   
+OS= Castor canadensis, Diceros bicornis, Cervus elaphus, Bos taurus, Equus caballus   
 ```   
 Of course, you can combine constraints to narrow down your search. For instance, limiting the search to markers coming from COL1A2 gives:
 ```
-OS= Castor Canadensis, Diceros Bicornis, Cervus Elaphus, Bos Taurus, Equus Caballus
-GN=COL1A2
+OS= Castor canadensis, Diceros bicornis, Cervus elaphus, Bos taurus, Equus caballus GN=COL1A2
 ```  
 This means that the search will focus on markers from COL1A2 within the specified organisms.
 
 Assume now that you want to further refine this selection and  exclude certain PTMs, such as deamidation and  phosporylation. Then you have to add one contraint to authorize only proline oxylation. This gives:
 ```
-OS= Castor Canadensis, Diceros Bicornis, Cervus Elaphus, Bos Taurus, Equus Caballus
-GN=COL1A1
-PTM=O
+OS= Castor canadensis, Diceros bicornis, Cervus elaphus, Bos taurus, Equus caballus GN=COL1A1 PTM=O
 ```  
+The limit file can comprise an arbitrary number of lines, with each line representing a distinct constraint. The resulting selection is determined by the union of all these constraints
 
+Finally, in the presence of a taxonomy (as is the case with PAMPA light), the OS and OX fields become applicable to clades at any taxonomic rank (genera, families, orders, etc.). In such instances, the constraint will choose all descendants accordingly. 
+
+```
+OS=Pecora GN=COL1A1
+```
+This will select all COL1A1 markers for species from the Pecora infraorder. Equivalently, you might have used the taxid of Pecora, with the OX field.
+```
+OX=35500 GN=COL1A1
+```
 
 ### Neighbouring (-n and -a)
 
@@ -253,7 +260,6 @@ _Examples_: example files are available in the folder 'Taxonomy'.
 ## PAMPA BUILD 
 
 PAMPA BUILD is dedicated to the constuction of new peptide tables based on homology. The input consists of a set of well-defined marker peptides, and the goal is to search a set of target protein sequences for similar peptides. New peptides are discovered through sequence alignment, allowing up to 10% mismatches between peptides. The algorithm also ensures that the new peptides can undergo tryptic digestion and infers new cleavage sites when necessary. Masses are automatically computed. The resulting peptide table can then be utilized by [PAMPA ASSIGN](#PAMPA-ASSIGN).
-
 
 
 ```
