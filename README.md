@@ -291,7 +291,7 @@ options:
 ### Peptide table (-p)
 
 This table contains the list of marker peptides that will be used as models to find new markers in new sequences by homology.
-The format of this table is described in Section [organism selection](#peptide).
+The format of this table is described in section [Organism selection](#peptide).
 
 ### Output files (-o)
 
