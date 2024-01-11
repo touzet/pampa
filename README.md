@@ -119,7 +119,7 @@ _PTM description_: PAMPA recognizes three types of PTMs: oxylation of prolines (
 It is possible to filter the peptide table to limit the search according to various criteria such as organism, gene name, sequence identifier, or PTMs. For that, you can use the '-l' option and follow these guidelines:
 
 - Create a text file that outlines your filtering criteria.
-- Each line in the file should comprise these fields:
+- Each line in the file should comprise one or several of these fields:
 	- "OS=" for authorized taxon names  
  	- "OX=" for authorized taxids	
 	- "GN=" for authorized gene names
