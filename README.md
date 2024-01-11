@@ -91,7 +91,7 @@ Two other accompanying files are automatically created, in the same directory.
 - detail_&lt;outputfile&gt; (TSV file): this file contains the detail of the assignment (which markers are found for which species). It alos provides the intensity of the peaks used in the assignment.
 - report_&lt;outputfile&lt; (TXT file): this file contains a report on the run's inputs (number of mass spectra, number of species tested,  parameters...)
 
-### Organism selection (-- mammals)
+### <a id="peptide"></a>Organism selection (-- mammals)
 
 __This option in mandatory.__
 
@@ -119,7 +119,7 @@ _PTM description_: PAMPA recognizes three types of PTMs:
 
 The _PTM description_ is  a concise representation of the number of oxylations, deamidations and phosphorylations necessary to compute the mass of a peptide sequence. For instance, '2O1D' signifies two oxyprolines and one deamidation, '1P4O' represents one phosphorylation and four oxyprolines, '2O' corresponds to two oxyprolines without any deamidation and phosphorylation.
 
-### <a id="myheader"></a> Limiting search (-l)
+### <a id="limit"></a> Limiting search (-l)
 
 It is possible to filter the peptide table to limit the search according to various criteria such as organism, gene name, sequence identifier, or PTMs. For that, you can use the '-l' option and follow these guidelines:
 
@@ -291,7 +291,7 @@ options:
 ### Peptide table (-p)
 
 This table contains the list of marker peptides that will be used as models to find new markers in new sequences by homology.
-The format of this table is described in Section XXX.
+The format of this table is described in Section [organism selection](#peptide).
 
 ### Output files (-o)
 
@@ -310,7 +310,7 @@ _Option -f :_ The specified file can contain an arbitrary number of FASTA sequen
 _Option -d:_ The directory can contain an arbitrary number of FASTA files, following the same requirements as with '-f' option.
 Only files with extension _.fa_ or _.fasta_ will be examined. 
 
-_Option -l:_ This option allows to filter the set of FASTA sequences to limit the selection according to the organism (OS=), the taxid (OX=), the gene name (GN=), the sequence identifier (SeqID=). The full description of the syntax is given in section [Limiting search](#myheader).
+_Option -l:_ This option allows to filter the set of FASTA sequences to limit the selection according to the organism (OS=), the taxid (OX=), the gene name (GN=), the sequence identifier (SeqID=). The full description of the syntax is given in section [Limiting search](#limit).
 
 
 
