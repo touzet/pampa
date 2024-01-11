@@ -310,7 +310,7 @@ _Option -f :_ The specified file can contain an arbitrary number of FASTA sequen
 _Option -d:_ The directory can contain an arbitrary number of FASTA files, following the same requirements as with '-f' option.
 Only files with extension _.fa_ or _.fasta_ will be examined. 
 
-_Option -l:_ This option allows to filter the set of FASTA sequences to limit the selection according to the organism (OS=), the taxid (OX=), the gene name (GN=), the sequence identifier (SeqID=). The full description of the syntax is given in section [Limiting search](#Limiting-search-(--l-option).
+_Option -l:_ This option allows to filter the set of FASTA sequences to limit the selection according to the organism (OS=), the taxid (OX=), the gene name (GN=), the sequence identifier (SeqID=). The full description of the syntax is given in section [Limiting search](#Limiting-search-(--l-option)).
 
 
 
