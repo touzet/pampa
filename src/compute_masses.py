@@ -3,38 +3,46 @@ compute_masses.py
 
 Everything that is related to the computation of peptide masses  
 
-External dependencies: module mass of pyteomics, copy, re
-
 """
 
 from pyteomics import mass
 import copy
 import re
-from markers import * 
-from utils import * 
+import sys
 
-OXYPROLINE=15.994915
-DEAMIDATION=0.984016
-CARBOXYLATION= 43.009
+from src import markers 
+from src import utils as ut
 
-        
+
+OXYPROLINE=15.994915 # proline (P)
+DEAMIDATION=0.984016 # asparagine (N) and glutamine (Q)
+CARBOXYLATION= 43.009 #
+PHOSPHORYLATION= 79.9663 # serine (S), threonine (T), or tyrosine (Y)
+
+
+def couting_matching_characters(sequence, set_of_PTM):
+    return sum(char in set(set_of_PTM) for char in sequence)
+
+
 def peptide_mass(sequence):
     """ mass of a single peptide, no PTM """
-    if not is_aa_sequence(sequence):
+    if not ut.is_aa_sequence(sequence):
         return 0
     return mass.calculate_mass(sequence=sequence, ion_type='M', charge=1)
     # was (with molmass) https://pypi.org/project/molmass/
     # formula = Formula(sequence)
     # mass = formula.isotope.mass
 
+
+
 def PTM_mass(PTM_string):
     mass=0
     # proline oxydation
     proline="0"
-    if 'P' in PTM_string:
-        re_proline=re.compile('[0-9]*P')
+    if 'O' in PTM_string:
+        re_proline=re.compile('[0-9]*O')
         m = re_proline.search(PTM_string)
-        proline=m.group().replace('P','')
+        proline=m.group().replace('O','')
         mass+= int(proline) * OXYPROLINE 
     # deamidation
     deamidation="0"
@@ -52,12 +60,12 @@ def PTM_mass(PTM_string):
     return mass
 
 def peptide_mass_with_PTM(sequence, PTM_string):
-    if not is_aa_sequence(sequence):
+    if not ut.is_aa_sequence(sequence):
         return 0
     return peptide_mass(sequence)+PTM_mass(PTM_string)
 
 def peptide_mass_with_proline(sequence, number_of_prolines):
-    if not is_aa_sequence(sequence):
+    if not ut.is_aa_sequence(sequence):
         return 0
     mass = peptide_mass(sequence)
     if number_of_prolines>sequence.count('P'):
@@ -67,7 +75,7 @@ def peptide_mass_with_proline(sequence, number_of_prolines):
          
 def peptide_mass_with_proline_range(sequence, min_P, max_P):
     """ compute the list of all masses, in the form of a pair (PTM,mass), for sequence corresponding for a given number of oxyprolines varying from min_P to max_P""" 
-    if not is_aa_sequence(sequence):
+    if not ut.is_aa_sequence(sequence):
         print(sequence)
         return []
     if max_P>sequence.count('P'):
@@ -112,7 +120,7 @@ def add_PTM_or_masses_to_markers(set_of_markers):
                 min_P, max_P=proline_range(sequence)
                 mass_list= peptide_mass_with_proline_range(sequence, min_P, max_P)
                 for ma in mass_list:
-                    new_marker=Marker()
+                    new_marker=markers.Marker()
                     new_marker=copy.deepcopy(marker)
                     new_marker.ptm=ma[0]
                     new_marker.masses={ma[1]}
@@ -124,3 +132,5 @@ def add_PTM_or_masses_to_markers(set_of_markers):
                 marker.masses={mass}
     return set_of_markers.union(set_of_new_markers) - set_of_deprecated_markers
     
+        
+

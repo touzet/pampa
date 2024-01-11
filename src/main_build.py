@@ -5,9 +5,14 @@ building new markers and new peptide tables
 """ 
 import os
 import time
-from sequences import *
-from known_markers import *
-from fasta_parsing import *
+import sys
+
+# local import
+from src import markers
+from src import sequences 
+from src import known_markers 
+from src import fasta_parsing as fa
+from src import peptide_table as pt
 
 def escape(message):
     print("\n "+message)
@@ -86,8 +91,8 @@ def create_report(report, output, peptide_table, fasta,  directory, limit,  set_
     print("---------------------------------")
     print("  NEW MARKERS FOR FASTA FILES ")
     print("---------------------------------\n")
-    colinearity(set_of_new_markers)
-    check_set_of_markers(set_of_new_markers)
+    markers.colinearity(set_of_new_markers)
+    markers.check_set_of_markers(set_of_new_markers)
     
     sys.stdout = sys.__stdout__
     
@@ -99,20 +104,20 @@ def main(peptide_table=None, fasta=None, directory=None, limit=None, output=None
     
     (peptide_table, fasta, directory, limit, output, report)=check_and_update_parameters(peptide_table, fasta, directory, limit, output)
 
-    set_of_markers=parse_peptide_table(peptide_table)
+    set_of_markers=pt.parse_peptide_table(peptide_table)
     
-    if fasta :
-        set_of_sequences= build_set_of_sequences_from_fasta_file(fasta,True)
-        if limit:
-            set_of_sequences=extract_relevant_sequences(set_of_sequences, limit)
+    if fasta:
+        set_of_sequences= fa.build_set_of_sequences_from_fasta_file(fasta,True)
+       
     if directory:
-        set_of_sequences=build_set_of_sequences_from_fasta_dir(directory)
-        if limit:
-            set_of_sequences=extract_relevant_sequences(set_of_sequences, limit)
+        set_of_sequences= fa.build_set_of_sequences_from_fasta_dir(directory)
 
-    set_of_new_markers=find_markers_all_sequences(set_of_sequences, set_of_markers)
+    if limit:
+        set_of_sequences=sequences.extract_relevant_sequences(set_of_sequences, limit)
 
-    build_peptide_table_from_set_of_markers(set_of_new_markers,output,"")
+    set_of_new_markers=known_markers.find_markers_all_sequences(set_of_sequences, set_of_markers)
+
+    pt.build_peptide_table_from_set_of_markers(set_of_new_markers,output,"")
 
     create_report(report, output, peptide_table, fasta, directory, limit, set_of_markers, set_of_new_markers)
 

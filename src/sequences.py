@@ -4,15 +4,14 @@ sequences.py
 
 
 """
-
+import re
 from pyteomics import parser
 from Bio import SeqIO
 from Bio import pairwise2
 from Bio.pairwise2 import format_alignment
-from utils import *
-from markers import *
-from peptide_table import *
-import re
+
+from src import markers 
+
 
 class Sequence(object):
     def __init__(self, sequence="", taxid="", taxon_name="", seqid="", protein="", rank="", comment=""):
@@ -31,22 +30,24 @@ class Sequence(object):
         return f"Sequence{self.seqid} \t{self.taxid}\t{self.taxon_name.lstrip()}\t{self.sequence}\t{self.protein}\t{self.rank}\t{self.comment}"
 
 
-def in_silico_digestion(set_of_sequences, number_of_misscleavages, min_length, max_length, mature):
+def in_silico_digestion(set_of_sequences, number_of_misscleavages=1, min_length=12, max_length=33, mature=True):
     """ build a set of markers from a set of sequences by in silico digestion"""
     set_of_markers=set()
+    print("MATURE SEQUENCES \n")
     for s in set_of_sequences:
-        if (mature):
+        if mature:
             (min,max)=mature_sequence(s)
         else:
             (min,max)=(0, len(s))
+        print(s.taxon_name+" \t "+s.protein+" \t " + str(min))
         mature_seq=s.sequence[min:max]
         set_of_peptides=parser.icleave(mature_seq, parser.expasy_rules['trypsin'], number_of_misscleavages, min_length)
         for (pos, peptide) in set_of_peptides:
-            if ('Z' in peptide or 'B' in peptide or 'X' in peptide):
+            if ('Z' in peptide or 'B' in peptide or 'X' in peptide): ## amino acids
                 continue
             if len(peptide)>max_length:
                 continue
-            new_marker=Marker()
+            new_marker=markers.Marker()
             new_marker.sequence=peptide
             new_marker.taxid=s.taxid
             new_marker.taxon_name=s.taxon_name
@@ -60,53 +61,89 @@ def in_silico_digestion(set_of_sequences, number_of_misscleavages, min_length, m
                 new_marker.comment=new_marker.comment + " - mature "
             set_of_markers.add(new_marker)
     return set_of_markers
-      
+
+
+def alignment(target, query):
+    return pairwise2.align.localms(target,query,1,-1,-1,-1, one_alignment_only=True)
+
 def mature_sequence(seq):
-    human_seq_col1A1_start="QLSYGYDEKSTGGISVPGPMGPSGPRGLPG"
-    human_seq_col1A1_end="PGPPSAGFDFSFLPQPPQEKAHDGGRYYRA"
-    human_seq_col1A2_start="QYDGKGVGLGPGPMGLMGPRGPPGAAGAPG"
-    human_seq_col1A2_end="GPPGPPGPPGPPGVSGGGYDFGYDGDFYRA"
-
-    min=0
-    max=len(seq.sequence)
+    HUMAN_COL1A1_START="QLSYGYDEKSTGGISVPGPMGPSGPRGLPG"
+    CHICKEN_COL1A1_START="QMSYGYDEKSAGVAVPGPMGPAGPRGLPG"
+    HUMAN_COL1A1_END="PGPPSAGFDFSFLPQPPQEKAHDGGRYYRA"
+    CHICKEN_COL1A1_END="PGPPSGGFDLSFLPQPPQEKAHDGGRYYRA"
+    HUMAN_COL1A2_START="QYDGKGVGLGPGPMGLMGPRGPPGAAGAPG"
+    CHICKEN_COL1A2_START="QYDPSKAADFGPGPMGLMGPRGPPGASGPPG"
+    HUMAN_COL1A2_END="GPPGPPGPPGPPGVSGGGYDFGYDGDFYRA"
+    CHICKEN_COL1A2_END="GPPGPPGPPGPPGPNGGGYEVGFDAEYYR"
     
-    if seq.protein=="COL1A1":
-        al1=pairwise2.align.localms(human_seq_col1A1_start, seq.sequence,1,-1,-1,-1, one_alignment_only=True)
-        al2=pairwise2.align.localms(human_seq_col1A1_end, seq.sequence,1,-1,-1,-1, one_alignment_only=True)
-        if al1[0].score>20.0:
-            min=al1[0].start
-        if al2[0].score>20.0:
-            max=al2[0].end
-    if seq.protein=="COL1A2":
-        al1=pairwise2.align.localms(human_seq_col1A2_start, seq.sequence,1,-1,-1,-1, one_alignment_only=True)
-        al2=pairwise2.align.localms(human_seq_col1A2_end, seq.sequence,1,-1,-1,-1, one_alignment_only=True)
-        if al1[0].score>17.0:
-            min=al1[0].start
-        if al2[0].score>17.0:
-            max=al2[0].end
+    HUMAN_COL1A1_MATURE="QLSYGYDEKSTGGISVPGPMGPSGPRGLPGPPGAPGPQGFQGPPGEPGEPGASGPMGPRGPPGPPGKNGDDGEAGKPGRPGERGPPGPQGARGLPGTAGLPGMKGHRGFSGLDGAKGDAGPAGPKGEPGSPGENGAPGQMGPRGLPGERGRPGAPGPAGARGNDGATGAAGPPGPTGPAGPPGFPGAVGAKGEAGPQGPRGSEGPQGVRGEPGPPGPAGAAGPAGNPGADGQPGAKGANGAPGIAGAPGFPGARGPSGPQGPGGPPGPKGNSGEPGAPGSKGDTGAKGEPGPVGVQGPPGPAGEEGKRGARGEPGPTGLPGPPGERGGPGSRGFPGADGVAGPKGPAGERGSPGPAGPKGSPGEAGRPGEAGLPGAKGLTGSPGSPGPDGKTGPPGPAGQDGRPGPPGPPGARGQAGVMGFPGPKGAAGEPGKAGERGVPGPPGAVGPAGKDGEAGAQGPPGPAGPAGERGEQGPAGSPGFQGLPGPAGPPGEAGKPGEQGVPGDLGAPGPSGARGERGFPGERGVQGPPGPAGPRGANGAPGNDGAKGDAGAPGAPGSQGAPGLQGMPGERGAAGLPGPKGDRGDAGPKGADGSPGKDGVRGLTGPIGPPGPAGAPGDKGESGPSGPAGPTGARGAPGDRGEPGPPGPAGFAGPPGADGQPGAKGEPGDAGAKGDAGPPGPAGPAGPPGPIGNVGAPGAKGARGSAGPPGATGFPGAAGRVGPPGPSGNAGPPGPPGPAGKEGGKGPRGETGPAGRPGEVGPPGPPGPAGEKGSPGADGPAGAPGTPGPQGIAGQRGVVGLPGQRGERGFPGLPGPSGEPGKQGPSGASGERGPPGPMGPPGLAGPPGESGREGAPGAEGSPGRDGSPGAKGDRGETGPAGPPGAPGAPGAPGPVGPAGKSGDRGETGPAGPAGPVGPVGARGPAGPQGPRGDKGETGEQGDRGIKGHRGFSGLQGPPGPPGSPGEQGPSGASGPAGPRGPPGSAGAPGKDGLNGLPGPIGPPGPRGRTGDAGPVGPPGPPGPPGPPGPPSAGFDFSFLPQPPQEKAHDGGRYYRA"
 
-    return (min,max)
+    HUMAN_COL1A2_MATURE="QYDGKGVGLGPGPMGLMGPRGPPGAAGAPGPQGFQGPAGEPGEPGQTGPAGARGPAGPPGKAGEDGHPGKPGRPGERGVVGPQGARGFPGTPGLPGFKGIRGHNGLDGLKGQPGAPGVKGEPGAPGENGTPGQTGARGLPGERGRVGAPGPAGARGSDGSVGPVGPAGPIGSAGPPGFPGAPGPKGEIGAVGNAGPAGPAGPRGEVGLPGLSGPVGPPGNPGANGLTGAKGAAGLPGVAGAPGLPGPRGIPGPVGAAGATGARGLVGEPGPAGSKGESGNKGEPGSAGPQGPPGPSGEEGKRGPNGEAGSAGPPGPPGLRGSPGSRGLPGADGRAGVMGPPGSRGASGPAGVRGPNGDAGRPGEPGLMGPRGLPGSPGNIGPAGKEGPVGLPGIDGRPGPIGPAGARGEPGNIGFPGPKGPTGDPGKNGDKGHAGLAGARGAPGPDGNNGAQGPPGPQGVQGGKGEQGPPGPPGFQGLPGPSGPAGEVGKPGERGLHGEFGLPGPAGPRGERGPPGESGAAGPTGPIGSRGPSGPPGPDGNKGEPGVVGAVGTAGPSGPSGLPGERGAAGIPGGKGEKGEPGLRGEIGNPGRDGARGAPGAVGAPGPAGATGDRGEAGAAGPAGPAGPRGSPGERGEVGPAGPNGFAGPAGAAGQPGAKGERGAKGPKGENGVVGPTGPVGAAGPAGPNGPPGPAGSRGDGGPPGMTGFPGAAGRTGPPGPSGISGPPGPPGPAGKEGLRGPRGDQGPVGRTGEVGAVGPPGFAGEKGPSGEAGTAGPPGTPGPQGLLGAPGILGLPGSRGERGLPGVAGAVGEPGPLGIAGPPGARGPPGAVGSPGVNGAPGEAGRDGNPGNDGPPGRDGQPGHKGERGYPGNIGPVGAAGAPGPHGPVGPAGKHGNRGETGPSGPVGPAGAVGPRGPSGPQGIRGDKGEPGEKGPRGLPGLKGHNGLQGLPGIAGHHGDQGAPGSVGPAGPRGPAGPSGPAGKDGRTGHPGTVGPAGIRGPQGHQGPAGPPGPPGPPGPPGVSGGGYDFGYDGDFYRA"
+    
+    CHICKEN_COL1A1_MATURE="QMSYGYDEKSAGVAVPGPMGPAGPRGLPGPPGAPGPQGFQGPPGEPGEPGASGPMGPRGPAGPPGKNGDDGEAGKPGRPGQRGPPGPQGARGLPGTAGLPGMKGHRGFSGLDGAKGQPGPAGPKGEPGSPGENGAPGQMGPRGLPGERGRPGPSGPAGARGNDGAPGAAGPPGPTGPAGPPGFPGAAGAKGETGPQGARGSEGPQGSRGEPGPPGPAGAAGPAGNPGADGQPGAKGATGAPGIAGAPGFPGARGPSGPQGPSGAPGPKGNSGEPGAPGNKGDTGAKGEPGPAGVQGPPGPAGEEGKRGARGEPGPAGLPGPAGERGAPGSRGFPGADGIAGPKGPPGERGSPGAVGPKGSPGEAGRPGEAGLPGAKGLTGSPGSPGPDGKTGPPGPAGQDGRPGPAGPPGARGQAGVMGFPGPKGAAGEPGKPGERGAPGPPGAVGAAGKDGEAGAQGPPGPTGPAGERGEQGPAGAPGFQGLPGPAGPPGEAGKPGEQGVPGNAGAPGPAGARGERGFPGERGVQGPPGPQGPRGANGAPGNDGAKGDAGAPGAPGNEGPPGLEGMPGERGAAGLPGAKGDRGDPGPKGADGAPGKDGLRGLTGPIGPPGPAGAPGDKGEAGPPGPAGPTGARGAPGDRGEPGPPGPAGFAGPPGADGQPGAKGETGDAGAKGDAGPPGPAGPTGAPGPAGZVGAPGPKGARGSAGPPGATGFPGAAGRVGPPGPSGNIGLPGPPGPAGKZGSKGPRGETGPAGRPGEPGPAGPPGPPGEKGSPGADGPIGAPGTPGPQGIAGQRGVVGLPGQRGERGFPGLPGPSGEPGKQGPSGASGERGPPGPMGPPGLAGPPGEAGREGAPGAEGAPGRDGAAGPKGDRGETGPAGPPGAPGAPGAPGPVGPAGKNGDRGETGPAGPAGPPGPAGARGPAGPQGPRGDKGETGEQGDRGMKGHRGFSGLQGPPGPPGAPGEQGPSGASGPAGPRGPPGSAGAAGKDGLNGLPGPIGPPGPRGRTGEVGPVGPPGPPGPPGPPGPPSGGFDLSFLPQPPQEKAHDGGRYYRA"
+
+    CHICKEN_COL1A2_MATURE="QYDPSKAADFGPGPMGLMGPRGPPGASGPPGPPGFQGVPGEPGEPGQTGPQGPRGPPGPPGKAGEDGHPGKPGRPGERGVAGPQGARGFPGTPGLPGFKGIRGHNGLDGQKGQPGTPGTKGEPGAPGENGTPGQPGARGLPGERGRIGAPGPAGARGSDGSAGPTGPAGPIGAAGPPGFPGAPGAKGEIGPAGNVGPTGPAGPRGEIGLPGSSGPVGPPGNPGANGLPGAKGAAGLPGVAGAPGLPGPRGIPGPPGPAGPSGARGLVGEPGPAGAKGESGNKGEPGAAGPPGPPGPSGEEGKRGSNGEPGSAGPPGPAGLRGVPGSRGLPGADGRAGVMGPAGNRGASGPVGAKGPNGDAGRPGEPGLMGPRGLPGQPGSPGPAGKEGPVGFPGADGRVGPIGPAGNRGEPGNIGFPGPKGPTGEPGKPGEKGNVGLAGPRGAPGPEGNNGAQGPPGVTGNQGAKGETGPAGPPGFQGLPGPSGPAGEAGKPGERGLHGEFGVPGPAGPRGERGLPGESGAVGPAGPIGSRGPSGPPGPDGNKGEPGNVGPAGAPGPAGPGGIPGERGVAGVPGGKGEKGAPGLRGDTGATGRDGARGLPGAIGAPGPAGGAGDRGEGGPAGPAGPAGARGIPGERGEPGPVGPSGFAGPPGAAGQPGAKGERGPKGPKGETGPTGAIGPIGASGPPGPVGAAGPAGPRGDAGPPGMTGFPGAAGRVGPPGPAGITGPPGPPGPAGKDGPRGLRGDVGPVGRTGEQGIAGPPGFAGEKGPSGEAGAAGPPGTPGPQGILGAPGILGLPGSRGERGLPGIAGATGEPGPLGVSGPPGARGPSGPVGSPGPNGAPGEAGRDGNPGNDGPPGRDGAPGFKGERGAPGNPGPSGALGAPGPHGQVGPSGKPGNRGDPGPVGPVGPAGAFGPRGLAGPQGPRGEKGEPGDKGHRGLPGLKGHNGLQGLPGLAGQHGDQGPPGNNGPAGPRGPPGPSGPPGKDGRNGLPGPIGPAGVRGSHGSQGPAGPPGPPGPPGPPGPNGGGYEVGFDAEYYR"
+    
+    #COL1A1=[(HUMAN_COL1A1_START, HUMAN_COL1A1_END), (CHICKEN_COL1A1_START, CHICKEN_COL1A1_END)]
+    COL1A2=[HUMAN_COL1A2_MATURE, CHICKEN_COL1A2_MATURE]
+    COL1A1=[HUMAN_COL1A1_MATURE, CHICKEN_COL1A1_MATURE]
+    
+    start_query=0
+    end_query=len(seq.sequence)
+
+    if seq.protein=="COL1A1":
+        list_of_target_sequences=COL1A1
+    elif seq.protein=="COL1A2":
+        list_of_target_sequences=COL1A2
+    else:
+        return (start_query,end_query)
+    
+    max_length=50
+    for target in list_of_target_sequences:
+        al=alignment(target, seq.sequence)
+        if al[0].end-al[0].start>max_length:
+            max_length= al[0].end-al[0].start
+            end_query=al[0].end
+            start_query=al[0].start 
+   
+    return (start_query,end_query)
         
 
-def extract_relevant_sequences(set_of_sequences, extract_file):
+def reduce(seq):
+    seq=seq.replace(" ", "")
+    seq=seq.lower()
+    return  seq
+
+
+def limit_sequences(set_of_sequences, limit_file):
     """
-    build a new set of markers which is complinat with the specification of the summary file extract_file (TSV file) 
+    build a new set of sequences that is compliant with the specification of the limit_file (TSV file, -l option) 
     """
-    new_set=set()
-    summary_file=open(extract_file).read().splitlines()
-    for line in summary_file:
-        entry= re.split('\t', line)
-        entry = [item for item in entry if len(item)>0] 
-        if len(entry)==1: # selection of the organism
-            supp_set=(s for s in  set_of_sequences if (s.taxon_name).replace(" ", "").lower()==(entry[0]).replace(" ", "").lower() )
-        elif len(entry)==2:
-            supp_set=(s for s in  set_of_sequences if (s.taxon_name).replace(" ", "").lower()==(entry[0]).replace(" ", "").lower() and s.protein==entry[1])
-        elif len(entry)==3:
-             supp_set=(s for s in  set_of_sequences if s.seqid==entry[2])
-        else:
-            supp_set=set()
-        new_set=new_set.union(supp_set)
+    new_set=set_of_markers
+    summary_file=open(limit_file).read().splitlines()
+    for line in summary_file:      
+        if line[:3]=="GN=":
+            pattern = re.compile(r'GN=([\w\s,]+)')
+            list_of_matches = pattern.findall(line)
+            matches= list_of_matches[0].split(',')
+            new_set={s for s in new_set if s.protein in matches}
+
+        if line[:3]=="OS=":
+            pattern = re.compile(r'OS=([\w\s,]+)')
+            list_of_matches = pattern.findall(line)
+            matches= list_of_matches[0].split(',')
+            matches=[reduce(match) for match in matches]
+            new_set={s for s in new_set if reduce(s.taxon_name) in matches}   
+
+        if line[:6]=="SeqID=":
+            pattern = re.compile(r'SeqID=([\w\s,]+)')
+            list_of_matches = pattern.findall(line)
+            matches= list_of_matches[0].split(',')
+            matches=[reduce(match) for match in matches]
+            new_set={s for s in new_set if reduce(s.seqid) in matches} 
+
+    summary_file.close()
     return new_set
 
+  
     
-

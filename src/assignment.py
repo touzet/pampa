@@ -2,8 +2,10 @@
     assignment.py
 """
 
-from utils import *
 import math
+import sys
+from src import utils as ut
+from src import markers
 
 class Assignment(object):
     def __init__(self, spectrum_name="",  peak_to_taxid_name_ptm={}, combinations_of_peaks=[], results=set(), taxid_to_peak_name_ptm={}):
@@ -31,7 +33,7 @@ def assign_peaks_of_the_spectrum(spectrum, mass_taxid_name_list, resolution):
         for j in range(current_j,len(mass_taxid_name_list)):
             diff_peak_pep = peak-mass_taxid_name_list[j][0]
             if matching_masses(mass_taxid_name_list[j][0], peak, resolution):  # there is a match 
-                update_dictoset(peak_to_taxid_name_ptm, peak, mass_taxid_name_list[j][1])
+                ut.update_dictoset(peak_to_taxid_name_ptm, peak, mass_taxid_name_list[j][1])
             elif diff_peak_pep<0: # peptide mass is greater than peak mass 
                 current_j = j 
                 break # next peak 
@@ -61,17 +63,17 @@ def assign_spectrum(spectrum, mass_taxid_name_list, resolution, taxonomy, thresh
     assignment.spectrum_name=spectrum.name
     assignment.peak_to_taxid_name_ptm=assign_peaks_of_the_spectrum(spectrum, mass_taxid_name_list, resolution)
    
-    if len(assignment.peak_to_taxid_name_ptm)<5:
+    if len(assignment.peak_to_taxid_name_ptm)<2:
         return assignment 
     
     taxid_to_peak_name_ptm={}
     for peak in assignment.peak_to_taxid_name_ptm:
         for (taxid,name,ptm) in  assignment.peak_to_taxid_name_ptm[peak]:
-            update_dictoset(taxid_to_peak_name_ptm, taxid, {(peak, name,ptm)})
+            ut.update_dictoset(taxid_to_peak_name_ptm, taxid, {(peak, name,ptm)})
 
     max_number_of_markers=max({len(taxid_to_peak_name_ptm[taxid]) for taxid in taxid_to_peak_name_ptm})
 
-    if max_number_of_markers<5:
+    if max_number_of_markers<2:
         return assignment
  
     set_of_combinations=set()
@@ -100,7 +102,7 @@ def assign_spectrum(spectrum, mass_taxid_name_list, resolution, taxonomy, thresh
     dict_of_equivalent_taxid={}
     for taxid in taxid_to_peak_name_ptm:
         if taxid_to_peak_name_ptm[taxid]>=0:
-             update_dictoset(dict_of_equivalent_taxid, taxid_to_peak_name_ptm[taxid], {taxid})
+             ut.update_dictoset(dict_of_equivalent_taxid, taxid_to_peak_name_ptm[taxid], {taxid})
     
     results=[]
     for i in range(len(combinations_of_peaks)):
@@ -162,16 +164,17 @@ def create_main_result_file(output, list_of_assignments, taxonomy, B,list_of_mar
     f1.close()
 
 def create_detail_result_file(output2, list_of_useful_taxid,list_of_spectra, list_of_assignments, taxonomy, B,list_of_marker_full_names):
-
+#
     f2 =open(output2, "w")
     
-    # Heading
+    #f2.write("Spectra:\t"+spectra_path+"\nMarkers:\t"+ marker_source + "\nResolution:\t"+str(resolution)+"\n" )
+    #heading
     s="spectrum\t marker\t m/z \t intensity  "
     for taxid in  list_of_useful_taxid:
         s=s+"\t"+str(taxid)
     s=s+"\t Best Guess\n"
     f2.write(s)
-    # Body
+    # Secondary file - body
     for i in range(len(list_of_spectra)):
         a=list_of_assignments[i]
         sp=list_of_spectra[i]
@@ -179,7 +182,7 @@ def create_detail_result_file(output2, list_of_useful_taxid,list_of_spectra, lis
         name_to_peak={}
         for peak in  a.peak_to_taxid_name_ptm:
             for (taxid, name, ptm) in  a.peak_to_taxid_name_ptm[peak]:
-                update_dictoset(name_to_peak, (name,ptm), {peak})
+                ut.update_dictoset(name_to_peak, (name,ptm), {peak})
         for (name,ptm) in list_of_marker_full_names:
             if (name,ptm) in name_to_peak :
                 # the peptide marker is present in the spectrum
@@ -203,7 +206,7 @@ def create_detail_result_file(output2, list_of_useful_taxid,list_of_spectra, lis
                 indice=a.taxid_to_peak_name_ptm[taxid]
                 score=(a.results[indice])[1]
                 s=s+"\t"+str(int(score))
-                update_dictoset(score_to_taxid, score, {taxid})
+                ut.update_dictoset(score_to_taxid, score, {taxid})
             else:
                 s=s+"\t"
         s=s+"\t"
@@ -216,7 +219,11 @@ def create_detail_result_file(output2, list_of_useful_taxid,list_of_spectra, lis
 
     f2.close()
 
-def assign_all_spectra(list_of_spectra, mass_taxid_name_list, error, taxonomy, B, threshold, allsolutions, output,output2):   
+def assign_all_spectra(list_of_spectra, set_of_markers, error, taxonomy, B, threshold, allsolutions, output,output2):
+
+    # elements of the list are 2-uplets of the form  (mass, {(taxid, code, PTM)})
+    mass_taxid_name_list=markers.sort_by_masses(set_of_markers)
+    
     list_of_assignments=[]
     for spectrum in list_of_spectra:
         current_assignment = assign_spectrum(spectrum, mass_taxid_name_list, error, B, threshold,allsolutions)
@@ -244,3 +251,4 @@ def assign_all_spectra(list_of_spectra, mass_taxid_name_list, error, taxonomy, B
     create_detail_result_file(output2, list_of_useful_taxid,list_of_spectra, list_of_assignments, taxonomy, B,list_of_marker_full_names)
 
  
+    

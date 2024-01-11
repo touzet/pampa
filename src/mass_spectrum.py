@@ -64,9 +64,6 @@ def parser_binarymatrix(peak_file_name):
 
     """
     
-    _, ext = os.path.splitext(peak_file_name)
-    if ext != ".csv":
-        raise NameError("The input file must be a csv file. Check the extension")
     list_of_spectra=[]
     f= open (peak_file_name,"r")
     csv_file = csv.reader(f, delimiter=" ")
@@ -98,11 +95,8 @@ def peak_parser_csv(peak_file_name, name):
         NameError: if the file is not a csv file
     """
 
-    _, ext = os.path.splitext(peak_file_name)
-    if ext != ".csv":
-        raise NameError("the input file must be a csv file - check the extension")
-    peak_list = []
-    
+
+    peak_list = []    
     f= open (peak_file_name)
     next(f) 
     for row in f:
@@ -186,15 +180,15 @@ def parser(file_path,name):
     """
      
     _, ext = os.path.splitext(file_path)
-    if ext == ".csv": # csv file 
+    if ext == ".csv" or ext == ".CSV" or ext == ".txt" or ext == ".TXT": # csv file 
         spectrum = peak_parser_csv(file_path,name)
-    elif ext == ".mgf": # mgf file 
+    elif ext == ".mgf" or ext == ".MGF" : # mgf file 
         spectrum = peak_parser_mgf(file_path,name)
     elif ext == ".mzML": # mzML file
         spectrum = peak_parser_mzml(file_path,name)
     else:
         print(file_path)
-        raise Exception("The format of the file is unknown. Accepted formats are: csv, mgf and mzML")
+        raise Exception("The format of the spectrum file is unknown. Accepted formats are: csv, mgf and mzML")
         sys.exit()
     return spectrum
 

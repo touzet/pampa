@@ -5,7 +5,9 @@
 import copy
 import sys
 import re
-from utils import *
+import sys
+from  src import utils as ut
+#from src import limit 
 
 class Marker(object):
 
@@ -24,26 +26,16 @@ class Marker(object):
         self.comment = comment
 
     def __str__(self):
-        return f"{self.rank}\t{self.taxid}\t{self.taxon_name.lstrip()}\t{self.sequence}\t{self.ptm}\t{self.code}\t"+image(self.masses)+f"\t{self.protein}\t{self.seqid}\t{self.begin}\t{self.end}\t{self.comment}"
+        return f"{self.rank}\t{self.taxid}\t{self.taxon_name.lstrip()}\t{self.sequence}\t{self.ptm}\t{self.code}\t"+ut.image(self.masses)+f"\t{self.protein}\t{self.seqid}\t{self.begin}\t{self.end}\t{self.comment}"
 
     
 def sort_by_masses(set_of_markers):
     taxid_name_ptm_to_mass_dict={}
     for m in set_of_markers:
-        update_dictoset(taxid_name_ptm_to_mass_dict, (m.taxid,m.code,m.ptm), m.masses)
-    mass_taxid_name_list=create_mass_Xid_list_from_dict(taxid_name_ptm_to_mass_dict)
+        ut.update_dictoset(taxid_name_ptm_to_mass_dict, (m.taxid,m.code,m.ptm), m.masses)
+    mass_taxid_name_list=ut.create_mass_Xid_list_from_dict(taxid_name_ptm_to_mass_dict)
     return mass_taxid_name_list
     
-def build_marker_dictionnaries_from_set_of_markers(set_of_markers):
-    set_of_taxid=set()
-    taxid_to_taxidname={}
-    for current_marker in set_of_markers:
-        taxid=current_marker.taxid
-        taxid_to_taxidname[taxid]=current_marker.taxon_name
-        set_of_taxid.add(taxid)
-    mass_taxid_name_list=sort_by_masses(set_of_markers)
-    return  mass_taxid_name_list, set_of_taxid, taxid_to_taxidname
-
 
 def build_markers_pepid_taxid_dictionnaries_from_set_of_markers(set_of_markers):
     taxid_to_pepid_dict={}
@@ -87,8 +79,8 @@ def create_marker_landscape(marker_file_name, set_of_markers):
     print(list_of_codes)
     for s in set_of_markers:
         for m in s.masses:
-            update_dictoset(mass_to_taxid_name_dict, round(float(m),4), {(s.taxid, s.code)})
-            update_dictoset(name_to_mass_dict, s.code,  {round(float(m),4)})
+            ut.update_dictoset(mass_to_taxid_name_dict, round(float(m),4), {(s.taxid, s.code)})
+            ut.update_dictoset(name_to_mass_dict, s.code,  {round(float(m),4)})
                 
     f = open("landscape_"+marker_file_name, "w+")
     f.write(marker_file_name+"\n")
@@ -114,7 +106,6 @@ def create_marker_landscape(marker_file_name, set_of_markers):
     f.close()
 
 
-
 def is_included_taxid_sequence(set_of_markers1, set_of_markers2):
     """ 
     look if the set of pairs (taxid, sequence) for set_of_markers1 is included in the set of pairs
@@ -126,9 +117,9 @@ def is_included_taxid_sequence(set_of_markers1, set_of_markers2):
     dict2={}
     dict_result={}
     for m in set_of_markers1:
-        update_dictoset(dict1, m.taxid, {m.sequence})
+        ut.update_dictoset(dict1, m.taxid, {m.sequence})
     for m in set_of_markers2:
-        update_dictoset(dict2, m.taxid, {m.sequence})
+        ut.update_dictoset(dict2, m.taxid, {m.sequence})
     for taxid in dict1:
         if taxid not in dict2:
             dict_result[taxid]=dict1[taxid]
@@ -138,11 +129,9 @@ def is_included_taxid_sequence(set_of_markers1, set_of_markers2):
                 dict_result[taxid]=diff_set
     return dict_result
             
-    
-
-
 def is_consistent(set_of_markers):
     """
+    DEPRECATED
     check the consistency of set_of_markers:
     one taxid is equivalent to one species and all identical sequences+PTM have the same mass
     """
@@ -156,12 +145,11 @@ def is_consistent(set_of_markers):
         sequence=(m.sequence).replace(" ","")
         sequence=sequence.lower()
         ptm=(m.ptm).replace(" ","")
-        ptm=ptm.replace(" ","")
         if len(taxid)!=0 and len(taxon_name)!=0:
-            update_dictoset(dict_taxid, taxid, {taxon_name})
-            update_dictoset(dict_taxonname, taxon_name, {taxid})
+            ut.update_dictoset(dict_taxid, taxid, {taxon_name})
+            ut.update_dictoset(dict_taxonname, taxon_name, {taxid})
         if len(m.masses)>0 and len(sequence)>0:
-                update_dictoset(dict_sequence, (sequence, ptm), frozenset(m.masses))
+                ut.update_dictoset(dict_sequence, (sequence, ptm), frozenset(m.masses))
     for taxid, value in dict_taxid.items():
         if len(value)>1:
             print(" taxid", taxid, "->", value)
@@ -171,7 +159,6 @@ def is_consistent(set_of_markers):
     for sequence, value in dict_sequence.items():
         if len(value)>1:
             print(" sequence", sequence, "->", value)  
-
 
 
 def check_set_of_markers(set_of_markers, file=""):
@@ -188,30 +175,17 @@ def check_set_of_markers(set_of_markers, file=""):
            
     for m in set_of_markers:
         dict_taxid_to_name[m.taxid]= m.taxon_name
-        update_dictoset(dict_taxid_to_masses, m.taxid, m.masses)
+        ut.update_dictoset(dict_taxid_to_masses, m.taxid, m.masses)
     list_of_taxid=list(dict_taxid_to_masses.keys())
 
     dict_count={}
     for m in set_of_markers:
-        increment_dictoset(dict_count, (m.protein, m.taxid))
+        ut.increment_dictoset(dict_count, (m.protein, m.taxid))
 
     dict_t={}
     for taxid in list_of_taxid:
         s={(x[0],dict_count[(x[0],taxid)]) for x in dict_count if x[1]==taxid}
         dict_t[taxid]=s
-
-    #print("  Number of species : "+str(len(dict_taxid_to_name))+"\n")
-        
-    #set_of_values={frozenset(x) for x in dict_t.values()}
-    #for v in set_of_values:
-    #    print("  ", end="")
-    #    for (x,y) in v:
-    #        print(str(y)+" "+str(x)+" ", end="")
-    #    print("")
-    #    key_list=[str(t) for t in dict_t if dict_t[t]==v]
-    #    for t in key_list:
-    #        print("  "+dict_taxid_to_name[t]+" ["+str(t)+"]  ")
-    #    print("")
 
     dict_equiv={}
     is_included=set()
@@ -272,47 +246,83 @@ def build_marker_dict_from_set_of_marker(set_of_markers):
         if len(m.sequence)==0 :
             continue
         model_marker=(m.ptm.strip(), m.code.strip(), (m.protein.strip()).upper(),m.taxid,m.begin)
-        update_dictoset(dict_of_markers, m.sequence.strip(), {model_marker})
+        ut.update_dictoset(dict_of_markers, m.sequence.strip(), {model_marker})
     return dict_of_markers
 
 
 def remove_lost_taxid(set_of_markers, lost_taxid):
     set_of_markers={m for m in set_of_markers if m.taxid not in lost_taxid}
     return set_of_markers
-    
-def extract_relevant_markers(set_of_markers, extract_file):
-    """
-    build a new set of markers that is compliant with the specification of the summary file extract_file (TSV file) 
-    """
-    new_set=set()
-    summary_file=open(extract_file).read().splitlines()
-    for line in summary_file:
-        entry= re.split('\t', line)
-        entry = [item for item in entry if len(item)>0] 
-        if len(entry)==1: # selection of the organism
-            supp_set={m for m in  set_of_markers if (m.taxon_name).replace(" ", "").lower()==(entry[0]).replace(" ", "").lower() }
-        elif len(entry)==2:
-            supp_set={m for m in  set_of_markers if (m.taxon_name).replace(" ", "").lower()==(entry[0]).replace(" ", "").lower() and m.protein==entry[1]}
-        elif len(entry)==3:
-             supp_set={m for m in  set_of_markers if m.seqid==entry[2]}
+
+def reduce(seq):
+    seq=seq.replace(" ", "")
+    seq=seq.lower()
+    return  seq
+
+
+def authorized_PTM(PTM_string, list_of_PTM):
+    found_number=""
+    for char in PTM_string:
+        if char.isdigit():
+            found_number += char
         else:
-            supp_set=set()
-        new_set.update(supp_set)
-        
+          if int(found_number)>0 and char not in list_of_PTM:
+            return False
+          found_number=""
+    
+    return True
+
+  
+def limit_markers(set_of_markers, limit_file):
+    """
+    build a new set of markers that is compliant with the specification of the limit_file (txt file, -l option) 
+    """
+    
+    
+    new_set=set_of_markers
+    file=open(limit_file).read().splitlines()
+    for line in file:
+        # each line defines a set of markers
+        # the final set of markers is the union of all lines
+        if line[:3]=="GN=":
+            pattern = re.compile(r'GN=([\w\s,]+)')
+            list_of_matches = pattern.findall(line)
+            matches= list_of_matches[0].split(',')
+            new_set={s for s in new_set if s.protein in matches}
+
+        if line[:3]=="OS=":
+            pattern = re.compile(r'OS=([\w\s,]+)')
+            list_of_matches = pattern.findall(line)
+            matches= list_of_matches[0].split(',')
+            matches=[reduce(match) for match in matches]
+            new_set={s for s in new_set if reduce(s.taxon_name) in matches}   
+
+        if line[:6]=="SeqID=":
+            pattern = re.compile(r'SeqID=([\w\s,]+)')
+            list_of_matches = pattern.findall(line)
+            matches= list_of_matches[0].split(',')
+            matches=[reduce(match) for match in matches]
+            new_set={s for s in new_set if reduce(s.seqid) in matches} 
+
+        if line[:4]=="PTM=":
+            pattern = re.compile(r'PTM=([\w\s,]+)')
+            list_of_matches = pattern.findall(line)
+            matches= list_of_matches[0].split(',')
+            #matches=[reduce(match) for match in matches]
+            new_set={s for s in new_set if authorized_PTM(s.ptm, matches)}
+            
+    summary_file.close()
     return new_set
 
-    
-# détermine si les marqueurs sont tous bien ordonnés entre les différentes séquences
-# et si oui, renvoie la liste ordonnée.
 def colinearity(set_of_markers):
-
+    """
+    print all markers as a matrix: marker name / position for the species
+    """
     dict_taxon_name_to_taxid={m.taxon_name:m.taxid for m in set_of_markers}    
-
     print("Total number of species: "+str(len( dict_taxon_name_to_taxid))+"\n")
-    
     list_of_proteins=list({m.protein for m in set_of_markers})
     for prot in list_of_proteins:
-        print("\nMolecule :"+prot)
+        print("\nGene : "+prot)
         list_of_seqid=list({(m.taxon_name, m.seqid) for m in set_of_markers if m.protein==prot})
         list_of_seqid.sort(key=lambda x: x[0])
         seqid_length=max({len(s[1]) for s in list_of_seqid})
@@ -339,3 +349,6 @@ def colinearity(set_of_markers):
             print(s)
     print("")
  
+            
+
+        

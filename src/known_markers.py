@@ -3,14 +3,15 @@ known_markers.py
 
 """
 
-from utils import *
-from compute_masses import *
-from sequences import *
+from src import utils as ut
+from src import compute_masses as mass
+from src import sequences 
+from src import markers
 
-def hamming_distance(chaine1, chaine2):
-    if len(chaine1)!=len(chaine2):
+def hamming_distance(seq1, seq2):
+    if len(seq11)!=len(seq2):
         return -1
-    return sum(c1 != c2 for c1, c2 in zip(chaine1, chaine2))
+    return sum(c1 != c2 for c1, c2 in zip(seq1, seq2))
         
 def find_markers_single_sequence(seq,  set_of_digested_peptides, dict_of_model_markers, set_of_markers):
     # seq: protein (object defined in sequences.py)
@@ -75,7 +76,7 @@ def find_markers_single_sequence(seq,  set_of_digested_peptides, dict_of_model_m
         for model_marker in dict_of_model_markers[marker_seq]:
             if model_marker[1]!=code:
                 continue
-            new_marker=Marker()
+            new_marker=markers.Marker()
             new_marker.taxid=seq.taxid
             new_marker.taxon_name=seq.taxon_name
             new_marker.seqid=seq.seqid
@@ -84,7 +85,7 @@ def find_markers_single_sequence(seq,  set_of_digested_peptides, dict_of_model_m
             new_marker.end=str(pos+l-1)
             new_marker.rank="species"
             new_marker.ptm=model_marker[0]
-            new_marker.masses={peptide_mass_with_PTM(seq.sequence[pos:pos+l],model_marker[0])} # à modifier pour conserver la masse
+            new_marker.masses={mass.peptide_mass_with_PTM(seq.sequence[pos:pos+l],model_marker[0])} # à modifier pour conserver la masse
             new_marker.code=model_marker[1]
             new_marker.protein=model_marker[2]
             new_marker.comment=seq.sequence[pos-1]+" - peptide - "+ seq.sequence[pos+l]+", #mismatch "+str(d)
@@ -110,13 +111,14 @@ def find_markers_all_sequences(set_of_sequences, set_of_markers):
             else:
                 peptide_name=m.code
             model_marker=(m.ptm.strip(), peptide_name.strip(), m.protein.strip().upper())
-            update_dictoset(dict_of_model_markers, m.sequence.strip(), {model_marker})
+            ut.update_dictoset(dict_of_model_markers, m.sequence.strip(), {model_marker})
 
     set_of_markers=set()
     for seq in set_of_sequences:
-        set_of_digested_peptides=in_silico_digestion({seq},1, 12, 33, False)
+        set_of_digested_peptides=sequences.in_silico_digestion({seq},1, 12, 33, False)
         s=find_markers_single_sequence(seq, set_of_digested_peptides, dict_of_model_markers, set_of_markers)
         set_of_markers.update(s)
 
     return set_of_markers
+
 

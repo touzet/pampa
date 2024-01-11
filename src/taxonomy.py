@@ -3,9 +3,9 @@ taxonomy.py
 
 """
 
-import newick
 import sys
-from utils import *
+#sys.path.append("src")
+from src import utils 
 
 class Taxonomy(object):
     def __init__(self, taxidname={}, rank={}, children={}, descendants={}, parent={},  root="0"):
@@ -84,7 +84,6 @@ class Taxonomy(object):
     def init_descendants(self):
           self.set_of_descendants_aux(self.root)
 
-
     def intersection(self, set_of_taxid):
         """ create a sub-taxonomy that contains only taxid from set_of_taxid, with their ancestors"""
         """ elements of set_of_taxid not present in the taxonomy are lost. """
@@ -100,9 +99,7 @@ class Taxonomy(object):
                     print(t)
                     set_of_survivors.add(t)
         set_of_survivors.update(set_of_taxid-lost_taxid)
-                    
-        print("Lost TAXID: "+str(lost_taxid))
-        print("Survivor TAXID: "+str(set_of_survivors))
+        
         taxid_to_children_dict= {taxid: self.children[taxid] & set_of_survivors for taxid in set_of_survivors & self.children.keys()}
         taxid_to_name_dict = {taxid: self.taxidname[taxid]  for taxid in set_of_survivors} 
         taxid_to_rank_dict = {taxid: self.rank[taxid]  for taxid in set_of_survivors}
@@ -141,6 +138,7 @@ class Taxonomy(object):
         return B
     
     def lca(self, set_of_taxid):
+        """ lowest common ancestor """
         if not set_of_taxid.issubset(self):
             return self.root
         ancestor=next(iter(set_of_taxid))
@@ -149,6 +147,7 @@ class Taxonomy(object):
         return ancestor
 
     def hca(self, set_of_taxid):
+        """ highest common ancestor: highest node whose descendants are set_of_taxid """
         hca=self.lca(set_of_taxid)
         if hca==self.root:
             return hca
@@ -157,29 +156,6 @@ class Taxonomy(object):
             hca=next_hca
             next_hca=self.parent[next_hca]
         return hca
-        
-    def build_newick(self,taxid=""):
-        if not taxid:
-            taxid=self.root
-        if self.number_of_children(taxid)==0:
-            return taxid #+" "+self.taxid_to_taxidname[taxid]
-        else:
-            res=""
-            for l in self.children[taxid]:
-                res=res+","+self.build_newick(l)
-            res= res.lstrip(',')   
-            res="("+res+")"+taxid
-            return res
-
-    def tree_print(self,taxid=""):
-        if not taxid:
-            taxid=self.root
-        tree = newick.loads(self.build_newick(taxid))[0]
-        print("\n")
-        print(tree.ascii_art())
-        print("\n")
-
-  
         
 ## end of class Taxonomy ##
 
@@ -197,9 +173,9 @@ def table_print(t, taxid=""):
     table_print_rec(t,taxid,0)
      
 
-def parse_taxonomy_simple_file(taxonomy_file_name):
+def parse_taxonomy_simple_file(taxonomy_file):
     """
-    taxonomy_file_name is a TSV file with 5 columns:
+    taxonomy_file is a TSV file with 5 columns:
     Taxid | Common name	| Scientific name | Parent | Rank
     """
     taxonomy=Taxonomy()
@@ -209,7 +185,7 @@ def parse_taxonomy_simple_file(taxonomy_file_name):
     taxid_to_rank_dict={}
     taxid_to_parent_dict={}
     
-    with open(taxonomy_file_name) as in_file:
+    with open(taxonomy_file) as in_file:
         next(in_file)
         for line in in_file:
             columns = line.split("\t")
@@ -219,7 +195,7 @@ def parse_taxonomy_simple_file(taxonomy_file_name):
             taxid_to_parent_dict.update({columns[0]:columns[3]})
             
     for taxid in taxid_to_parent_dict.keys():
-        update_dictoset(taxid_to_children_dict,taxid_to_parent_dict[taxid],{taxid})
+        utils.update_dictoset(taxid_to_children_dict,taxid_to_parent_dict[taxid],{taxid})
 
     taxonomy.children=taxid_to_children_dict
     taxonomy.taxidname=taxid_to_name_dict
@@ -231,54 +207,7 @@ def parse_taxonomy_simple_file(taxonomy_file_name):
     return taxonomy
 
 
-            
-# TSV file: Taxid |  Common name	| Scientific name | Lineage | Rank       
-def parse_taxonomy_file(taxonomy_file_name):
-    taxonomy=Taxonomy()
-    name_to_taxid_dict={} # key: (name, degree)
-    taxid_to_children_dict={}
-    taxid_to_name_dict={} 
-    taxid_to_rank_dict={}
-    taxid_to_parent_dict={}
-    
-    with open(taxonomy_file_name) as in_file:  
-        for line in in_file:
-            columns = line.split("\t")
-            taxa_list=columns[3].split(",")
-            d=0
-            while (columns[2].lstrip()==taxa_list[d].lstrip()):
-                d=d+1
-            taxid_to_degree_dict=d
-            taxid_to_name_dict.update({columns[0]:columns[2]})
-            name_to_taxid_dict.update({(columns[2],d):columns[0]})
-            taxid_to_rank_dict.update({columns[0]:columns[4].strip("\n")})
-            
-    #remplissage de taxid_to_children_dict 
-    with open(taxonomy_file_name) as in_file:     
-        for line in in_file:
-            columns = line.split("\t")
-            if  "rank" not in columns[4]:
-                taxa_list=columns[3].split(",")
-                ancestor=taxa_list[0] 
-                ancestor=ancestor.lstrip()
-                d=0
-                while (ancestor==taxa_list[d+1].lstrip()):
-                    d+=1
-                ancestor_taxid = name_to_taxid_dict[(ancestor,d)]
-                taxid_to_parent_dict.update({columns[0]:ancestor_taxid})
-                if ancestor_taxid in taxid_to_children_dict:
-                    taxid_to_children_dict[ancestor_taxid].add(columns[0])
-                else:
-                    taxid_to_children_dict[ancestor_taxid]={columns[0]}
-                    
-    taxonomy.children=taxid_to_children_dict
-    taxonomy.taxidname=taxid_to_name_dict
-    taxonomy.rank=taxid_to_rank_dict
-    taxonomy.parent=taxid_to_parent_dict
-    taxonomy.init_root()
-    taxonomy.init_descendants()
-    return taxonomy
-
+ 
 def build_flat_taxonomy(set_of_markers):
     """ constructs a flat taxonomy (one root, all taxid are leaves) from a set of markers """
     taxidname={}
@@ -292,7 +221,6 @@ def build_flat_taxonomy(set_of_markers):
     t.init_parent()
     return t
 
-                
 def search_taxid_from_taxon_name(taxon_name, taxonomy):
      for key, value in taxonomy.taxidname.items():
          if taxon_name == value:
