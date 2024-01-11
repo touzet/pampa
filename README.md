@@ -79,7 +79,7 @@ __This option in mandatory.__
 
 This option enables you to specify the name of the main output file, in TSV format. You can include the desired path to the directory where the file should be created. If the specified directory does not exist, it will be created automatically.
 
-For each spectrum, the output file will give the best assignment, based the highest number of marker peptides. It contains the following information:
+For each spectrum, the output file will give the best assignment, based on the highest number of marker peptides. It contains the following information:
 - Peaks from the spectrum that match the marker petides,  
 - Score: the total number of marker peptides, 
 - Assignment: largest subtree of the taxonomy that is compatible with the marker peptides found,
@@ -129,21 +129,21 @@ It is possible to filter the peptide table to limit the search according to vari
 
 For example, If you want to limit your search to a specific set of organisms, your file might look like this: 
 ```
-OS= Castor canadensis, Diceros bicornis, Cervus elaphus, Bos taurus, Equus caballus   
+OS= Diceros bicornis, Cervus elaphus, Bos taurus, Equus caballus   
 ```   
 Of course, you can combine constraints to narrow down your search. For instance, limiting the search to markers coming from COL1A2 gives:
 ```
-OS= Castor canadensis, Diceros bicornis, Cervus elaphus, Bos taurus, Equus caballus GN=COL1A2
+OS= Diceros bicornis, Cervus elaphus, Bos taurus, Equus caballus GN=COL1A2
 ```  
 This means that the search will focus on markers from COL1A2 within the specified organisms.
 
 Assume now that you want to further refine this selection and  exclude certain PTMs, such as deamidation and  phosporylation. Then you have to add one contraint to authorize only proline oxylation. This gives:
 ```
-OS= Castor canadensis, Diceros bicornis, Cervus elaphus, Bos taurus, Equus caballus GN=COL1A1 PTM=O
+OS= Diceros bicornis, Cervus elaphus, Bos taurus, Equus caballus GN=COL1A1 PTM=O
 ```  
-The limit file can comprise an arbitrary number of lines, with each line representing a distinct constraint. The resulting selection is determined by the union of all these constraints
+The limit file can comprise an arbitrary number of lines, with each line representing a distinct constraint. The resulting selection is determined by the union of all these constraints.
 
-Finally, in the presence of a taxonomy (as is the case with PAMPA light), the OS and OX fields become applicable to clades at any taxonomic rank (genera, families, orders, etc.). In such instances, the constraint will choose all descendants accordingly. 
+Finally, in the presence of a taxonomy (as is the case with PAMPA light), the OS and OX fields become applicable to clades at any taxonomic rank (e.g. genus, family, order). In such instances, the constraint will choose all descendants accordingly. 
 
 ```
 OS=Pecora GN=COL1A1
