@@ -113,9 +113,9 @@ PAMPA_light utilizes a predefined set of marker peptides in conjunction with the
 The first row of the file should contain column headings. 
 
 _PTM description_: PAMPA recognizes three types of PTMs: 
-	- oxylation of prolines (indicated by the single-letter code 'O'), 
-	- deamidation of asparagine and glutamine (indicated by the single-letter code 'D'), 
- 	- phosphorylation of serine, threonine, and tyrosine (indicated by the single-letter code 'P'). 
+ - oxylation of prolines (indicated by the single-letter code 'O'), 
+ - deamidation of asparagine and glutamine (indicated by the single-letter code 'D'), 
+ - phosphorylation of serine, threonine, and tyrosine (indicated by the single-letter code 'P'). 
 The _PTM description_ is  a concise representation of the number of oxylations, deamidations and phosphorylations necessary to compute the mass of a peptide sequence. For instance, '2O1D' signifies two oxyprolines and one deamidation, '1P4O' represents one phosphorylation and four oxyprolines, '2O' corresponds to two oxyprolines without any deamidation and phosphorylation.
 
 ###  Limiting search (-l)
