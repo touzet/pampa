@@ -291,6 +291,7 @@ options:
 ### Peptide table (-p)
 
 This table contains the list of marker peptides that will be used as models to find new markers in new sequences by homology.
+The format of this table is described in Section XXX.
 
 ### Output files (-o)
 
@@ -309,8 +310,7 @@ _Option -f :_ The specified file can contain an arbitrary number of FASTA sequen
 _Option -d:_ The directory can contain an arbitrary number of FASTA files, following the same requirements as with '-f' option.
 Only files with extension _.fa_ or _.fasta_ will be examined. 
 
-_Option -l:_ This option allows to filter the set of FASTA sequences according to the organism, the molecule (gene name) or the sequence identifier.
-
+_Option -l:_ This option allows to filter the set of FASTA sequences to limit the selection according to the organism (OS=), the taxid (OX=), the gene name (GN=), the sequence identifier (SeqID=). The full description of the syntax is given in section [Limiting search](#Limiting-search).
 
 
 
