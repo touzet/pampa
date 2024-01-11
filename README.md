@@ -101,7 +101,7 @@ PAMPA_light utilizes a predefined set of marker peptides in conjunction with the
 - Taxid: Taxonomic identifier
 - Taxon name: Scientific name
 - Sequence: Marker peptide sequence
-- PTM: Description of post-translational modifications applied to the marker peptide
+- PTM: Description of post-translational modifications (PTMs) applied to the marker peptide
 - Name: Marker name
 - Masses: Peptide mass
 - Gene: Gene name, e.g., COL1A1
