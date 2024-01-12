@@ -189,7 +189,7 @@ usage:
 	(-s SPECTRA PATH)
 	(-e ERROR MARGIN)
 	(-o OUTPUT FILE)
-	(-p PEPTIDE TABLE | -f FASTA file | -d FASTA dir)
+	(-p PEPTIDE TABLE... | -f FASTA file | -d FASTA dir)
 	[-l LIMIT]
 	[-t TAXONOMY]
 	[-n NEIGHBOURING]
@@ -230,6 +230,8 @@ Peptide tables should contain 12 columns corresponding to  Rank, Taxid, Taxon na
 
 - You must provide a taxid for the peptide marker. Rank and taxon names are included primarily to enhance the clarity of results.
 - You should furnish either a sequence, possibly with a PTM description,  or a mass for your marker peptide. If the sequence is provided without a mass, the program will automatically compute the mass from it. To do so, it will utilize either the PTM description (when available) or infer potential PTMs from the sequence.
+
+Note that you can specify multiple peptide tables by using the -p option repeatedly.  
 
 _Inference of PTMs_:  TO DO 
 
