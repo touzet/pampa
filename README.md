@@ -329,8 +329,7 @@ _Option -l:_ This option allows to filter the set of FASTA sequences to limit th
 
 ## Bug Report
 
-PAMPA is still under development. If you come across any bugs, glitches, or unexpected behavior, please take a moment to report it using our GitHub Issues page.
-To submit a bug report, just click on the "Issues" tab above and create a new issue.
+PAMPA is still under development. If you come across any bugs, glitches, or unexpected behavior, please take a moment to report it using our GitHub Issues page. Just click on the "Issues" tab above and create a new issue.
 
 We value your all feedback and contributions.  Thank you for helping us make the PAMPA project better!
 
