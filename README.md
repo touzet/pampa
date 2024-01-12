@@ -96,7 +96,7 @@ For each spectrum, the output file will give the best assignment, based on the h
 
 Two other accompanying files are automatically created, in the same directory.
 
-- detail_&lt;outputfile&gt; (TSV file): this file contains the detail of the assignment (which markers are found for which species). It alos provides the intensity of the peaks used in the assignment.
+- detail_&lt;outputfile&gt; (TSV file): this file contains the detail of the assignment (which markers are found for which species). It also provides the intensity of the peaks used in the assignment.
 - report_&lt;outputfile&lt; (TXT file): this file contains a report on the run's inputs (number of mass spectra, number of species tested,  parameters...)
 
 ### <a id="peptide"></a>Organism selection (-- mammals)
