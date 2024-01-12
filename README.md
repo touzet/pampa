@@ -51,6 +51,14 @@ usage: python3 pampa_light.py
 	[-a]
 ```
 
+### Command-Line Example
+
+```
+python3 pampa_light.py -s SpectraFolder -e 0.1 -o resultFile.tsv --mammals
+```
+
+This command executes the program on all mass spectra within the 'SpectraFolder' directory, compiling the primary results into the TSV file 'resultFile.tsv'. The taxonomic assignment model utilized is 'mammals', and the error margin for masses is set to 0.1.
+
 ### Mass spectra (-s) 
 
 __This option is mandatory.__
