@@ -319,5 +319,10 @@ Only files with extension _.fa_ or _.fasta_ will be examined.
 
 _Option -l:_ This option allows to filter the set of FASTA sequences to limit the selection according to the organism (OS=), the taxid (OX=), the gene name (GN=), the sequence identifier (SeqID=). The full description of the syntax is given in section [Limiting search](#limit).
 
+## Bug Report
 
+PAMPA is still under development. If you come across any bugs, glitches, or unexpected behavior, please take a moment to report it using our GitHub Issues page.
+To submit a bug report, just click on the "Issues" tab above and create a new issue.
+
+We value your all feedback and contributions.  Thank you for helping us make the PAMPA project better!
 
