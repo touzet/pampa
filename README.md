@@ -33,7 +33,7 @@ PAMPA light requires no external dependencies.
 - _assign_, for species identifications 
 - _build_, for construction of custom marker peptides.
 
-We suggest starting by reviewing the instructions for PAMPA light first, as it covers fundamental concepts shared across all versions, such as peptide tables, format of mass spectra, error margin, handling PTMs, format of output files, etc. Afterward, if you want to use the full version of PAMPA, you may refer to the comprehensive documentation ([PAMPA ASSIGN](#PAMPA-ASSIGN) and [PAMPA BUILD](#PAMPA-BUILD)) for more in-depth details.
+We suggest starting by reviewing the instructions for PAMPA light first, as it covers fundamental concepts shared across both versions, such as peptide tables, format of mass spectra, error margin, handling PTMs, format of output files, etc. Afterward, if you want to use the full version of PAMPA, you may refer to the comprehensive documentation ([PAMPA ASSIGN](#PAMPA-ASSIGN) and [PAMPA BUILD](#PAMPA-BUILD)) for more in-depth details.
 
 ## PAMPA light
 
