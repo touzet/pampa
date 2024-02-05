@@ -37,8 +37,7 @@ For PAMPA CLASSIFY and PAMPA CRAFT, we recommend starting by reviewing the [Gene
 
 ## PAMPA LIGHT
 
-PAMPA LIGHT is designed for rapid and straightforward species identification. It takes a set of mass spectra as input and attempts to determine the best taxonomic assignment for each of them. The assignment utilizes marker peptides from representative species, which are compiled into peptide tables and taxonomies that are included with the program code. These resources can be invoked as preset options for choosing clades. 
-
+As the name suggests, PAMPA LIGHT is a streamlined version of PAMPA, focusing on essential features for species identification. It takes a set of mass spectra as input and attempts to determine the best taxonomic assignment for each of them. 
 ```
 usage: python3 pampa_light.py 
 	[-h]
