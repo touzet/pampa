@@ -270,47 +270,36 @@ _Examples_: example files are available in the folder 'Taxonomy'.
 
 ## PAMPA CRAFT 
 
-PAMPA CRAFT  is for the design of custom peptide tables. dedicated to the constuction of new peptide tables based on homology. TThe resulting peptide table can then be utilized by [PAMPA ASSIGN](#PAMPA-ASSIGN).
-
+PAMPA CRAFT  is for the design of custom peptide tables, that can then be utilized by [PAMPA CLASSIFY](#PAMPA-CLASSIFY).
 
 ```
 usage: 
 pampa_craft  [-h] 
    --homology | --denovo | --fillin 
    [-f FASTA | -d DIRECTORY] [-p PEPTIDE_TABLE] [-l LIMIT] -o OUTPUT 
- python3 pampa_craft.py
-	[-h]
-	(-p PEPTIDE TABLE)
-	(-o OUTPUT FILE)
-	(-f FASTA file | -d FASTA dir)
-	[-l LIMIT]
+```
 
-This module is for the construction of custom peptide tables.
+The three options --homology, -denovo and --fillin designates three distinctive ways to build a new peptide table:
+  - by homology from a set of existing peptide markers
+  - de novo, using in silico tryptic digestion for a collection of protein sequences
+  - by filling in 
 
-options:
-  -h, --help        show this help message and exit
-  -p PEPTIDE_TABLE  TSV file that contains model peptide markers, with sequences.
-  -o OUTPUT         Output path (should include the output file name)
-  -f FASTA          FASTA file that contains new sequences 
-  -d DIRECTORY      Directory that contains FASTA files
-  -l LIMIT          TXT file
-  ```
-he input consists of a set of well-defined marker peptides, and the goal is to search a set of target protein sequences for similar peptides. New peptides are discovered through sequence alignment, allowing up to 10% mismatches between peptides. The algorithm also ensures that the new peptides can undergo tryptic digestion and infers new cleavage sites when necessary. Masses are automatically computed. 
+The full usage description is given below.
 
-### homology Peptide table (-p)
+### homology 
+
+With this option, the input consists of a set of well-defined marker peptides, and the goal is to search a set of target protein sequences for similar peptides. New peptides are discovered through sequence alignment, allowing up to 10% mismatches between peptides. The algorithm also ensures that the new peptides can undergo tryptic digestion and infers new cleavage sites when necessary. Masses are automatically computed. 
+
+#### Peptide table (-p)
 
 __This option is mandatory.__
 
 This table contains the list of marker peptides that will be used as models to find new markers in new sequences by homology.
 The format of this table is described in section [Organism selection](#peptide).
 
-### Output file (-o)
 
-__This option is mandatory.__
 
-This is the name of the new peptide table created by the program. 
-
-### Target sequences (-f, -d and -l)
+#### Target sequences (-f, -d and -l)
 
 __The use of either -f or -d is mandatory.__
 
@@ -327,6 +316,12 @@ _Option -d:_ The directory can contain an arbitrary number of FASTA files, follo
 Only files with extension _.fa_ or _.fasta_ will be examined. 
 
 _Option -l:_ This option allows to filter the set of FASTA sequences to limit the selection according to the organism (OS=), the taxid (OX=), the gene name (GN=), the sequence identifier (SeqID=). The full description of the syntax is given in section [Limiting search](#limit).
+
+#### Output file (-o)
+
+__This option is mandatory.__
+
+This is the name of the new peptide table created by the program. 
 
 ## Bug Report
 
