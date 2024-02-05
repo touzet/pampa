@@ -116,7 +116,7 @@ Two other accompanying files are automatically created, in the same directory.
 
 ## General formats and definitions
 
-The full version of PAMPA, as implemented in PAMPA CLASSIFY and PAMPA CRAFT, relies on a series of data structures essential for managing peptide markers and protein sequences.
+The full version of PAMPA, as implemented in PAMPA CLASSIFY and PAMPA CRAFT, relies on a series of formats and data structures essential for managing mass spectra, peptide markers and protein sequences.
 
 ### Mass spectra 
 
@@ -139,7 +139,7 @@ Peptide markers are organized within _peptide tables_, which are TSV files consi
 - Taxid: Taxonomic identifier
 - Taxon name: Scientific name
 - Sequence: Marker peptide sequence
-- PTM: Description of post-translational modifications (PTMs) applied to the marker peptide (see below)
+- PTM: Description of post-translational modifications (PTMs) applied to the marker peptide (see [PTM description](#PTM-description) section).
 - Name: Marker name
 - Mass: Peptide mass
 - Gene: Gene name, e.g., COL1A1
