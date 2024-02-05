@@ -1,10 +1,10 @@
 # PAMPA
 
 
-PAMPA (Protein Analysis by Mass Spectrometry for Ancient Species) is a versatile software program designed to efficiently manage a wide range of tasks related to handling ZooMS (Zooarcheological by Mass Spectrometry) data through the usage of marker peptides. 
+PAMPA (Protein Analysis by Mass Spectrometry for Ancient Species) is a versatile software suite designed to efficiently manage a wide range of tasks related to  ZooMS (Zooarcheological by Mass Spectrometry) data. 
 
 It consists of three primary scripts: 
-  - pampa_light: enables fast and easy species identification from mass spectra,
+  - pampa_light: enables fast and easy species identification from mass spectra with marker peptides.
   - pampa_classify:  also dedicated to taxonomic assignment, with a comprehensive range of advanced options,
   - pampa_craft: to build custom sets of marker peptides.
 
@@ -32,12 +32,12 @@ PAMPA LIGHT requires no external dependencies.
 
 The documentation for PAMPA LIGHT is available [just below](#PAMPA-LIGHT).
 
-For PAMPA CLASSIFY and PAMPA CRAFT, we recommend starting by reviewing the [General formats and definitions](#General-formats-and-definitions), as it covers fundamental concepts shared across both scripts, such as peptide tables, format of mass spectra, error margin, handling PTMs, format of output files, etc. Afterwards, you may refer to the comprehensive documentation of  [PAMPA CLASSIFY](#PAMPA-CLASSIFY) and [PAMPA CRAFT](#PAMPA-CRAFT)) for more in-depth details.
+For PAMPA CLASSIFY and PAMPA CRAFT, we recommend starting by reviewing the [General formats and definitions](#General-formats-and-definitions) section, as it covers fundamental concepts shared across both scripts, such as peptide tables, format of mass spectra,  handling PTMs, taxonomies, and FASTA files. . Afterwards, you may refer to the comprehensive documentation of  [PAMPA CLASSIFY](#PAMPA-CLASSIFY) and [PAMPA CRAFT](#PAMPA-CRAFT)) for more in-depth details.
 
 
 ## PAMPA LIGHT
 
-As the name suggests, PAMPA LIGHT is a streamlined version of PAMPA, focusing on essential features for species identification. It takes a set of mass spectra as input and attempts to determine the best taxonomic assignment for each of them. 
+As the name suggests, PAMPA LIGHT is a streamlined version of PAMPA, focusing on essential features for species identification. It takes a set of mass spectra as input and attempts to determine the best taxonomic assignment for each of them through the utilization of a curated compilation of marker peptides. 
 ```
 usage: python3 pampa_light.py 
 	[-h]
@@ -56,11 +56,11 @@ usage: python3 pampa_light.py
 python3 pampa_light.py -s SpectraFolder -e 0.1 -o resultFile.tsv --mammals
 ```
 
-This command executes the program on all mass spectra within the 'SpectraFolder' directory, compiling the primary results into the TSV file 'resultFile.tsv'. The taxonomic assignment model utilized is 'mammals', and the error margin for masses is set to 0.1.
+This command executes the program on all mass spectra within the 'SpectraFolder' directory, compiling the primary results into the TSV file 'resultFile.tsv'. The taxonomic model utilized is 'mammals', and the error margin for masses is set to 0.1.
 
 ### Mass spectra (-s) 
 
-**[required]** The program processes a batch of mass spectra simultaneously. All mass spectra files are contained within the same folder, with one file dedicated to each mass spectrum. These files should have one of the following extensions: .csv or .txt (in CSV format), .mgf (in MGF format), or .mzML (in mzML format). Any other files present will be disregarded. You can specify the path to the folder using the '-s' option.
+_Required._ The program processes a batch of mass spectra simultaneously. All mass spectra files are contained within the same folder, with one file dedicated to each mass spectrum. These files should have one of the following extensions: .csv or .txt (in CSV format), .mgf (in MGF format), or .mzML (in mzML format). Any other files present will be disregarded. You can specify the path to the folder using the '-s' option.
 
  - _CSV format_: It consists of two columns. The first column is designated for mass (m/z), and the second column records intensity (I). Columns are separated by either a comma (',') or a semicolon (';'). The initial row serves as the header.
  - _MGF format_: Mascot Generic Format
@@ -69,7 +69,7 @@ We recommend deisotoping the mass spectra before processing them.
 
 ### Error margin (-e)
 
-**[required]** The error margin is related to the resolution of the mass spectrometer, that is its ability to distinguish closely spaced peaks. We employ it to set an upper bound on the deviation between a peak and the theoretical mass of the marker peptide. This option can be expressed in Daltons or in ppm.
+_Required_ The error margin is related to the resolution of the mass spectrometer, that is its ability to distinguish closely spaced peaks. We employ it to set an upper bound on the deviation between a peak and the theoretical mass of the marker peptide. This option can be expressed in Daltons or in ppm.
  -  If the value is smaller than 1, it is assumed to be in Da (Daltons). In this case, recommended values are  0.1 for maldi TOF, and 0.01 for maldi FT.
  -  If the value is larger than 1, it is assumed to be in ppm (parts per million). In this case, recommended values are 50 for maldi TOF, and 5 for maldi FTICR.
 
