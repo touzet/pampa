@@ -85,10 +85,8 @@ When the PTM description this is left empty in the peptide table,  it is assumed
  
   - no deamidation and phosphorylation are added.
   - the number of oxyprolines is estimed
-    proline=sequence.count('P')
-    # number of P involved in the pattern "G.P"
-    period=re.compile('G\wP')
-    period_proline=len(period.findall(sequence))
+    number of Proline in the peptide 
+    number of P involved in the pattern "G.P"
     if proline - period_proline<3:
         return period_proline, period_proline
     else:
