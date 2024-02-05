@@ -21,14 +21,16 @@ Additionaly, the full version of PAMPA necessitates the Biopython and pyteomics 
 
 PAMPA_light (see below) requires no external dependencies.
 
-## How to run the program ?
+## How to use the program ?
 
 PAMPA is a collection of scripts that performs all large variety of tasks to handle ZooMS data. There are three main scripts:
   - pampa_light, for fast and easy species identification from mass spectra,
   - pampa_classification, that is also dedicated to taxonomic assignment and provides a full range of advanced options,
   - pampa_craft, that allows you to build custom set of marker peptides.
 
-We suggest starting by reviewing the instructions for PAMPA light first, as it covers fundamental concepts shared across all scripts, such as peptide tables, format of mass spectra, error margin, handling PTMs, format of output files, etc. Afterward, if you want to use the full version of PAMPA, you may refer to the comprehensive documentation ([PAMPA CLASSIFY](#PAMPA-CLASSIFY) and [PAMPA CRAFT](#PAMPA-CRAFT)) for more in-depth details.
+We suggest starting by reviewing the instructions for PAMPA light first, as it covers fundamental concepts shared across all scripts, such as peptide tables, format of mass spectra, error margin, handling PTMs, format of output files, etc. Afterwards, if you want to use the full version of PAMPA, you may refer to the comprehensive documentation ([PAMPA CLASSIFY](#PAMPA-CLASSIFY) and [PAMPA CRAFT](#PAMPA-CRAFT)) for more in-depth details.
+
+## General definitions and formats 
 
 ## PAMPA light
 
