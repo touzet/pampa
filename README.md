@@ -9,35 +9,30 @@ Pampa (Protein Analysis by Mass Spectrometry for Ancient Species) is a versatile
 
 ## How to install the program ?
 
-PAMPA is written in Python 3.7, and comes in two versions:
- - pampa light, which offers preset options and simplified usage for taxonomic assignment,
- - pampa, providing the full functionality of the program, with custom peptides tables and many other possibilities. 
-
-Both versions can be installed either by downloading the source code or cloning this repository.  
+PAMPA is written in Python 3.7, and can be installed either by downloading the source code or cloning this repository.  
 
  - downloading, as a zip file: button _code<>_ on the right-hand side of the screen
  - cloning: `git clone https://github.com/touzet/anc_prot.git`
 
-Additionaly, the full version of pampa necessitates the Biopython and pyteomics libraries.  
+Additionaly, the full version of PAMPA necessitates the Biopython and pyteomics libraries.  
 
  - biopython (https://biopython.org/): `pip install biopython`
  - pyteomics (https://pypi.org/project/pyteomics/): `pip install pyteomics`
 
-PAMPA light requires no external dependencies.
+PAMPA_light (see below) requires no external dependencies.
 
 ## How to run the program ?
 
-**PAMPA light** : the usage is described just [below](#PAMPA-light). 
+PAMPA is a collection of scripts that performs all large variety of tasks to handle ZooMS data. There are three main scripts:
+  - pampa_light, for fast and easy species identification from mass spectra
+  - pampa_classification, that is also dedicated to taxonomic assignment and provides a full range of additional options
+  - pampa_craft, that allows you to build custom set of marker peptides.
 
-**PAMPA, full version**  has two main commands.  
-- _assign_, for species identifications 
-- _build_, for construction of custom marker peptides.
-
-We suggest starting by reviewing the instructions for PAMPA light first, as it covers fundamental concepts shared across both versions, such as peptide tables, format of mass spectra, error margin, handling PTMs, format of output files, etc. Afterward, if you want to use the full version of PAMPA, you may refer to the comprehensive documentation ([PAMPA ASSIGN](#PAMPA-ASSIGN) and [PAMPA BUILD](#PAMPA-BUILD)) for more in-depth details.
+We suggest starting by reviewing the instructions for PAMPA light first, as it covers fundamental concepts shared across both versions, such as peptide tables, format of mass spectra, error margin, handling PTMs, format of output files, etc. Afterward, if you want to use the full version of PAMPA, you may refer to the comprehensive documentation ([PAMPA CLASSIFY](#PAMPA-CLASSIFY) and [PAMPA CRAFT](#PAMPA-CRAFT)) for more in-depth details.
 
 ## PAMPA light
 
-This version takes a set of mass spectra as input and attempts to determine the best taxonomic assignment for each of them. The assignment utilizes marker peptides from representative species, which are compiled into peptide tables that are included with the code of the program.
+This version takes a set of mass spectra as input and attempts to determine the best taxonomic assignment for each of them. The assignment utilizes marker peptides from representative species, which are compiled into peptide tables and taxonomies that are included with the code of the program. The version also offers preset options for organisms choice.
 
 ```
 usage: python3 pampa_light.py 
@@ -177,14 +172,14 @@ For example, if the optimal solutions has 11 marker peptides, '-n 80' will provi
 By default, the '-n' option will generate only near-optimal solutions that are not included in any other solution.
 When used together with '-n,'  the '-a' option allows to change this, so that the program computes all solutions, even those that are included in other solutions.  
 
-## PAMPA ASSIGN 
+## PAMPA CLASSIFY
 
-PAMPA ASSIGN represents an advanced version of PAMPA light, offering users the capability to utilize their personalized set of marker peptides for taxonomic assignment. This functionality is achieved through the definition of custom peptide tables.  Additionally, in situations where no marker peptides are available, it is possible to supply FASTA sequences for the automatic inference of peptides through in silico digestion.
+PAMPA CLASSIFY represents an advanced version of PAMPA light, offering users the capability to utilize their personalized set of marker peptides for taxonomic assignment. This functionality is achieved through the definition of custom peptide tables.  Additionally, in situations where no marker peptides are available, it is possible to supply FASTA sequences for the automatic inference of peptides through in silico digestion.
 
 ```
 usage: 
  
- python3 pampa.py assign
+ python3 pampa_classify.py 
 	[-h]
 	(-s SPECTRA PATH)
 	(-e ERROR MARGIN)
@@ -207,12 +202,13 @@ options for organism selection:
   -p PEPTIDE_TABLE  Peptide table (TSV file)
   -f FASTA          Fasta sequences, for in silico digestion
   -d DIRECTORY      Directory where to find Fasta files
-  -l LIMIT          Limit the set of peptides or fasta sequences to organisms, molecules or sequence ID specified in this file (TSV file), optional.
+  -l LIMIT          Limit the set of peptides or fasta sequences to organisms, molecules or sequence ID specified
+                    in this file (TSV file), optional.
   -t TAXONOMY       Taxonomy (TSV file), optional.
 
 options for suboptimal solutions:
   -n NEIGHBOUR      Provide near-optimal solutions within a specified percentage margin, ranging between 0 and 100.
-                    Default is 100. With this value, only optimal solutions are provided.
+                    Default is 100. With -n 100, only optimal solutions are provided.
   -a                Provide all solutions, and not only suboptimal solutions, within the percentage margin specified
                     with option -n. 
 
@@ -272,7 +268,7 @@ When a taxonomy is provided, the software will indicate, for each spectrum, the 
 _Examples_: example files are available in the folder 'Taxonomy'.
 
 
-## PAMPA BUILD 
+## PAMPA CRAFT 
 
 PAMPA BUILD is dedicated to the constuction of new peptide tables based on homology. The input consists of a set of well-defined marker peptides, and the goal is to search a set of target protein sequences for similar peptides. New peptides are discovered through sequence alignment, allowing up to 10% mismatches between peptides. The algorithm also ensures that the new peptides can undergo tryptic digestion and infers new cleavage sites when necessary. Masses are automatically computed. The resulting peptide table can then be utilized by [PAMPA ASSIGN](#PAMPA-ASSIGN).
 
@@ -280,7 +276,7 @@ PAMPA BUILD is dedicated to the constuction of new peptide tables based on homol
 ```
 usage: 
  
- python3 pampa.py build
+ python3 pampa_craft.py
 	[-h]
 	(-p PEPTIDE TABLE)
 	(-o OUTPUT FILE)
@@ -298,7 +294,7 @@ options:
   -l LIMIT          TXT file
   ```
 
-### Peptide table (-p)
+### homology Peptide table (-p)
 
 __This option is mandatory.__
 
