@@ -150,7 +150,7 @@ Those markers are accessible through _peptide tables_, which are stored in TSV f
 
 The first row of the file should contain column headings. 
 
-Most of these fields are optional and are here for reference and traceability. Only the following information is mandatory:
+Most of these fields are optional and are here for ence and traceability. Only the following information is mandatory:
  - You must provide a taxid for the peptide marker. Rank and taxon names are included primarily to enhance the clarity of results.
  - You should furnish either a sequence, possibly with a PTM description,  or a mass for your marker peptide. If the sequence is provided without a mass, the program will automatically compute the mass from it. To do so, it will utilize either the PTM description (when available) or infer potential PTMs from the sequence.
 
@@ -291,7 +291,7 @@ Hereafter, we provide description of **-p**, **-f**, **-d** and **-t** options, 
 
 This option allows you to employ your own set of marker peptides. This set should be structured within a _peptide table_, formatted as a TSV (Tab-Separated Values) file. The specific format details for peptide tables are descrided  in the [PAMPA light](#PAMPA-light) section.  Such file can be created manually with any spreadsheet software by opting for the TSV export format. Alternatively, the module [PAMPA CRAFT](#PAMPA-CRAFT) provides automated methods to generate  peptide tables.  
 
-Peptide tables should contain 12 columns corresponding to  Rank, Taxid, Taxon name, Sequence, PTM, Name, Masses, Gene, SeqID, Begin, End, Comment. Most of these fields are optional and are here for reference and traceability. Only the following information is mandatory:
+Peptide tables should contain 12 columns corresponding to  Rank, Taxid, Taxon name, Sequence, PTM, Name, Masses, Gene, SeqID, Begin, End, Comment. Most of these fields are optional and are here for ence and traceability. Only the following information is mandatory:
 
 - You must provide a taxid for the peptide marker. Rank and taxon names are included primarily to enhance the clarity of results.
 - You should furnish either a sequence, possibly with a PTM description,  or a mass for your marker peptide. If the sequence is provided without a mass, the program will automatically compute the mass from it. To do so, it will utilize either the PTM description (when available) or infer potential PTMs from the sequence.
@@ -305,12 +305,7 @@ When no marker peptides are available, it is possible to provide FASTA sequences
 
 The provided sequences can be available either in a (multi-)FASTA file ('-f'option), or in a directory containing FASTA files ('-d' option). In both cases, the set of sequences can optionnally be _limited_ to a subset of organisms, molecules or sequence identifiers with '-l' option.
 
-_Option -f :_ The specified file can contain an arbitrary number of FASTA sequences, coming from various organisms. Two types of FASTA heading are recognized. 
- - UniprotKB-like, with some sequence identifier at the beginning of the heading, and mandatory fields OS (scientific name of the organism) , OX (taxonomomic identifier of the sorganism, such as assigned by the NCBI) and GN (Gene Name):
-     
-   `>P02453 CO1A1_BOVIN Collagen alpha-1(I) chain OS=Bos taurus OX=9913 GN=COL1A1 `
-
- - NCBI-like 
+_Option -f :_ The specified file can contain an arbitrary number of FASTA sequences, coming from various organisms. Refer to the [FASTA sequences](#FASTA sequences) section for details on the syntax used in FASTA headings.
 
 _Option -d:_ The directory can contain an arbitrary number of FASTA files, following the same requirements as with '-f' option.
 Only files with extension _.fa_ or _.fasta_ will be examined. 
@@ -369,22 +364,16 @@ With this option, the input consists of a set of well-defined marker peptides, a
 
 #### Peptide table (-p)
 
-This table contains the list of marker peptides that will be used as models to find new markers in new sequences by homology.
-The format of this table is described in section [Organism selection](#peptide). This option is required.
+**Required.** This table contains the list of marker peptides that will be used as models to find new markers in new sequences by homology.
+The format of this table is described in section [Peptide tables](#Peptide-tables). 
 
 
 #### Target sequences (-f, -d and -l)
 
-__The use of either -f or -d is mandatory.__
-
+**The use of either -f or -d is mandatory. -l is optional.**
 The target sequences are the amino-acids sequences in which the new markers are searched. Those sequences can be available either in a (multi-)FASTA file (-f option), or in a directory containing FASTA files (-d option). In both cases, the set of sequences can optionnally be _limited_ to a subset of organisms, molecules or sequence identifiers with -l option.
 
-_Option -f :_ The specified file can contain an arbitrary number of FASTA sequences, coming from various organisms. Two types of FASTA heading are recognized. 
- - UniprotKB-like, with some sequence identifier at the beginning of the heading, and mandatory fields OS (scientific name of the organism) , OX (taxonomomic identifier of the sorganism, such as assigned by the NCBI) and GN (Gene Name):
-     
-   `>P02453 CO1A1_BOVIN Collagen alpha-1(I) chain OS=Bos taurus OX=9913 GN=COL1A1 `
-
- - NCBI-like 
+_Option -f :_ The specified file can contain an arbitrary number of FASTA sequences, coming from various organisms. Refer to the [FASTA sequences](#FASTA sequences) section for details on the syntax used in FASTA headings.
 
 _Option -d:_ The directory can contain an arbitrary number of FASTA files, following the same requirements as with '-f' option.
 Only files with extension _.fa_ or _.fasta_ will be examined. 
@@ -393,11 +382,12 @@ _Option -l:_ This option allows to filter the set of FASTA sequences to limit th
 
 #### Output file (-o)
 
-This is the name of the new peptide table created by the program. This option is required.
+**Required.** This is the name of the new peptide table created by the program. This option is required.
 
-### De novo
+### --denovo
 
-This option allows to infer all tryptic peptides from a set of FASTA sequences through in silico digestion, and to compute their masses. 
+This option allows to infer all tryptic peptides from a set of FASTA sequences through in silico digestion, allowing for up to one missed cleavage. Masses are then automatically computed using 
+PTM inference (see [PTM description](#PTM-decription)).
 
 
 ```
@@ -415,17 +405,12 @@ pampa_craft --denovo
 
 The target sequences consist of amino acid sequences in FASTA format that will undergo tryptic digestion. These sequences can be provided either as individual sequences within a (multi-)FASTA file (using the -f option) or as multiple FASTA files within a directory (using the -d option). The use of either -f or -d is required. Additionally, users have the option to selectively limit the set of sequences to a specific subset of organisms, molecules, or sequence identifiers using the -l option.
 
-_Option -f :_ The specified file can contain an arbitrary number of FASTA sequences, coming from various organisms. Two types of FASTA heading are recognized. 
- - UniprotKB-like, with some sequence identifier at the beginning of the heading, and mandatory fields OS (scientific name of the organism) , OX (taxonomomic identifier of the sorganism, such as assigned by the NCBI) and GN (Gene Name):
-     
-   `>P02453 CO1A1_BOVIN Collagen alpha-1(I) chain OS=Bos taurus OX=9913 GN=COL1A1 `
-
- - NCBI-like 
+_Option -f :_ The specified file can contain an arbitrary number of FASTA sequences, coming from various organisms. Refer to the [FASTA sequences](#FASTA sequences) section for details on the syntax used in FASTA headings.
 
 _Option -d:_ The directory can contain an arbitrary number of FASTA files, following the same requirements as with '-f' option.
 Only files with extension _.fa_ or _.fasta_ will be examined. 
 
-_Option -l:_ This option allows to filter the set of FASTA sequences to limit the selection according to the organism (OS=), the taxid (OX=), the gene name (GN=), the sequence identifier (SeqID=). The full description of the syntax is given in section [Limiting search](#limit).
+_Option -l:_ This option allows to filter the set of FASTA sequences to limit the selection according to the organism (OS=), the taxid (OX=), the gene name (GN=), the sequence identifier (SeqID=). The full description of the syntax is given in section [Limiting searches](#Limiting-searches).
 
 #### Output file (-o)
 
@@ -433,13 +418,12 @@ This is the name of the new table containing tryptic peptides created by the pro
 
 ### --fillin 
 
-This option allows to automatically compute masses for peptides lacking this information.  
-
+This option allows to automatically compute masses for peptides that lack  this information.  If no PTM description is provided, PTMs are determined automatically based on the rules outlined in the [PTM description](#PTM-description) section. It can be particularly helpful, for instance, in supplementing a manually created peptide table. 
 
 ```
  usage:
  python3 pampa_craft --fillin 
-   -p PEPTIDE_TABLE Peptide table to complete
+   -p PEPTIDE_TABLE Peptide table to supplement
    -o OUTPUT        Path to the output file (new peptide table)
 ```
 
@@ -450,7 +434,6 @@ Name of the peptide table to complete. This option is required.
 #### Output file (-o)
 
 Name of the new table obtained by completion of the input table.  This option is required. 
-
 
 
 ## Bug Report
