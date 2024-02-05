@@ -32,7 +32,7 @@ PAMPA LIGHT requires no external dependencies.
 
 The documentation for PAMPA LIGHT is available [just below](#PAMPA-LIGHT).
 
-For PAMPA CLASSIFY and PAMPA CRAFT, we recommend starting by reviewing the [General formats and definitions](#General-formats-and-definitions) section, as it covers fundamental concepts shared across both scripts, such as peptide tables, format of mass spectra,  handling PTMs, taxonomies, and FASTA files. . Afterwards, you may refer to the comprehensive documentation of  [PAMPA CLASSIFY](#PAMPA-CLASSIFY) and [PAMPA CRAFT](#PAMPA-CRAFT)) for more in-depth details.
+For PAMPA CLASSIFY and PAMPA CRAFT, we recommend starting by reviewing the [General formats and definitions](#General-formats-and-definitions) section, as it covers fundamental concepts shared across both scripts, such as peptide tables, format of mass spectra,  handling PTMs, taxonomies, and FASTA files.  Afterwards, you may refer to the comprehensive documentation of  [PAMPA CLASSIFY](#PAMPA-CLASSIFY) and [PAMPA CRAFT](#PAMPA-CRAFT)) for more in-depth details.
 
 
 ## PAMPA LIGHT
@@ -64,8 +64,9 @@ _Required._ The program processes a batch of mass spectra simultaneously. All ma
 
  - _CSV format_: It consists of two columns. The first column is designated for mass (m/z), and the second column records intensity (I). Columns are separated by either a comma (',') or a semicolon (';'). The initial row serves as the header.
  - _MGF format_: Mascot Generic Format
-  - _mzML format_: see https://www.psidev.info/mzML
-We recommend deisotoping the mass spectra before processing them.
+ - _mzML format_: see https://www.psidev.info/mzML
+    
+In all cases, we recommend deisotoping the mass spectra before processing them.
 
 ### Error margin (-e)
 
@@ -115,6 +116,8 @@ Two other accompanying files are automatically created, in the same directory.
 
 ## General formats and definitions
 
+The full version of PAMPA, such as implemented in PAMPA CLASSIFY and PAMPA CRAFT, relies on a serie of data structures, that are necessary to handle peptide markers and protein sequences.
+
 ### Mass spectra 
 
 PAMPA recognizes three formats for mass spectra:
@@ -127,12 +130,10 @@ PAMPA recognizes three formats for mass spectra:
 
 In all cases, we recommend deisotoping the mass spectra before processing them.
 
-In practice, the program can process a batch of mass spectra simultaneously. All mass spectra files are contained within the same folder, with one file dedicated to each mass spectrum. These files should have one of the following extensions: .csv or .txt (in CSV format), .mgf (in MGF format), or .mzML (in mzML format). Any other files present will be disregarded. 
 
 ### Peptide tables
 
-PAMPA handles set of markers that serves to species identification.
-Those markers are accessible through _peptide tables_, which are stored in TSV files distributed with the code. Peptide tables should include 12 columns corresponding to the 12 fields below: 
+Peptide markers are organized within _peptide tables_, which are TSV files consisting of 12 columns corresponding to the 12 fields listed below.
 
 - Rank: Taxonomic rank
 - Taxid: Taxonomic identifier
@@ -140,7 +141,7 @@ Those markers are accessible through _peptide tables_, which are stored in TSV f
 - Sequence: Marker peptide sequence
 - PTM: Description of post-translational modifications (PTMs) applied to the marker peptide (see below)
 - Name: Marker name
-- Masses: Peptide mass
+- Mass: Peptide mass
 - Gene: Gene name, e.g., COL1A1
 - SeqId: Sequence identifier(s) of the protein sequence from which the marker peptide is derived
 - Begin: Start position of the peptide marker within the protein sequence
@@ -149,7 +150,7 @@ Those markers are accessible through _peptide tables_, which are stored in TSV f
 
 The first row of the file should contain column headings. 
 
-Most of these fields are optional and are here for ence and traceability. Only the following information is mandatory:
+Most of these fields are optional and are here for reference and traceability. Only the following information is mandatory:
  - You must provide a taxid for the peptide marker. Rank and taxon names are included primarily to enhance the clarity of results.
  - You should furnish either a sequence, possibly with a PTM description,  or a mass for your marker peptide. If the sequence is provided without a mass, the program will automatically compute the mass from it. To do so, it will utilize either the PTM description (when available) or infer potential PTMs from the sequence.
 
