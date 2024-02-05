@@ -1,8 +1,7 @@
 # PAMPA
 
 
-PAMPA (Protein Analysis by Mass Spectrometry for Ancient Species) is a versatile software program designed to efficiently manage a wide range of tasks related to handling ZooMS  
-(Zooarcheological by Mass Spectrometry) data through the usage of marker peptides. 
+PAMPA (Protein Analysis by Mass Spectrometry for Ancient Species) is a versatile software program designed to efficiently manage a wide range of tasks related to handling ZooMS (Zooarcheological by Mass Spectrometry) data through the usage of marker peptides. 
 
 It consists of three primary scripts: 
   - pampa_light: enables fast and easy species identification from mass spectra,
@@ -32,122 +31,6 @@ PAMPA LIGHT requires no external dependencies.
 ## How to use the program ?
 
 We recommend starting by reviewing the General formats and definitions section, as it covers fundamental concepts shared across all scripts, such as peptide tables, format of mass spectra, error margin, handling PTMs, format of output files, etc. Afterwards, you may refer to the comprehensive documentation of [PAMPA LIGHT](#PAMPA-LIGHT), [PAMPA CLASSIFY](#PAMPA-CLASSIFY) and [PAMPA CRAFT](#PAMPA-CRAFT)) for more in-depth details.
-
-## General formats and definitions
-
-### Mass spectra 
-
-PAMPA recognizes three formats for mass spectra:
-
-  - _CSV format_: It consists of two columns. The first column is designated for mass (m/z), and the second column records intensity (I). Columns are separated by either a comma (',') or a semicolon (';'). The initial row serves as the header.
-
-  - _MGF format_: Mascot Generic Format
-
-  - _mzML format_: see https://www.psidev.info/mzML
-
-In all cases, we recommend deisotoping the mass spectra before processing them.
-
-In practice, the program can process a batch of mass spectra simultaneously. All mass spectra files are contained within the same folder, with one file dedicated to each mass spectrum. These files should have one of the following extensions: .csv or .txt (in CSV format), .mgf (in MGF format), or .mzML (in mzML format). Any other files present will be disregarded. 
-
-### Peptide tables
-
-PAMPA handles set of markers that serves to species identification.
-Those markers are accessible through _peptide tables_, which are stored in TSV files distributed with the code. Peptide tables should include 12 columns corresponding to the 12 fields below: 
-
-- Rank: Taxonomic rank
-- Taxid: Taxonomic identifier
-- Taxon name: Scientific name
-- Sequence: Marker peptide sequence
-- PTM: Description of post-translational modifications (PTMs) applied to the marker peptide (see below)
-- Name: Marker name
-- Masses: Peptide mass
-- Gene: Gene name, e.g., COL1A1
-- SeqId: Sequence identifier(s) of the protein sequence from which the marker peptide is derived
-- Begin: Start position of the peptide marker within the protein sequence
-- End: End position of the peptide marker within the protein sequence
-- Comment: Additional comments about the marker
-
-The first row of the file should contain column headings. 
-
-Most of these fields are optional and are here for reference and traceability. Only the following information is mandatory:
- - You must provide a taxid for the peptide marker. Rank and taxon names are included primarily to enhance the clarity of results.
- - You should furnish either a sequence, possibly with a PTM description,  or a mass for your marker peptide. If the sequence is provided without a mass, the program will automatically compute the mass from it. To do so, it will utilize either the PTM description (when available) or infer potential PTMs from the sequence.
-
-Several pre-defined peptide tables  are distributed with the code of PAMPA. You van find them in the Peptide_table directrory. Do not move them or modify them, since they are used by PAMA LIGHT. Alternatively, peptide table files can be created manually with any spreadsheet software by opting for the TSV export format. Lastly,  [PAMPA CRAFT](#PAMPA-CRAFT) provides automated methods to generate  peptide tables.  
-
-### PTM description 
-
-PAMPA recognizes three types of PTMs: 
- - oxylation of prolines (indicated by the single-letter code 'O'), 
- - deamidation of asparagine and glutamine (indicated by the single-letter code 'D'), 
- - phosphorylation of serine, threonine, and tyrosine (indicated by the single-letter code 'P'). 
-
-The _PTM description_ is  a concise representation of the number of oxylations, deamidations and phosphorylations necessary to compute the mass of a peptide sequence. For instance, '2O1D' signifies two oxyprolines and one deamidation, '1P4O' represents one phosphorylation and four oxyprolines, '2O' corresponds to two oxyprolines without any deamidation and phosphorylation. When no PTM applies, the description should be "0O", or "0D", etc. 
-
-When the PTM description this is left empty in the peptide table,  it is assumed that PTMs are not known. In this case, they are directly infered by PAMPA following two rules:
- 
-  - No deamidation and phosphorylation are added.
-  - The number of oxyprolines is determined empirically using the following formula: Let 'p' represent the total number of prolines in the peptide, and 'pp' represent the number of prolines involved in the pattern 'GxP'. If the difference 'p-pp' is less than 3, then 'pp' oxyprolines are applied. If 'p-pp' is 3 or greater, 'pp' oxyprolines and 'pp+1' oxyprolines are applied.
-
-
-### Taxonomy
-
-PAMPA offers the optional possibility to add taxonomic information to the species identification. In this case, it uses a taxonomy file.
-Such files are available in the Taxonomy folder. Alternatively, users can create their own taxonomy file. 
-The taxonomy must be in the form of a Tab-Separated Values (TSV) file comprising five columns: Taxid, Common name, Scientific name, Parent (taxid), and Rank (species, genus, etc.). 
-You can obtain this type of file directly from UniProt (https://www.uniprot.org/taxonomy) by following these steps:
-
-  1. Use the search bar to find your desired clade, entering its common name, scientific name, or taxid.
-  2. Select the clade of interest and click on 'Browse all descendants.'
-  3. Locate the 'download' link.
-  4. Choose the TSV format and customize the columns in the following order: Common name, Scientific name, Parent, and Rank.
-  5. Proceed to download the taxonomy file.
-
-
-### Limiting searches
-
-It is possible to filter the peptide table or the peptide sequences to limit the search according to various criteria such as organism, gene name, sequence identifier, or PTMs. For that, you can that follow  these guidelines:
-
-- Create a text file that outlines your filtering criteria.
-- Each line in the file should comprise one or several of these fields:
-	- "OS=" for authorized taxon names  
- 	- "OX=" for authorized taxids	
-	- "GN=" for authorized gene names
-	- "PTM=" for authorized PTMs
-	- "SeqID=" for authorized sequence identifiers
-- Separate multiple elements for a field with commas.
-
-For example, If you want to limit your search to a specific set of organisms, your file might look like this: 
-```
-OS= Diceros bicornis, Cervus elaphus, Bos taurus, Equus caballus   
-```   
-Of course, you can combine constraints to narrow down your search. For instance, limiting the search to markers coming from COL1A2 gives:
-```
-OS= Diceros bicornis, Cervus elaphus, Bos taurus, Equus caballus GN=COL1A2
-```  
-This means that the search will focus on markers from COL1A2 within the specified organisms.
-
-Assume now that you want to further refine this selection and  exclude certain PTMs, such as deamidation and  phosporylation. Then you have to add one contraint to authorize only proline oxylation. This gives:
-```
-OS= Diceros bicornis, Cervus elaphus, Bos taurus, Equus caballus GN=COL1A1 PTM=O
-```  
-The limit file can comprise an arbitrary number of lines, with each line representing a distinct constraint. The resulting selection is determined by the union of all these constraints.
-
-Finally, in the presence of a taxonomy (as is the case with PAMPA light), the OS and OX fields become applicable to clades at any taxonomic rank (e.g. genus, family, order). In such instances, the constraint will choose all descendants accordingly. 
-
-```
-OS=Pecora GN=COL1A1
-```
-This will select all COL1A1 markers for species from the Pecora infraorder. Equivalently, you might have used the taxid of Pecora, with the OX field.
-```
-OX=35500 GN=COL1A1
-```
-
-### Error margin 
-
-The error margin is related to the resolution of the mass spectrometer, that is its ability to distinguish closely spaced peaks. We employ it to set an upper bound on the deviation between a peak and the theoretical mass of the marker peptide. This option is mandatory, and can be expressed in Daltons or in ppm.
- -  If the value is smaller than 1, it is assumed to be in Da (Daltons). In this case, recommended values are  0.1 for maldi TOF, and 0.01 for maldi FT.
- -  If the value is larger than 1, it is assumed to be in ppm (parts per million). In this case, recommended values are 50 for maldi TOF, and 5 for maldi FTICR.
 
 
 ## PAMPA LIGHT
@@ -228,6 +111,133 @@ For example, if the optimal solutions has 11 marker peptides, '-n 80' will provi
 
 By default, the '-n' option will generate only near-optimal solutions that are not included in any other solution.
 When used together with '-n,'  the '-a' option allows to change this, so that the program computes all solutions, even those that are included in other solutions.  
+
+## General formats and definitions
+
+### Mass spectra 
+
+PAMPA recognizes three formats for mass spectra:
+
+  - _CSV format_: It consists of two columns. The first column is designated for mass (m/z), and the second column records intensity (I). Columns are separated by either a comma (',') or a semicolon (';'). The initial row serves as the header.
+
+  - _MGF format_: Mascot Generic Format
+
+  - _mzML format_: see https://www.psidev.info/mzML
+
+In all cases, we recommend deisotoping the mass spectra before processing them.
+
+In practice, the program can process a batch of mass spectra simultaneously. All mass spectra files are contained within the same folder, with one file dedicated to each mass spectrum. These files should have one of the following extensions: .csv or .txt (in CSV format), .mgf (in MGF format), or .mzML (in mzML format). Any other files present will be disregarded. 
+
+### Peptide tables
+
+PAMPA handles set of markers that serves to species identification.
+Those markers are accessible through _peptide tables_, which are stored in TSV files distributed with the code. Peptide tables should include 12 columns corresponding to the 12 fields below: 
+
+- Rank: Taxonomic rank
+- Taxid: Taxonomic identifier
+- Taxon name: Scientific name
+- Sequence: Marker peptide sequence
+- PTM: Description of post-translational modifications (PTMs) applied to the marker peptide (see below)
+- Name: Marker name
+- Masses: Peptide mass
+- Gene: Gene name, e.g., COL1A1
+- SeqId: Sequence identifier(s) of the protein sequence from which the marker peptide is derived
+- Begin: Start position of the peptide marker within the protein sequence
+- End: End position of the peptide marker within the protein sequence
+- Comment: Additional comments about the marker
+
+The first row of the file should contain column headings. 
+
+Most of these fields are optional and are here for reference and traceability. Only the following information is mandatory:
+ - You must provide a taxid for the peptide marker. Rank and taxon names are included primarily to enhance the clarity of results.
+ - You should furnish either a sequence, possibly with a PTM description,  or a mass for your marker peptide. If the sequence is provided without a mass, the program will automatically compute the mass from it. To do so, it will utilize either the PTM description (when available) or infer potential PTMs from the sequence.
+
+Several pre-defined peptide tables  are distributed with the code of PAMPA. You van find them in the Peptide_table directrory. Do not move them or modify them, since they are used by PAMA LIGHT. Alternatively, peptide table files can be created manually with any spreadsheet software by opting for the TSV export format. Lastly,  [PAMPA CRAFT](#PAMPA-CRAFT) provides automated methods to generate  peptide tables.  
+
+### PTM description 
+
+PAMPA recognizes three types of PTMs: 
+ - oxylation of prolines (indicated by the single-letter code 'O'), 
+ - deamidation of asparagine and glutamine (indicated by the single-letter code 'D'), 
+ - phosphorylation of serine, threonine, and tyrosine (indicated by the single-letter code 'P'). 
+
+The _PTM description_ is  a concise representation of the number of oxylations, deamidations and phosphorylations necessary to compute the mass of a peptide sequence. For instance, '2O1D' signifies two oxyprolines and one deamidation, '1P4O' represents one phosphorylation and four oxyprolines, '2O' corresponds to two oxyprolines without any deamidation and phosphorylation. When no PTM applies, the description should be "0O", or "0D", etc. 
+
+When the PTM description this is left empty in the peptide table,  it is assumed that PTMs are not known. In this case, they are directly infered by PAMPA following two rules:
+ 
+  - No deamidation and phosphorylation are added.
+  - The number of oxyprolines is determined empirically using the following formula: Let 'p' represent the total number of prolines in the peptide, and 'pp' represent the number of prolines involved in the pattern 'GxP'. If the difference 'p-pp' is less than 3, then 'pp' oxyprolines are applied. If 'p-pp' is 3 or greater, 'pp' oxyprolines and 'pp+1' oxyprolines are applied.
+
+
+### Taxonomy
+
+PAMPA offers the optional possibility to add taxonomic information to the species identification. In this case, it uses a taxonomy file.
+Such files are available in the Taxonomy folder. Alternatively, users can create their own taxonomy file. 
+The taxonomy must be in the form of a Tab-Separated Values (TSV) file comprising five columns: Taxid, Common name, Scientific name, Parent (taxid), and Rank (species, genus, etc.). 
+You can obtain this type of file directly from UniProt (https://www.uniprot.org/taxonomy) by following these steps:
+
+  1. Use the search bar to find your desired clade, entering its common name, scientific name, or taxid.
+  2. Select the clade of interest and click on 'Browse all descendants.'
+  3. Locate the 'download' link.
+  4. Choose the TSV format and customize the columns in the following order: Common name, Scientific name, Parent, and Rank.
+  5. Proceed to download the taxonomy file.
+
+### FASTA sequences
+
+Two types of FASTA heading are recognized. 
+
+ - UniprotKB-like, with some sequence identifier at the beginning of the heading, and mandatory fields OS (scientific name of the organism) , OX (taxonomomic identifier of the organism, such as assigned by the NCBI) and GN (Gene Name):
+     
+   `>P02453 CO1A1_BOVIN Collagen alpha-1(I) chain OS=Bos taurus OX=9913 GN=COL1A1 `
+
+ - NCBI-like : to do
+
+### Limiting searches
+
+It is possible to filter the peptide table or the peptide sequences to limit the search according to various criteria such as organism, gene name, sequence identifier, or PTMs. For that, you can that follow  these guidelines:
+
+- Create a text file that outlines your filtering criteria.
+- Each line in the file should comprise one or several of these fields:
+	- "OS=" for authorized taxon names  
+ 	- "OX=" for authorized taxids	
+	- "GN=" for authorized gene names
+	- "PTM=" for authorized PTMs
+	- "SeqID=" for authorized sequence identifiers
+- Separate multiple elements for a field with commas.
+
+For example, If you want to limit your search to a specific set of organisms, your file might look like this: 
+```
+OS= Diceros bicornis, Cervus elaphus, Bos taurus, Equus caballus   
+```   
+Of course, you can combine constraints to narrow down your search. For instance, limiting the search to markers coming from COL1A2 gives:
+```
+OS= Diceros bicornis, Cervus elaphus, Bos taurus, Equus caballus GN=COL1A2
+```  
+This means that the search will focus on markers from COL1A2 within the specified organisms.
+
+Assume now that you want to further refine this selection and  exclude certain PTMs, such as deamidation and  phosporylation. Then you have to add one contraint to authorize only proline oxylation. This gives:
+```
+OS= Diceros bicornis, Cervus elaphus, Bos taurus, Equus caballus GN=COL1A1 PTM=O
+```  
+The limit file can comprise an arbitrary number of lines, with each line representing a distinct constraint. The resulting selection is determined by the union of all these constraints.
+
+Finally, in the presence of a taxonomy (as is the case with PAMPA light), the OS and OX fields become applicable to clades at any taxonomic rank (e.g. genus, family, order). In such instances, the constraint will choose all descendants accordingly. 
+
+```
+OS=Pecora GN=COL1A1
+```
+This will select all COL1A1 markers for species from the Pecora infraorder. Equivalently, you might have used the taxid of Pecora, with the OX field.
+```
+OX=35500 GN=COL1A1
+```
+
+### Error margin 
+
+The error margin is related to the resolution of the mass spectrometer, that is its ability to distinguish closely spaced peaks. We employ it to set an upper bound on the deviation between a peak and the theoretical mass of the marker peptide. This option is mandatory, and can be expressed in Daltons or in ppm.
+ -  If the value is smaller than 1, it is assumed to be in Da (Daltons). In this case, recommended values are  0.1 for maldi TOF, and 0.01 for maldi FT.
+ -  If the value is larger than 1, it is assumed to be in ppm (parts per million). In this case, recommended values are 50 for maldi TOF, and 5 for maldi FTICR.
+
+
 
 ## PAMPA CLASSIFY
 
@@ -425,18 +435,22 @@ This is the name of the new table containing tryptic peptides created by the pro
 
 ### Fill in 
 
-'''
+
+
+```
  usage:
  python3 pampa_craft --fillin 
    -p PEPTIDE_TABLE Peptide table to complete
    -o OUTPUT        Path to the output file (new peptide table)
-'''
+```
 
 #### Peptide table (-p)
 
+Name of the peptide table to complete.
+
 #### Output file (-o)
 
-This is the name of the new table obtained from the input table.  This option is required. 
+This is the name of the new table obtained by completion of the input table.  This option is required. 
 
 
 ## Bug Report
