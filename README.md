@@ -1,7 +1,15 @@
 # PAMPA
 
 
-Pampa (Protein Analysis by Mass Spectrometry for Ancient Species) is a versatile software program designed for species identification in ZooMS (Zooarcheological by Mass Spectrometry) through the usage of marker peptides. It offers the following features :
+PAMPA (Protein Analysis by Mass Spectrometry for Ancient Species) is a versatile software program designed to efficiently manage a wide range of tasks related to handling ZooMS  
+(Zooarcheological by Mass Spectrometry) data through the usage of marker peptides. 
+
+It consists of three primary scripts: 
+  - pampa_light: enables fast and easy species identification from mass spectra,
+  - pampa_classify:  also dedicated to taxonomic assignment, with a comprehensive range of advanced options,
+  - pampa_craft: to build custom sets of marker peptides.
+
+Moreover, PAMPA offers the following features :
 
 - It can handle any number of mass spectra in a single run.
 - It allows to automatically generate marker peptides, and users can also define their own markers by creating custom peptide tables. 
@@ -19,16 +27,11 @@ Additionaly, the full version of PAMPA necessitates the Biopython and pyteomics 
  - biopython (https://biopython.org/): `pip install biopython`
  - pyteomics (https://pypi.org/project/pyteomics/): `pip install pyteomics`
 
-PAMPA LIGHT (see below) requires no external dependencies.
+PAMPA LIGHT requires no external dependencies.
 
 ## How to use the program ?
 
-PAMPA is a collection of scripts designed to efficiently manage a wide range of tasks related to handling ZooMS data.  There are three main scripts:
-  - pampa_light, for fast and easy species identification from mass spectra,
-  - pampa_classification, that is also dedicated to taxonomic assignment and provides a full range of advanced options,
-  - pampa_craft, that allows you to build custom set of marker peptides.
-
-We recommend starting by reviewing the General formats and definitions section , as it covers fundamental concepts shared across all scripts, such as peptide tables, format of mass spectra, error margin, handling PTMs, format of output files, etc. Afterwards, you may refer to the comprehensive documentation of [PAMPA LIGHT],([PAMPA CLASSIFY](#PAMPA-CLASSIFY) and [PAMPA CRAFT](#PAMPA-CRAFT)) for more in-depth details.
+We recommend starting by reviewing the General formats and definitions section, as it covers fundamental concepts shared across all scripts, such as peptide tables, format of mass spectra, error margin, handling PTMs, format of output files, etc. Afterwards, you may refer to the comprehensive documentation of [PAMPA LIGHT](#PAMPA-LIGHT), [PAMPA CLASSIFY](#PAMPA-CLASSIFY) and [PAMPA CRAFT](#PAMPA-CRAFT)) for more in-depth details.
 
 ## General formats and definitions
 
@@ -149,8 +152,7 @@ The error margin is related to the resolution of the mass spectrometer, that is 
 
 ## PAMPA LIGHT
 
-PAMPA LIGHT is 
-This version takes a set of mass spectra as input and attempts to determine the best taxonomic assignment for each of them. The assignment utilizes marker peptides from representative species, which are compiled into peptide tables and taxonomies that are included with the code of the program, and can be invoked as  preset options for organisms choice.
+PAMPA LIGHT is designed for rapid and straightforward species identification. It takes a set of mass spectra as input and attempts to determine the best taxonomic assignment for each of them. The assignment utilizes marker peptides from representative species, which are compiled into peptide tables and taxonomies that are included with the program code. These resources can be invoked as preset options for choosing clades. 
 
 ```
 usage: python3 pampa_light.py 
@@ -173,6 +175,7 @@ python3 pampa_light.py -s SpectraFolder -e 0.1 -o resultFile.tsv --mammals
 This command executes the program on all mass spectra within the 'SpectraFolder' directory, compiling the primary results into the TSV file 'resultFile.tsv'. The taxonomic assignment model utilized is 'mammals', and the error margin for masses is set to 0.1.
 
 ### Mass spectra (-s) 
+
 
 __This option is mandatory.__
 
@@ -209,68 +212,11 @@ Two other accompanying files are automatically created, in the same directory.
 
 __This option is mandatory.__
 
-PAMPA_light utilizes a predefined set of marker peptides in conjunction with the NCBI taxonomy for species identification. These markers are accessible through _peptide tables_, which are stored in TSV files distributed with the code. Each peptide table includes the following columns: 
-
-- Rank: Taxonomic rank
-- Taxid: Taxonomic identifier
-- Taxon name: Scientific name
-- Sequence: Marker peptide sequence
-- PTM: Description of post-translational modifications (PTMs) applied to the marker peptide
-- Name: Marker name
-- Masses: Peptide mass
-- Gene: Gene name, e.g., COL1A1
-- SeqId: Sequence identifier(s) of the protein sequence from which the marker peptide is derived
-- Begin: Start position of the peptide marker within the protein sequence
-- End: End position of the peptide marker within the protein sequence
-- Comment: Additional comments about the marker
-
-The first row of the file should contain column headings. 
-
-_PTM description_: PAMPA recognizes three types of PTMs: 
- - oxylation of prolines (indicated by the single-letter code 'O'), 
- - deamidation of asparagine and glutamine (indicated by the single-letter code 'D'), 
- - phosphorylation of serine, threonine, and tyrosine (indicated by the single-letter code 'P'). 
-
-The _PTM description_ is  a concise representation of the number of oxylations, deamidations and phosphorylations necessary to compute the mass of a peptide sequence. For instance, '2O1D' signifies two oxyprolines and one deamidation, '1P4O' represents one phosphorylation and four oxyprolines, '2O' corresponds to two oxyprolines without any deamidation and phosphorylation.
+PAMPA LIGHT utilizes a predefined set of marker peptides in conjunction with the NCBI taxonomy for species identification. The markers are accessible through _peptide tables_, which are stored in TSV files distributed with the code (see the [Peptide tables](#Peptide-tables) section), together with the taxonomy (see the [Taxonomy](#Taxonomy) section).
 
 ### <a id="limit"></a> Limiting search (-l)
 
-It is possible to filter the peptide table to limit the search according to various criteria such as organism, gene name, sequence identifier, or PTMs. For that, you can use the '-l' option and follow these guidelines:
-
-- Create a text file that outlines your filtering criteria.
-- Each line in the file should comprise one or several of these fields:
-	- "OS=" for authorized taxon names  
- 	- "OX=" for authorized taxids	
-	- "GN=" for authorized gene names
-	- "PTM=" for authorized PTMs
-	- "SeqID=" for authorized sequence identifiers
-- Separate multiple elements for a field with commas.
-
-For example, If you want to limit your search to a specific set of organisms, your file might look like this: 
-```
-OS= Diceros bicornis, Cervus elaphus, Bos taurus, Equus caballus   
-```   
-Of course, you can combine constraints to narrow down your search. For instance, limiting the search to markers coming from COL1A2 gives:
-```
-OS= Diceros bicornis, Cervus elaphus, Bos taurus, Equus caballus GN=COL1A2
-```  
-This means that the search will focus on markers from COL1A2 within the specified organisms.
-
-Assume now that you want to further refine this selection and  exclude certain PTMs, such as deamidation and  phosporylation. Then you have to add one contraint to authorize only proline oxylation. This gives:
-```
-OS= Diceros bicornis, Cervus elaphus, Bos taurus, Equus caballus GN=COL1A1 PTM=O
-```  
-The limit file can comprise an arbitrary number of lines, with each line representing a distinct constraint. The resulting selection is determined by the union of all these constraints.
-
-Finally, in the presence of a taxonomy (as is the case with PAMPA light), the OS and OX fields become applicable to clades at any taxonomic rank (e.g. genus, family, order). In such instances, the constraint will choose all descendants accordingly. 
-
-```
-OS=Pecora GN=COL1A1
-```
-This will select all COL1A1 markers for species from the Pecora infraorder. Equivalently, you might have used the taxid of Pecora, with the OX field.
-```
-OX=35500 GN=COL1A1
-```
+It is possible to filter the peptide table to limit the search according to various criteria such as organism, gene name, sequence identifier, or PTMs. For that, you can use the '-l' option together with a _limit file_ (see the [Limiting searches](#Limiting-searches) section). 
 
 ### Neighbouring (-n and -a)
 
