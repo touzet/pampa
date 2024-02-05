@@ -64,6 +64,10 @@ __This option is mandatory.__
 
 The program processes a batch of mass spectra simultaneously. All mass spectra files are contained within the same folder, with one file dedicated to each mass spectrum. These files should have one of the following extensions: .csv or .txt (in CSV format), .mgf (in MGF format), or .mzML (in mzML format). Any other files present will be disregarded. You can specify the path to the folder using the '-s' option.
 
+ - _CSV format_: It consists of two columns. The first column is designated for mass (m/z), and the second column records intensity (I). Columns are separated by either a comma (',') or a semicolon (';'). The initial row serves as the header.
+ - _MGF format_: Mascot Generic Format
+  - _mzML format_: see https://www.psidev.info/mzML
+We recommend deisotoping the mass spectra before processing them.
 
 ### Error margin (-e)
 
@@ -72,6 +76,28 @@ __This option is mandatory.__
 The error margin is related to the resolution of the mass spectrometer, that is its ability to distinguish closely spaced peaks. We employ it to set an upper bound on the deviation between a peak and the theoretical mass of the marker peptide. This option is mandatory, and can be expressed in Daltons or in ppm.
  -  If the value is smaller than 1, it is assumed to be in Da (Daltons). In this case, recommended values are  0.1 for maldi TOF, and 0.01 for maldi FT.
  -  If the value is larger than 1, it is assumed to be in ppm (parts per million). In this case, recommended values are 50 for maldi TOF, and 5 for maldi FTICR.
+
+### <a id="peptide"></a>Organism selection (-- mammals)
+
+__This option is mandatory.__
+
+PAMPA LIGHT utilizes a predefined set of marker peptides in conjunction with the NCBI taxonomy for species identification. The markers are accessible through _peptide tables_, which are stored in TSV files distributed with the code (see the [Peptide tables](#Peptide-tables) section), together with the taxonomy (see the [Taxonomy](#Taxonomy) section).
+
+
+### <a id="limit"></a> Limiting search (-l)
+
+It is possible to filter the marker peptides to consider to limit the search according to various criteria such as organism, gene name, sequence identifier, or PTMs. For that, you can use the '-l' option together with a _limit file_ (see the [Limiting searches](#Limiting-searches) section). 
+
+### Neighbouring (-n and -a)
+
+By default, PAMPA identifies the species with the highest number of marker peptides. 
+The -n option allows to obtain also near-optimal solutions. For that, you can set the suboptimality 
+range as a percentage from 0 to 100, with the default being 100 
+(corresponding to solutions with the highest number of marker peptides). 
+For example, if the optimal solutions has 11 marker peptides, '-n 80' will provide solutions with 9 markers or more.
+
+By default, the '-n' option will generate only near-optimal solutions that are not included in any other solution.
+When used together with '-n,'  the '-a' option allows to change this, so that the program computes all solutions, even those that are included in other solutions.  
 
 ### Output files (-o)
 
@@ -91,26 +117,8 @@ Two other accompanying files are automatically created, in the same directory.
 - detail_&lt;outputfile&gt; (TSV file): this file contains the detail of the assignment (which markers are found for which species). It also provides the intensity of the peaks used in the assignment.
 - report_&lt;outputfile&lt; (TXT file): this file contains a report on the run's inputs (number of mass spectra, number of species tested,  parameters...)
 
-### <a id="peptide"></a>Organism selection (-- mammals)
 
-__This option is mandatory.__
 
-PAMPA LIGHT utilizes a predefined set of marker peptides in conjunction with the NCBI taxonomy for species identification. The markers are accessible through _peptide tables_, which are stored in TSV files distributed with the code (see the [Peptide tables](#Peptide-tables) section), together with the taxonomy (see the [Taxonomy](#Taxonomy) section).
-
-### <a id="limit"></a> Limiting search (-l)
-
-It is possible to filter the peptide table to limit the search according to various criteria such as organism, gene name, sequence identifier, or PTMs. For that, you can use the '-l' option together with a _limit file_ (see the [Limiting searches](#Limiting-searches) section). 
-
-### Neighbouring (-n and -a)
-
-By default, PAMPA identifies the species with the highest number of marker peptides. 
-The -n option allows to obtain also near-optimal solutions. For that, you can set the suboptimality 
-range as a percentage from 0 to 100, with the default being 100 
-(corresponding to solutions with the highest number of marker peptides). 
-For example, if the optimal solutions has 11 marker peptides, '-n 80' will provide solutions with 9 markers or more.
-
-By default, the '-n' option will generate only near-optimal solutions that are not included in any other solution.
-When used together with '-n,'  the '-a' option allows to change this, so that the program computes all solutions, even those that are included in other solutions.  
 
 ## General formats and definitions
 
