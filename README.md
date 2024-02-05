@@ -303,10 +303,8 @@ With this option, the input consists of a set of well-defined marker peptides, a
 
 #### Peptide table (-p)
 
-__This option is mandatory.__
-
 This table contains the list of marker peptides that will be used as models to find new markers in new sequences by homology.
-The format of this table is described in section [Organism selection](#peptide).
+The format of this table is described in section [Organism selection](#peptide). This option is required.
 
 
 #### Target sequences (-f, -d and -l)
@@ -349,9 +347,7 @@ pampa_craft --denovo
 
 #### Target sequences (-f, -d and -l)
 
-__The use of either -f or -d is mandatory.__
-
-The target sequences are the amino-acids sequences in which the new markers are searched. Those sequences can be available either in a (multi-)FASTA file (-f option), or in a directory containing FASTA files (-d option). In both cases, the set of sequences can optionnally be _limited_ to a subset of organisms, molecules or sequence identifiers with -l option.
+The target sequences consist of amino acid sequences in FASTA format that will undergo tryptic digestion. These sequences can be provided either as individual sequences within a (multi-)FASTA file (using the -f option) or as multiple FASTA files within a directory (using the -d option). The use of either -f or -d is required. Additionally, users have the option to selectively limit the set of sequences to a specific subset of organisms, molecules, or sequence identifiers using the -l option.
 
 _Option -f :_ The specified file can contain an arbitrary number of FASTA sequences, coming from various organisms. Two types of FASTA heading are recognized. 
  - UniprotKB-like, with some sequence identifier at the beginning of the heading, and mandatory fields OS (scientific name of the organism) , OX (taxonomomic identifier of the sorganism, such as assigned by the NCBI) and GN (Gene Name):
@@ -367,9 +363,7 @@ _Option -l:_ This option allows to filter the set of FASTA sequences to limit th
 
 #### Output file (-o)
 
-__This option is mandatory.__
-
-This is the name of the new peptide table created by the program. 
+This is the name of the new table containing tryptic peptides created by the program. This option is required. 
 
 ### Fill in 
 
