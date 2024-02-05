@@ -167,8 +167,8 @@ PAMPA recognizes three types of PTMs:
 
 The _PTM description_ is  a concise representation of the number of oxylations, deamidations and phosphorylations necessary to compute the mass of a peptide sequence. For instance, '2O1D' signifies two oxyprolines and one deamidation, '1P4O' represents one phosphorylation and four oxyprolines, '2O' corresponds to two oxyprolines without any deamidation and phosphorylation. When no PTM applies, the description should be "0O", or "0D", etc. 
 
-When the PTM description this is left empty in the peptide table,  it is assumed that PTMs are not known. In this case, they are directly infered by PAMPA following two rules:
- 
+When the PTM description field is left empty in the peptide table, it signifies that PTMs are not specified. In such cases, PAMPA directly infers PTMs based on the two following rules: 
+
   - No deamidation and phosphorylation are added.
   - The number of oxyprolines is determined empirically using the following formula: Let 'p' represent the total number of prolines in the peptide, and 'pp' represent the number of prolines involved in the pattern 'GxP'. If the difference 'p-pp' is less than 3, then 'pp' oxyprolines are applied. If 'p-pp' is 3 or greater, 'pp' oxyprolines and 'pp+1' oxyprolines are applied.
 
@@ -192,7 +192,7 @@ Two types of FASTA heading are recognized.
 
  - UniprotKB-like, with some sequence identifier at the beginning of the heading, and mandatory fields OS (scientific name of the organism) , OX (taxonomomic identifier of the organism, such as assigned by the NCBI) and GN (Gene Name):
      
-   `>P02453 CO1A1_BOVIN Collagen alpha-1(I) chain OS=Bos taurus OX=9913 GN=COL1A1 `
+   `>P02453 OS=Bos taurus OX=9913 GN=COL1A1 `
 
  - NCBI-like : to do
 
@@ -245,7 +245,7 @@ The error margin is related to the resolution of the mass spectrometer, that is 
 
 ## PAMPA CLASSIFY
 
-PAMPA CLASSIFY represents an advanced version of PAMPA light, offering users the capability to utilize their personalized set of marker peptides for taxonomic assignment.  See the [Peptide tables](#Peptide-tables) section to have more information about the ways  to create peptide tables.  Additionally, in situations where no marker peptides are available, it is possible to supply FASTA sequences for the automatic inference of peptides through in silico digestion.
+PAMPA CLASSIFY represents an advanced version of PAMPA light, offering users the capability to utilize their personalized set of marker peptides and taxonomies for species assignment. Additionally, in situations where no marker peptides are available, it is possible to supply FASTA sequences for the automatic inference of peptides through in silico digestion.
 
 ```
 usage: 
@@ -285,18 +285,13 @@ options for suboptimal solutions:
 
 ```
 
-The  **-s** (mass spectra), **-e** (error margin), **-o** (output), **-l** (limit), **-n** (neighbouring) and **-a**  options are the same as with PAMPA light and the documentation can be found in the [dedicated section](#PAMPA-light).
+The  **-s** (mass spectra), **-e** (error margin), **-o** (output), **-l** (limit), **-n** (neighbouring) and **-a**  options are the same as with PAMPA LIGHT and the documentation can be found in the [dedicated section](#PAMPA-light).
 
 Hereafter, we provide description of **-p**, **-f**, **-d** and **-t** options,  each of which is specific to this module.
 
 ### Peptide table (-p)
 
-This option allows you to employ your own set of marker peptides. This set should be structured within a _peptide table_, formatted as a TSV (Tab-Separated Values) file. The specific format details for peptide tables are descrided  in the [PAMPA light](#PAMPA-light) section.  Such file can be created manually with any spreadsheet software by opting for the TSV export format. Alternatively, the module [PAMPA CRAFT](#PAMPA-CRAFT) provides automated methods to generate  peptide tables.  
-
-Peptide tables should contain 12 columns corresponding to  Rank, Taxid, Taxon name, Sequence, PTM, Name, Masses, Gene, SeqID, Begin, End, Comment. Most of these fields are optional and are here for ence and traceability. Only the following information is mandatory:
-
-- You must provide a taxid for the peptide marker. Rank and taxon names are included primarily to enhance the clarity of results.
-- You should furnish either a sequence, possibly with a PTM description,  or a mass for your marker peptide. If the sequence is provided without a mass, the program will automatically compute the mass from it. To do so, it will utilize either the PTM description (when available) or infer potential PTMs from the sequence.
+This option allows you to employ your own set of marker peptides. This set should be structured within a _peptide table_, formatted as a TSV (Tab-Separated Values) file. The specific format details for peptide tables are descrided  in the [Peptide tables](#Peptide-tables) section.  
 
 Note that you can specify multiple peptide tables by using the -p option repeatedly.  
 
@@ -315,21 +310,9 @@ Only files with extension _.fa_ or _.fasta_ will be examined.
 
 ### Taxonomy (-t)
 
-The program offers the optional possibility to add taxonomic information to the species identification. In this case, you should supply a taxonomy file.
+The program provides an optional feature to include taxonomic information in species identification. In this scenario, you can either provide a taxonomy file or utilize a pre-defined taxonomy file available in the Taxonomy directory. Instructions for constructing your own taxonomy file are detailed in the  [Taxonomy](#Taxonomy) section.
 
-The taxonomy must be in the form of a Tab-Separated Values (TSV) file comprising five columns: Taxid, Common name, Scientific name, Parent (taxid), and Rank (species, genus, etc.). 
-You can obtain this type of file directly from UniProt (https://www.uniprot.org/taxonomy) by following these steps:
-
-  1. Use the search bar to find your desired clade, entering its common name, scientific name, or taxid.
-  2. Select the clade of interest and click on 'Browse all descendants.'
-  3. Locate the 'download' link.
-  4. Choose the TSV format and customize the columns in the following order: Common name, Scientific name, Parent, and Rank.
-  5. Proceed to download the taxonomy file.
-
-When a taxonomy is provided, the software will indicate, for each spectrum, the taxonomic resolution of the assignment. This is computed as the largest clade of the taxonomy that is compatible with the prediction.
-
-_Examples_: example files are available in the folder 'Taxonomy'.
-
+When this option is invoked, the software will indicate, for each spectrum, the taxonomic resolution of the assignment. This is computed as the largest clade of the taxonomy that is compatible with the prediction.
 
 ## PAMPA CRAFT 
 
@@ -349,11 +332,11 @@ The three options —-homology, --denovo, and --fillin represent three distinct 
 
 The full usage description is given below.
 
-### --homology 
+### Parameter --homology 
 
 With this option, the input consists of a set of well-defined marker peptides, and the goal is to search a set of target protein sequences for similar peptides. New peptides are discovered through sequence alignment, allowing up to 10% mismatches between peptides. The algorithm also ensures that the new peptides can undergo tryptic digestion and infers new cleavage sites when necessary. Masses are automatically computed. 
 
-'''
+```
  usage:
  python3 pampa_craft --homology
    -p PEPTIDE_TABLE [PEPTIDE_TABLE]
@@ -362,7 +345,7 @@ With this option, the input consists of a set of well-defined marker peptides, a
    -d DIRECTORY  Directory containing Fasta files for new species
    -l LIMIT      Limit file that 
    -o OUTPUT     Path to the output file (new peptide table)
-'''
+```
 
 #### Peptide table (-p)
 
