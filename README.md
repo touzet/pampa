@@ -287,7 +287,7 @@ The three options —-homology, --denovo, and --fillin represent three distinct 
 
 The full usage description is given below.
 
-### homology 
+### --homology 
 
 With this option, the input consists of a set of well-defined marker peptides, and the goal is to search a set of target protein sequences for similar peptides. New peptides are discovered through sequence alignment, allowing up to 10% mismatches between peptides. The algorithm also ensures that the new peptides can undergo tryptic digestion and infers new cleavage sites when necessary. Masses are automatically computed. 
 
@@ -328,16 +328,14 @@ _Option -l:_ This option allows to filter the set of FASTA sequences to limit th
 
 #### Output file (-o)
 
-__This option is mandatory.__
-
-This is the name of the new peptide table created by the program. 
+This is the name of the new peptide table created by the program. This option is required.
 
 ### De novo
 
 This option allows to infer all tryptic peptides from a set of FASTA sequences through in silico digestion, and to compute their masses. 
 
 
-'''
+```
 usage:
 pampa_craft --denovo 
    -p PEPTIDE_TABLE [PEPTIDE_TABLE]
@@ -346,7 +344,7 @@ pampa_craft --denovo
    -d DIRECTORY  Directory containing Fasta files for new species
    -l LIMIT      Limit file that 
    -o OUTPUT     Path to the output file (new peptide table)
-'''
+```
 
 #### Target sequences (-f, -d and -l)
 
