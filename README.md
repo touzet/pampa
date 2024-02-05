@@ -241,8 +241,7 @@ The error margin is related to the resolution of the mass spectrometer, that is 
 
 ## PAMPA CLASSIFY
 
-PAMPA CLASSIFY represents an advanced version of PAMPA light, offering users the capability to utilize their personalized set of marker peptides for taxonomic assignment. 
-This functionality is enabled by custom peptide tables, which are TSV files containing list of marker peptides. Users have the option to create these tables manually following the description given in the [PAMPA light](#PAMPA-light) section, or generate them using [PAMPA CRAFT](#PAMPA-CRAFT). Additionally, in situations where no marker peptides are available, it is possible to supply FASTA sequences for the automatic inference of peptides through in silico digestion.
+PAMPA CLASSIFY represents an advanced version of PAMPA light, offering users the capability to utilize their personalized set of marker peptides for taxonomic assignment.  See the [Peptide tables](#Peptide-tables) section to have more information about the ways  to create peptide tables.  Additionally, in situations where no marker peptides are available, it is possible to supply FASTA sequences for the automatic inference of peptides through in silico digestion.
 
 ```
 usage: 
@@ -297,9 +296,6 @@ Peptide tables should contain 12 columns corresponding to  Rank, Taxid, Taxon na
 
 Note that you can specify multiple peptide tables by using the -p option repeatedly.  
 
-_Inference of PTMs_:  TO DO 
-
-_Examples_: Sample peptide tables can be found in the 'Peptide_tables' folder.
 
 ### Running the program without peptide tables (-f and -d)
 
@@ -433,8 +429,9 @@ _Option -l:_ This option allows to filter the set of FASTA sequences to limit th
 
 This is the name of the new table containing tryptic peptides created by the program. This option is required. 
 
-### Fill in 
+### --fillin 
 
+This option allows to automatically compute masses for peptides lacking this information.  
 
 
 ```
@@ -446,11 +443,12 @@ This is the name of the new table containing tryptic peptides created by the pro
 
 #### Peptide table (-p)
 
-Name of the peptide table to complete.
+Name of the peptide table to complete. This option is required. 
 
 #### Output file (-o)
 
-This is the name of the new table obtained by completion of the input table.  This option is required. 
+Name of the new table obtained by completion of the input table.  This option is required. 
+
 
 
 ## Bug Report
