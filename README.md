@@ -335,6 +335,9 @@ This is the name of the new peptide table created by the program.
 
 ### De novo
 
+This option allows to infer all tryptic peptides from a set of FASTA sequences through in silico digestion, and to compute their masses. 
+
+
 '''
 usage:
 pampa_craft --denovo 
@@ -370,9 +373,16 @@ This is the name of the new peptide table created by the program.
 
 ### Fill in 
 
+'''
+ usage:
+ python3 pampa_craft --fillin 
+   -p PEPTIDE_TABLE Peptide table to complete
+   -o OUTPUT        Path to the output file (new peptide table)
+'''
+
 ## Bug Report
 
-PAMPA is still under development. If you come across any bugs, glitches, or unexpected behavior, please take a moment to report it using our GitHub Issues page. Just click on the "Issues" tab above and create a new issue.
+PAMPA is still under development. If you come across any bugs or unexpected behavior, please take a moment to report it using our GitHub Issues page. Just click on the "Issues" tab above and create a new issue. You may also contact the author (helene.touzet@univ-lille.fr).
 
 We value your all feedback and contributions.  Thank you for helping us make the PAMPA project better!
 
