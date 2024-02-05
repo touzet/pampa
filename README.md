@@ -24,11 +24,11 @@ PAMPA_light (see below) requires no external dependencies.
 ## How to run the program ?
 
 PAMPA is a collection of scripts that performs all large variety of tasks to handle ZooMS data. There are three main scripts:
-  - pampa_light, for fast and easy species identification from mass spectra
-  - pampa_classification, that is also dedicated to taxonomic assignment and provides a full range of additional options
+  - pampa_light, for fast and easy species identification from mass spectra,
+  - pampa_classification, that is also dedicated to taxonomic assignment and provides a full range of advanced options,
   - pampa_craft, that allows you to build custom set of marker peptides.
 
-We suggest starting by reviewing the instructions for PAMPA light first, as it covers fundamental concepts shared across both versions, such as peptide tables, format of mass spectra, error margin, handling PTMs, format of output files, etc. Afterward, if you want to use the full version of PAMPA, you may refer to the comprehensive documentation ([PAMPA CLASSIFY](#PAMPA-CLASSIFY) and [PAMPA CRAFT](#PAMPA-CRAFT)) for more in-depth details.
+We suggest starting by reviewing the instructions for PAMPA light first, as it covers fundamental concepts shared across all scripts, such as peptide tables, format of mass spectra, error margin, handling PTMs, format of output files, etc. Afterward, if you want to use the full version of PAMPA, you may refer to the comprehensive documentation ([PAMPA CLASSIFY](#PAMPA-CLASSIFY) and [PAMPA CRAFT](#PAMPA-CRAFT)) for more in-depth details.
 
 ## PAMPA light
 
@@ -340,6 +340,8 @@ This option allows to infer all tryptic peptides from a set of FASTA sequences t
 '''
 usage:
 pampa_craft --denovo 
+   -p PEPTIDE_TABLE [PEPTIDE_TABLE]
+   Peptide table(s) that contain model peptide markers
    -f FASTA      Fasta file for new species
    -d DIRECTORY  Directory containing Fasta files for new species
    -l LIMIT      Limit file that 
@@ -374,6 +376,13 @@ This is the name of the new table containing tryptic peptides created by the pro
    -p PEPTIDE_TABLE Peptide table to complete
    -o OUTPUT        Path to the output file (new peptide table)
 '''
+
+#### Peptide table (-p)
+
+#### Output file (-o)
+
+This is the name of the new table obtained from the input table.  This option is required. 
+
 
 ## Bug Report
 
