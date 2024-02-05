@@ -28,13 +28,83 @@ PAMPA is a collection of scripts that performs all large variety of tasks to han
   - pampa_classification, that is also dedicated to taxonomic assignment and provides a full range of advanced options,
   - pampa_craft, that allows you to build custom set of marker peptides.
 
-We suggest starting by reviewing the instructions for PAMPA light first, as it covers fundamental concepts shared across all scripts, such as peptide tables, format of mass spectra, error margin, handling PTMs, format of output files, etc. Afterwards, if you want to use the full version of PAMPA, you may refer to the comprehensive documentation ([PAMPA CLASSIFY](#PAMPA-CLASSIFY) and [PAMPA CRAFT](#PAMPA-CRAFT)) for more in-depth details.
+We recommend starting by reviewing the General formats and definitions section , as it covers fundamental concepts shared across all scripts, such as peptide tables, format of mass spectra, error margin, handling PTMs, format of output files, etc. Afterwards, you may refer to the comprehensive documentation of [PAMPA LIGHT],([PAMPA CLASSIFY](#PAMPA-CLASSIFY) and [PAMPA CRAFT](#PAMPA-CRAFT)) for more in-depth details.
 
+## General formats and definitions
+
+### Mass spectra 
+
+PAMPA recognizes three formats for mass spectra:
+
+_CSV format_: It consists of two columns. The first column is designated for mass (m/z), and the second column records intensity (I). Columns are separated by either a comma (',') or a semicolon (';'). The initial row serves as the header.
+
+_MGF format_: Mascot Generic Format
+
+_mzML format_: see https://www.psidev.info/mzML
+
+In all cases, we recommend deisotoping the mass spectra before processing them.
+
+In practice, the program processes a batch of mass spectra simultaneously. All mass spectra files are contained within the same folder, with one file dedicated to each mass spectrum. These files should have one of the following extensions: .csv or .txt (in CSV format), .mgf (in MGF format), or .mzML (in mzML format). Any other files present will be disregarded. 
+
+### Peptide tables
+
+PAMPA handles set of markers that serves to species identification.
+Those markers are accessible through _peptide tables_, which are stored in TSV files distributed with the code. Peptide tables should include 12 columns corresponding to the 12 fields below: 
+
+- Rank: Taxonomic rank
+- Taxid: Taxonomic identifier
+- Taxon name: Scientific name
+- Sequence: Marker peptide sequence
+- PTM: Description of post-translational modifications (PTMs) applied to the marker peptide (see below)
+- Name: Marker name
+- Masses: Peptide mass
+- Gene: Gene name, e.g., COL1A1
+- SeqId: Sequence identifier(s) of the protein sequence from which the marker peptide is derived
+- Begin: Start position of the peptide marker within the protein sequence
+- End: End position of the peptide marker within the protein sequence
+- Comment: Additional comments about the marker
+
+The first row of the file should contain column headings. 
+
+Most of these fields are optional and are here for reference and traceability. Only the following information is mandatory:
+ - You must provide a taxid for the peptide marker. Rank and taxon names are included primarily to enhance the clarity of results.
+ - You should furnish either a sequence, possibly with a PTM description,  or a mass for your marker peptide. If the sequence is provided without a mass, the program will automatically compute the mass from it. To do so, it will utilize either the PTM description (when available) or infer potential PTMs from the sequence.
+
+Several pre-defined peptide tables  are distributed with the code of PAMPA. You van find them in the Peptide_table directrory. Do not move them or modify them, since they are used by PAMA LIGHT. Alternatively, peptide table files can be created manually with any spreadsheet software by opting for the TSV export format. Lastly,  [PAMPA CRAFT](#PAMPA-CRAFT) provides automated methods to generate  peptide tables.  
+
+### PTM description 
+
+PAMPA recognizes three types of PTMs: 
+ - oxylation of prolines (indicated by the single-letter code 'O'), 
+ - deamidation of asparagine and glutamine (indicated by the single-letter code 'D'), 
+ - phosphorylation of serine, threonine, and tyrosine (indicated by the single-letter code 'P'). 
+
+The _PTM description_ is  a concise representation of the number of oxylations, deamidations and phosphorylations necessary to compute the mass of a peptide sequence. For instance, '2O1D' signifies two oxyprolines and one deamidation, '1P4O' represents one phosphorylation and four oxyprolines, '2O' corresponds to two oxyprolines without any deamidation and phosphorylation. When no PTM applies, the description should be "0O", or "0D", etc. 
+
+When the PTM description this is left empty in the peptide table,  it is assumed that PTMs are not known. In this case, they are directly infered by PAMPA following two rules:
+ 
+  - no deamidation and phosphorylation are added.
+  - the number of oxyprolines is estimed
+    proline=sequence.count('P')
+    # number of P involved in the pattern "G.P"
+    period=re.compile('G\wP')
+    period_proline=len(period.findall(sequence))
+    if proline - period_proline<3:
+        return period_proline, period_proline
+    else:
+        return period_proline, period_proline+1
+  
+
+### Error margin 
+
+The error margin is related to the resolution of the mass spectrometer, that is its ability to distinguish closely spaced peaks. We employ it to set an upper bound on the deviation between a peak and the theoretical mass of the marker peptide. This option is mandatory, and can be expressed in Daltons or in ppm.
+ -  If the value is smaller than 1, it is assumed to be in Da (Daltons). In this case, recommended values are  0.1 for maldi TOF, and 0.01 for maldi FT.
+ -  If the value is larger than 1, it is assumed to be in ppm (parts per million). In this case, recommended values are 50 for maldi TOF, and 5 for maldi FTICR.
 
 
 ## PAMPA light
 
-This version takes a set of mass spectra as input and attempts to determine the best taxonomic assignment for each of them. The assignment utilizes marker peptides from representative species, which are compiled into peptide tables and taxonomies that are included with the code of the program. The version also offers preset options for organisms choice.
+This version takes a set of mass spectra as input and attempts to determine the best taxonomic assignment for each of them. The assignment utilizes marker peptides from representative species, which are compiled into peptide tables and taxonomies that are included with the code of the program, and ca, be invoked as  preset options for organisms choice.
 
 ```
 usage: python3 pampa_light.py 
