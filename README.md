@@ -282,7 +282,7 @@ pampa_craft  [-h]
 The three options --homology, -denovo and --fillin designates three distinctive ways to build a new peptide table:
   - by homology from a set of existing peptide markers
   - de novo, using in silico tryptic digestion for a collection of protein sequences
-  - by filling in 
+  - by filling in an existing peptide table, for which masses are missing.
 
 The full usage description is given below.
 
@@ -290,13 +290,23 @@ The full usage description is given below.
 
 With this option, the input consists of a set of well-defined marker peptides, and the goal is to search a set of target protein sequences for similar peptides. New peptides are discovered through sequence alignment, allowing up to 10% mismatches between peptides. The algorithm also ensures that the new peptides can undergo tryptic digestion and infers new cleavage sites when necessary. Masses are automatically computed. 
 
+'''
+ usage:
+ python3 pampa_craft --homology
+   -p PEPTIDE_TABLE [PEPTIDE_TABLE]
+   Peptide table(s) that contain model peptide markers
+   -f FASTA      Fasta file for new species
+   -d DIRECTORY  Directory containing Fasta files for new species
+   -l LIMIT      Limit file that 
+   -o OUTPUT     Path to the output file (new peptide table)
+'''
+
 #### Peptide table (-p)
 
 __This option is mandatory.__
 
 This table contains the list of marker peptides that will be used as models to find new markers in new sequences by homology.
 The format of this table is described in section [Organism selection](#peptide).
-
 
 
 #### Target sequences (-f, -d and -l)
@@ -322,6 +332,43 @@ _Option -l:_ This option allows to filter the set of FASTA sequences to limit th
 __This option is mandatory.__
 
 This is the name of the new peptide table created by the program. 
+
+### De novo
+
+'''
+usage:
+pampa_craft --denovo 
+   -f FASTA      Fasta file for new species
+   -d DIRECTORY  Directory containing Fasta files for new species
+   -l LIMIT      Limit file that 
+   -o OUTPUT     Path to the output file (new peptide table)
+'''
+
+#### Target sequences (-f, -d and -l)
+
+__The use of either -f or -d is mandatory.__
+
+The target sequences are the amino-acids sequences in which the new markers are searched. Those sequences can be available either in a (multi-)FASTA file (-f option), or in a directory containing FASTA files (-d option). In both cases, the set of sequences can optionnally be _limited_ to a subset of organisms, molecules or sequence identifiers with -l option.
+
+_Option -f :_ The specified file can contain an arbitrary number of FASTA sequences, coming from various organisms. Two types of FASTA heading are recognized. 
+ - UniprotKB-like, with some sequence identifier at the beginning of the heading, and mandatory fields OS (scientific name of the organism) , OX (taxonomomic identifier of the sorganism, such as assigned by the NCBI) and GN (Gene Name):
+     
+   `>P02453 CO1A1_BOVIN Collagen alpha-1(I) chain OS=Bos taurus OX=9913 GN=COL1A1 `
+
+ - NCBI-like 
+
+_Option -d:_ The directory can contain an arbitrary number of FASTA files, following the same requirements as with '-f' option.
+Only files with extension _.fa_ or _.fasta_ will be examined. 
+
+_Option -l:_ This option allows to filter the set of FASTA sequences to limit the selection according to the organism (OS=), the taxid (OX=), the gene name (GN=), the sequence identifier (SeqID=). The full description of the syntax is given in section [Limiting search](#limit).
+
+#### Output file (-o)
+
+__This option is mandatory.__
+
+This is the name of the new peptide table created by the program. 
+
+### Fill in 
 
 ## Bug Report
 
