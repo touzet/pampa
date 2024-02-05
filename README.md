@@ -30,7 +30,7 @@ PAMPA is a collection of scripts that performs all large variety of tasks to han
 
 We suggest starting by reviewing the instructions for PAMPA light first, as it covers fundamental concepts shared across all scripts, such as peptide tables, format of mass spectra, error margin, handling PTMs, format of output files, etc. Afterwards, if you want to use the full version of PAMPA, you may refer to the comprehensive documentation ([PAMPA CLASSIFY](#PAMPA-CLASSIFY) and [PAMPA CRAFT](#PAMPA-CRAFT)) for more in-depth details.
 
-## General definitions and formats 
+
 
 ## PAMPA light
 
