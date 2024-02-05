@@ -19,7 +19,7 @@ Additionaly, the full version of PAMPA necessitates the Biopython and pyteomics 
  - biopython (https://biopython.org/): `pip install biopython`
  - pyteomics (https://pypi.org/project/pyteomics/): `pip install pyteomics`
 
-PAMPA_light (see below) requires no external dependencies.
+PAMPA LIGHT (see below) requires no external dependencies.
 
 ## How to use the program ?
 
@@ -147,9 +147,10 @@ The error margin is related to the resolution of the mass spectrometer, that is 
  -  If the value is larger than 1, it is assumed to be in ppm (parts per million). In this case, recommended values are 50 for maldi TOF, and 5 for maldi FTICR.
 
 
-## PAMPA light
+## PAMPA LIGHT
 
-This version takes a set of mass spectra as input and attempts to determine the best taxonomic assignment for each of them. The assignment utilizes marker peptides from representative species, which are compiled into peptide tables and taxonomies that are included with the code of the program, and ca, be invoked as  preset options for organisms choice.
+PAMPA LIGHT is 
+This version takes a set of mass spectra as input and attempts to determine the best taxonomic assignment for each of them. The assignment utilizes marker peptides from representative species, which are compiled into peptide tables and taxonomies that are included with the code of the program, and can be invoked as  preset options for organisms choice.
 
 ```
 usage: python3 pampa_light.py 
@@ -177,13 +178,6 @@ __This option is mandatory.__
 
 The program processes a batch of mass spectra simultaneously. All mass spectra files are contained within the same folder, with one file dedicated to each mass spectrum. These files should have one of the following extensions: .csv or .txt (in CSV format), .mgf (in MGF format), or .mzML (in mzML format). Any other files present will be disregarded. You can specify the path to the folder using the '-s' option.
 
-_CSV format_: It consists of two columns. The first column is designated for mass (m/z), and the second column records intensity (I). Columns are separated by either a comma (',') or a semicolon (';'). The initial row serves as the header.
-
-_MGF format_: Mascot Generic Format
-
-_mzML format_: see https://www.psidev.info/mzML
-
-We recommend deisotoping the mass spectra before processing them.
 
 ### Error margin (-e)
 
