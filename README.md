@@ -280,9 +280,9 @@ pampa_craft  [-h]
    [-f FASTA | -d DIRECTORY] [-p PEPTIDE_TABLE] [-l LIMIT] -o OUTPUT 
 ```
 
-The three options --homology, -denovo and --fillin designates three distinctive ways to build a new peptide table:
-  - by homology from a set of existing peptide markers
-  - de novo, using in silico tryptic digestion for a collection of protein sequences
+The three options —-homology, --denovo, and --fillin represent three distinct approaches for constructing a new peptide table: 
+  - by homology from a set of existing peptide markers,
+  - de novo, using in silico tryptic digestion for a collection of protein sequences,
   - by filling in an existing peptide table, for which masses are missing.
 
 The full usage description is given below.
