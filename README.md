@@ -154,7 +154,9 @@ Most of these fields are optional and are here for ence and traceability. Only t
  - You must provide a taxid for the peptide marker. Rank and taxon names are included primarily to enhance the clarity of results.
  - You should furnish either a sequence, possibly with a PTM description,  or a mass for your marker peptide. If the sequence is provided without a mass, the program will automatically compute the mass from it. To do so, it will utilize either the PTM description (when available) or infer potential PTMs from the sequence.
 
-Several pre-defined peptide tables  are distributed with the code of PAMPA. You van find them in the Peptide_table directrory. Do not move them or modify them, since they are used by PAMA LIGHT. Alternatively, peptide table files can be created manually with any spreadsheet software by opting for the TSV export format. Lastly,  [PAMPA CRAFT](#PAMPA-CRAFT) provides automated methods to generate  peptide tables.  
+**Where to find peptide tables ?** Several pre-defined tables are included with the PAMPA code, accessible in the Peptide_tables directory. Please avoid relocating or altering these files, as they are utilized by PAMPA LIGHT. Additionally, you can manually create peptide table files using any spreadsheet software and opting for the TSV export format. Alternatively, [PAMPA CRAFT](#PAMPA-CRAFT)  offers automated methods for generating peptide tables.
+
+
 
 ### PTM description 
 
