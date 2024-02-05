@@ -270,12 +270,14 @@ _Examples_: example files are available in the folder 'Taxonomy'.
 
 ## PAMPA CRAFT 
 
-PAMPA BUILD is dedicated to the constuction of new peptide tables based on homology. The input consists of a set of well-defined marker peptides, and the goal is to search a set of target protein sequences for similar peptides. New peptides are discovered through sequence alignment, allowing up to 10% mismatches between peptides. The algorithm also ensures that the new peptides can undergo tryptic digestion and infers new cleavage sites when necessary. Masses are automatically computed. The resulting peptide table can then be utilized by [PAMPA ASSIGN](#PAMPA-ASSIGN).
+PAMPA CRAFT  is for the design of custom peptide tables. dedicated to the constuction of new peptide tables based on homology. TThe resulting peptide table can then be utilized by [PAMPA ASSIGN](#PAMPA-ASSIGN).
 
 
 ```
 usage: 
- 
+pampa_craft  [-h] 
+   --homology | --denovo | --fillin 
+   [-f FASTA | -d DIRECTORY] [-p PEPTIDE_TABLE] [-l LIMIT] -o OUTPUT 
  python3 pampa_craft.py
 	[-h]
 	(-p PEPTIDE TABLE)
@@ -293,6 +295,7 @@ options:
   -d DIRECTORY      Directory that contains FASTA files
   -l LIMIT          TXT file
   ```
+he input consists of a set of well-defined marker peptides, and the goal is to search a set of target protein sequences for similar peptides. New peptides are discovered through sequence alignment, allowing up to 10% mismatches between peptides. The algorithm also ensures that the new peptides can undergo tryptic digestion and infers new cleavage sites when necessary. Masses are automatically computed. 
 
 ### homology Peptide table (-p)
 
