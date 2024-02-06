@@ -199,7 +199,7 @@ GERGPPGPQGARGLPGTAGLPGMKGHRGFSGLDGAKGDAGPAGPKGEPGSPGENGAPGQM
 
 It is possible to filter the peptide table or the peptide sequences to limit the search according to various criteria such as organism, gene name, sequence identifier, or PTMs. For that, you can that follow  these guidelines:
 
-- Create a text file that outlines your filtering criteria.
+- Create a text file.
 - Each line in the file should comprise one or several of these fields:
 	- "OS=" for authorized taxon names  
  	- "OX=" for authorized taxids	
