@@ -214,13 +214,13 @@ OS= Diceros bicornis, Cervus elaphus, Bos taurus, Equus caballus
 ```   
 Of course, you can combine constraints to narrow down your search. For instance, limiting the search to markers coming from COL1A2 gives:
 ```
-OS= Diceros bicornis, Cervus elaphus, Bos taurus, Equus caballus GN=COL1A2
+OS=Diceros bicornis, Cervus elaphus, Bos taurus, Equus caballus GN=COL1A2
 ```  
 This means that the search will focus on markers from COL1A2 within the specified organisms.
 
 Assume now that you want to further refine this selection and  exclude certain PTMs, such as deamidation and  phosporylation. Then you have to add one contraint to authorize only proline oxylation. This gives:
 ```
-OS= Diceros bicornis, Cervus elaphus, Bos taurus, Equus caballus GN=COL1A1 PTM=O
+OS=Diceros bicornis, Cervus elaphus, Bos taurus, Equus caballus GN=COL1A1 PTM=O
 ```  
 The limit file can comprise an arbitrary number of lines, with each line representing a distinct constraint. The resulting selection is determined by the union of all these constraints.
 
@@ -361,7 +361,7 @@ The format of this table is described in section [Peptide tables](#Peptide-table
 _[The use of either -f or -d is mandatory. -l is optional]_
 The target sequences are the amino-acids sequences in which the new markers are searched. Those sequences can be available either in a (multi-)FASTA file (-f option), or in a directory containing FASTA files (-d option). In both cases, the set of sequences can optionnally be _limited_ to a subset of organisms, molecules or sequence identifiers with -l option.
 
-_Option -f :_ The specified file can contain an arbitrary number of FASTA sequences, coming from various organisms. Refer to the [FASTA sequences](#FASTA sequences) section for details on the syntax used in FASTA headings.
+_Option -f :_ The specified file can contain an arbitrary number of FASTA sequences, coming from various organisms. Refer to the [FASTA sequences](#FASTA-sequences) section for details on the syntax used in FASTA headings.
 
 _Option -d:_ The directory can contain an arbitrary number of FASTA files, following the same requirements as with '-f' option.
 Only files with extension _.fa_ or _.fasta_ will be examined. 
