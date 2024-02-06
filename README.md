@@ -320,8 +320,8 @@ pampa_craft  [-h]
 
 The three options —-homology, --denovo, and --fillin represent three distinct approaches for constructing a new peptide table: 
   - --homology: generates new peptide markers by sequence similarity from an existing set of markers. 
-  - --denovo: Constructs new peptide markers de novo by performing in silico tryptic digestion on a collection of protein sequences. 
-  - --fiilin: Completes an existing peptide table by filling in missing mass values.
+  - --denovo: constructs new peptide markers de novo by performing in silico tryptic digestion on a collection of protein sequences. 
+  - --fiilin: completes an existing peptide table by filling in missing mass values.
 
 The full usage description of each of these options is provided below.
 
