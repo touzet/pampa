@@ -374,8 +374,7 @@ _[Required]_ This is the name of the new peptide table created by the program.
 
 ### --denovo option
 
-This option allows to infer all tryptic peptides from a set of FASTA sequences through in silico digestion, allowing for up to one missed cleavage. Masses are then automatically computed using 
-PTM inference (see [PTM description](#PTM-decription)).
+This option allows to infer all tryptic peptides from a set of FASTA sequences through in silico digestion, allowing for up to one missed cleavage. Masses are then automatically computed using PTM inference (see [PTM description](#PTM-decription)).
 
 
 ```
@@ -406,7 +405,7 @@ _[Required]_ This is the name of the new table containing tryptic peptides creat
 
 ### --fillin option
 
-This option allows to automatically compute masses for peptides that lack  this information.  It can  be particularly helpful, for instance, in supplementing a manually created peptide table. 
+This option allows to automatically compute masses for peptides that lack  this information.  It is of particular interest, for instance, in supplementing a manually created peptide table. 
 
 Peptide mass is computed from the peptide sequence and the PTM description. If no PTM description is provided, PTMs are determined automatically based on the rules outlined in the [PTM description](#PTM-description) section.  
 
