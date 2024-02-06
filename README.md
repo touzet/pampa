@@ -29,7 +29,7 @@ PAMPA LIGHT requires no external dependencies.
 
 The documentation for PAMPA LIGHT is available [just below](#PAMPA-LIGHT).
 
-For PAMPA CLASSIFY and PAMPA CRAFT, we recommend starting by reviewing the [General formats and definitions](#General-formats-and-definitions) section, as it covers fundamental concepts shared across both scripts, such as peptide tables, format of mass spectra,  handling PTMs, taxonomies, and FASTA files.  Afterwards, you may refer to the comprehensive documentation of  [PAMPA CLASSIFY](#PAMPA-CLASSIFY) and [PAMPA CRAFT](#PAMPA-CRAFT)) for more in-depth details.
+For PAMPA CLASSIFY and PAMPA CRAFT, we recommend starting by reviewing the [General formats and definitions](#General-formats-and-definitions) section, as it covers fundamental concepts shared across both scripts, such as peptide tables, format of mass spectra,  handling PTMs, taxonomies, and FASTA files.  Afterwards, you may refer to the comprehensive documentation of  [PAMPA CLASSIFY](#PAMPA-CLASSIFY) and [PAMPA CRAFT](#PAMPA-CRAFT) for more in-depth details.
 
 
 ## PAMPA LIGHT
@@ -58,7 +58,7 @@ This command executes the program on all mass spectra within the 'SpectraFolder'
 
 ### Mass spectra (-s) 
 
-_Required._ The program processes a batch of mass spectra simultaneously. All mass spectra files are contained within the same folder, with one file dedicated to each mass spectrum. These files should have one of the following extensions: .csv or .txt (in CSV format), .mgf (in MGF format), or .mzML (in mzML format). Any other files present will be disregarded. You can specify the path to the folder using the '-s' option.
+_[Required]_ The program processes a batch of mass spectra simultaneously. All mass spectra files are contained within the same folder, with one file dedicated to each mass spectrum. These files should have one of the following extensions: .csv or .txt (in CSV format), .mgf (in MGF format), or .mzML (in mzML format). Any other files present will be disregarded. You can specify the path to the folder using the '-s' option.
 
  - _CSV format_: It consists of two columns. The first column is designated for mass (m/z), and the second column records intensity (I). Columns are separated by either a comma (',') or a semicolon (';'). The initial row serves as the header.
  - _MGF format_: Mascot Generic Format
@@ -68,25 +68,25 @@ In all cases, we recommend deisotoping the mass spectra before processing them.
 
 ### Error margin (-e)
 
-_Required_ The error margin is related to the resolution of the mass spectrometer, that is its ability to distinguish closely spaced peaks. We employ it to set an upper bound on the deviation between a peak and the theoretical mass of the marker peptide. This option can be expressed in Daltons or in ppm.
+_[Required]_ The error margin is related to the resolution of the mass spectrometer, that is its ability to distinguish closely spaced peaks. We employ it to set an upper bound on the deviation between a peak and the theoretical mass of the marker peptide. This option can be expressed in Daltons or in ppm.
  -  If the value is smaller than 1, it is assumed to be in Da (Daltons). In this case, recommended values are  0.1 for maldi TOF, and 0.01 for maldi FT.
  -  If the value is larger than 1, it is assumed to be in ppm (parts per million). In this case, recommended values are 50 for maldi TOF, and 5 for maldi FTICR.
 
 ### <a id="peptide"></a>Organism selection (-- mammals)
 
 
-**[required]** PAMPA LIGHT utilizes a predefined set of marker peptides in conjunction with the NCBI taxonomy for species identification. The markers are accessible through _peptide tables_, which are stored in TSV files distributed with the code (see the [Peptide tables](#Peptide-tables) section), together with the taxonomy (see the [Taxonomy](#Taxonomy) section).
+_[Required]_ PAMPA LIGHT utilizes a predefined set of marker peptides in conjunction with the NCBI taxonomy for species identification. The markers are accessible through _peptide tables_, which are stored in TSV files distributed with the code (see the [Peptide tables](#Peptide-tables) section), together with the taxonomy (see the [Taxonomy](#Taxonomy) section).
 
 
 ### <a id="limit"></a> Limiting search (-l)
 
-**[optional]** It is possible to filter the marker peptides to consider to limit the search according to various criteria such as organism, gene name, sequence identifier, or PTMs. For that, you can use the '-l' option together with a _limit file_ (see the [Limiting searches](#Limiting-searches) section). 
+_[Optional]_ It is possible to filter the marker peptides to consider to limit the search according to various criteria such as organism, gene name, sequence identifier, or PTMs. For that, you can use the '-l' option together with a _limit file_ (see the [Limiting searches](#Limiting-searches) section). 
 
 
 
 ### Output files (-o)
 
-**[required]**  This option enables you to specify the name of the main output file, in TSV format. You can include the desired path to the directory where the file should be created. If the specified directory does not exist, it will be created automatically.
+_[Required]_  This option enables you to specify the name of the main output file, in TSV format. You can include the desired path to the directory where the file should be created. If the specified directory does not exist, it will be created automatically.
 
 For each spectrum, the output file will give the best assignment, based on the highest number of marker peptides. It contains the following information:
 - Peaks from the spectrum that match the marker petides,  
