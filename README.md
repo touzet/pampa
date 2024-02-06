@@ -183,9 +183,11 @@ The first line starts with a greater-than character (&gt;) followed by some sequ
   - GN: gene name
 
 The other lines are the sequence representation, with one letter per amino acid.
+
+For example:
  
 ```
->P02453 OS=Bos taurus OX=9913 GN=COL1A1 `
+>P02453 OS=Bos taurus OX=9913 GN=COL1A1 
 MFSFVDLRLLLLLAATALLTHGQEEGQEEGQEEDIPPVTCVQNGLRYHDRDVWKPVPCQI
 CVCDNGNVLCDDVICDELKDCPNAKVPTDECCPVCPEGQESPTDQETTGVEGPKGDTGPR
 GPRGPAGPPGRDGIPGQPGLPGPPGPPGPPGPPGLGGNFAPQLSYGYDEKSTGISVPGPM
@@ -301,13 +303,13 @@ Only files with extension _.fa_ or _.fasta_ will be examined.
 
 ### Taxonomy (-t)
 
-The program provides an optional feature to include taxonomic information in species identification. In this scenario, you can either provide a taxonomy file or utilize a pre-defined taxonomy file available in the Taxonomy directory. Instructions for constructing your own taxonomy file are detailed in the  [Taxonomy](#Taxonomy) section.
+_[Optional]_The program provides an optional feature to include taxonomic information in species identification. In this scenario, you can either provide a taxonomy file or utilize a pre-defined taxonomy file available in the Taxonomy directory. Instructions for constructing your own taxonomy file are detailed in the  [Taxonomy](#Taxonomy) section.
 
 When this option is invoked, the software will indicate, for each spectrum, the taxonomic resolution of the assignment. This is computed as the largest clade of the taxonomy that is compatible with the prediction.
 
 ### Neighbouring (-n and -a)
 
-**[optional]**  By default, PAMPA identifies the species with the highest number of marker peptides. 
+_[Optional]_  By default, PAMPA identifies the species with the highest number of marker peptides. 
 The -n option allows to obtain also near-optimal solutions. For that, you can set the suboptimality 
 range as a percentage from 0 to 100, with the default being 100 
 (corresponding to solutions with the highest number of marker peptides). 
@@ -350,13 +352,13 @@ With this option, the input consists of a set of well-defined marker peptides, a
 
 #### Peptide table (-p)
 
-**Required.** This table contains the list of marker peptides that will be used as models to find new markers in new sequences by homology.
+_[Required]_ This table contains the list of marker peptides that will be used as models to find new markers in new sequences by homology.
 The format of this table is described in section [Peptide tables](#Peptide-tables). 
 
 
 #### Target sequences (-f, -d and -l)
 
-**The use of either -f or -d is mandatory. -l is optional.**
+_[The use of either -f or -d is mandatory. -l is optional]_
 The target sequences are the amino-acids sequences in which the new markers are searched. Those sequences can be available either in a (multi-)FASTA file (-f option), or in a directory containing FASTA files (-d option). In both cases, the set of sequences can optionnally be _limited_ to a subset of organisms, molecules or sequence identifiers with -l option.
 
 _Option -f :_ The specified file can contain an arbitrary number of FASTA sequences, coming from various organisms. Refer to the [FASTA sequences](#FASTA sequences) section for details on the syntax used in FASTA headings.
@@ -368,7 +370,7 @@ _Option -l:_ This option allows to filter the set of FASTA sequences to limit th
 
 #### Output file (-o)
 
-This is the name of the new peptide table created by the program. This option is required.
+_[Required]_This is the name of the new peptide table created by the program. 
 
 ### --denovo option
 
@@ -400,13 +402,13 @@ _Option -l:_ This option allows to filter the set of FASTA sequences to limit th
 
 #### Output file (-o)
 
-This is the name of the new table containing tryptic peptides created by the program. This option is required. 
+_[Required]_This is the name of the new table containing tryptic peptides created by the program. 
 
 ### --fillin option
 
 This option allows to automatically compute masses for peptides that lack  this information.  It can  be particularly helpful, for instance, in supplementing a manually created peptide table. 
 
-Peptide mass is computed from the peptide sequence and the PTM description. If no PTM description is provided, PTMs are determined automatically based on the rules outlined in the [PTM description](#PTM-description) section. This option  
+Peptide mass is computed from the peptide sequence and the PTM description. If no PTM description is provided, PTMs are determined automatically based on the rules outlined in the [PTM description](#PTM-description) section.  
 
 ```
  usage:
@@ -417,11 +419,11 @@ Peptide mass is computed from the peptide sequence and the PTM description. If n
 
 #### Peptide table (-p)
 
-Name of the peptide table to complete. This option is required. 
+_[Required]_Name of the peptide table to complete. 
 
 #### Output file (-o)
 
-Name of the new table obtained by completion of the input table.  This option is required. 
+_[Required]_Name of the new table obtained by completion of the input table.  
 
 
 ## Bug Report
