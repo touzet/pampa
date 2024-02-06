@@ -152,7 +152,7 @@ Peptide tables include a field labeled _PTM_, which is utilized to describe the 
  - deamidation of asparagine and glutamine (indicated by the single-letter code 'D'), 
  - phosphorylation of serine, threonine, and tyrosine (indicated by the single-letter code 'P'). 
 
-The _PTM description_ is  a concise representation of the number of oxylations, deamidations and phosphorylations necessary to compute the mass of a peptide sequence. For instance, '2O1D' signifies two oxyprolines and one deamidation, '1P4O' represents one phosphorylation and four oxyprolines, '2O' corresponds to two oxyprolines without any deamidation and phosphorylation. When no PTM applies, the description should be "0O", or "0D", etc. 
+The _PTM description_ is  a concise representation of the number of oxylations, deamidations and phosphorylations necessary to compute the mass of a peptide sequence. For instance, '2O1D' signifies two oxyprolines and one deamidation, '1P4O' represents one phosphorylation and four oxyprolines, '2O' corresponds to two oxyprolines without any deamidation and phosphorylation. When no PTM applies, the description should be '0O', or '0D', etc. 
 
 When the PTM description field is left empty in the peptide table, it signifies that PTMs are not specified. In such cases, PAMPA directly infers PTMs based on two rules: 
 
