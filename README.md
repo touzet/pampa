@@ -44,8 +44,6 @@ usage: python3 pampa_light.py
 	(-o OUTPUT FILE)
 	(--mammals)
 	[-l LIMIT]
-	[-n NEIGHBOURING]
-	[-a]
 ```
 
 ### Command-Line Example
