@@ -141,20 +141,20 @@ Most of these fields are optional and are here for reference and traceability. O
  - You must provide a taxid for the peptide marker. Rank and taxon names are included primarily to enhance the clarity of results.
  - You should furnish either a sequence, possibly with a PTM description,  or a mass for your marker peptide. If the sequence is provided without a mass, the program will automatically compute the mass from it. To do so, it will utilize either the PTM description (when available) or infer potential PTMs from the sequence.
 
-**Where to find peptide tables ?** Several pre-defined tables are included with the PAMPA code, accessible in the Peptide_tables directory. Please avoid relocating or altering these files, as they are utilized by PAMPA LIGHT. Additionally, you can manually create peptide table files using any spreadsheet software and opting for the TSV export format. Alternatively, [PAMPA CRAFT](#PAMPA-CRAFT)  offers automated methods for generating peptide tables.
+Where to find peptide tables, how to obtain them ? Several pre-defined tables are included with the PAMPA code, accessible in the Peptide_tables directory. Please avoid relocating or altering these files, as they are utilized by PAMPA LIGHT. Additionally, you can manually create peptide table files using any spreadsheet software and opting for the TSV export format. Alternatively, [PAMPA CRAFT](#PAMPA-CRAFT)  offers automated methods for generating peptide tables.
 
 
 
 ### PTM description 
 
-PAMPA recognizes three types of PTMs: 
+Peptide tables include a field labeled _PTM_, which is utilized to describe the post-translational modifications (PTMs) applied to the corresponding peptide. PAMPA recognizes three types of PTMs: 
  - oxylation of prolines (indicated by the single-letter code 'O'), 
  - deamidation of asparagine and glutamine (indicated by the single-letter code 'D'), 
  - phosphorylation of serine, threonine, and tyrosine (indicated by the single-letter code 'P'). 
 
 The _PTM description_ is  a concise representation of the number of oxylations, deamidations and phosphorylations necessary to compute the mass of a peptide sequence. For instance, '2O1D' signifies two oxyprolines and one deamidation, '1P4O' represents one phosphorylation and four oxyprolines, '2O' corresponds to two oxyprolines without any deamidation and phosphorylation. When no PTM applies, the description should be "0O", or "0D", etc. 
 
-When the PTM description field is left empty in the peptide table, it signifies that PTMs are not specified. In such cases, PAMPA directly infers PTMs based on the two following rules: 
+When the PTM description field is left empty in the peptide table, it signifies that PTMs are not specified. In such cases, PAMPA directly infers PTMs based on two rules: 
 
   - No deamidation and phosphorylation are added.
   - The number of oxyprolines is determined empirically using the following formula: Let 'p' represent the total number of prolines in the peptide, and 'pp' represent the number of prolines involved in the pattern 'GxP'. If the difference 'p-pp' is less than 3, then 'pp' oxyprolines are applied. If 'p-pp' is 3 or greater, 'pp' oxyprolines and 'pp+1' oxyprolines are applied.
@@ -175,13 +175,23 @@ You can obtain this type of file directly from UniProt (https://www.uniprot.org/
 
 ### FASTA sequences
 
-Two types of FASTA heading are recognized. 
+PAMPA processes amino-acid sequences. For that, it uses the standard FASTA format with UniprotKB-like header. 
+The first line starts with a greater-than character (&gt;) followed by some sequence identifier (SeqID),  which is provided for informational purposes and can be customized by the user. Additionally, this line must contain three mandatory fields: 
 
- - UniprotKB-like, with some sequence identifier at the beginning of the heading, and mandatory fields OS (scientific name of the organism) , OX (taxonomomic identifier of the organism, such as assigned by the NCBI) and GN (Gene Name):
-     
-   `>P02453 OS=Bos taurus OX=9913 GN=COL1A1 `
+  - OS: scientific name of the organism
+  - OX: taxonomomic identifier of the organism, such as assigned by the NCBI
+  - GN: gene name
 
- - NCBI-like : to do
+The other lines are the sequence representation, with one letter per amino acid.
+ 
+```
+>P02453 OS=Bos taurus OX=9913 GN=COL1A1 `
+MFSFVDLRLLLLLAATALLTHGQEEGQEEGQEEDIPPVTCVQNGLRYHDRDVWKPVPCQI
+CVCDNGNVLCDDVICDELKDCPNAKVPTDECCPVCPEGQESPTDQETTGVEGPKGDTGPR
+GPRGPAGPPGRDGIPGQPGLPGPPGPPGPPGPPGLGGNFAPQLSYGYDEKSTGISVPGPM
+GPSGPRGLPGPPGAPGPQGFQGPPGEPGEPGASGPMGPRGPPGPPGKNGDDGEAGKPGRP
+GERGPPGPQGARGLPGTAGLPGMKGHRGFSGLDGAKGDAGPAGPKGEPGSPGENGAPGQM
+```
 
 ### Limiting searches
 
