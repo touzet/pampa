@@ -38,11 +38,6 @@ def parse_sequence_info(line):
     return dict
 
 
-
-    #for m in matches:
-    #    print(m.group(1)+" : "+ m.group(2))
-    
-
 def apply_limits(limit_file,  set_of_items, taxonomy, is_marker):
     # is_marker: True marker, False sequence
     file=open(limit_file).read().splitlines()
