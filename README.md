@@ -303,7 +303,7 @@ Only files with extension _.fa_ or _.fasta_ will be examined.
 
 ### Taxonomy (-t)
 
-_[Optional]_The program provides an optional feature to include taxonomic information in species identification. In this scenario, you can either provide a taxonomy file or utilize a pre-defined taxonomy file available in the Taxonomy directory. Instructions for constructing your own taxonomy file are detailed in the  [Taxonomy](#Taxonomy) section.
+_[Optional]_  The program provides an optional feature to include taxonomic information in species identification. In this scenario, you can either provide a taxonomy file or utilize a pre-defined taxonomy file available in the Taxonomy directory. Instructions for constructing your own taxonomy file are detailed in the  [Taxonomy](#Taxonomy) section.
 
 When this option is invoked, the software will indicate, for each spectrum, the taxonomic resolution of the assignment. This is computed as the largest clade of the taxonomy that is compatible with the prediction.
 
