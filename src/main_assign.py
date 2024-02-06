@@ -44,13 +44,17 @@ def check_and_update_parameters(spectra, taxonomy, peptide_table, fasta, directo
         escape("Missing parameter: output (-o)")
 
     if mammals :
+        if not os.path.isfile("Taxonomy/taxonomy_mammals.tsv"):
+            escape("The taxonomy file has been deleted.")
+        if not os.path.isfile("Peptide_tables/table_mammals_with_deamidation.tsv"):
+            escape("The paptide table file has been deleted.")
         taxonomy="Taxonomy/taxonomy_mammals.tsv"
         peptide_table=["Peptide_tables/table_mammals_with_deamidation.tsv"]
 
     if taxonomy:
         if not os.path.isfile(taxonomy):
             escape("File "+taxonomy+" not found.")
-
+            
     if limit:
         if not os.path.isfile(limit):
             escape("File "+limit+" not found")
@@ -192,6 +196,8 @@ def main(spectra=None, taxonomy=None, peptide_table=None, fasta=None, directory=
         if len(set_of_sequences)==0:
             sys.exit(" No sequences found. Stopping execution.\n")
         set_of_markers = compute_masses.add_PTM_or_masses_to_markers(seq.in_silico_digestion(set_of_sequences))
+        for m in set_of_markers:
+            print(m)
 
     if len(set_of_markers)==0:
          sys.exit(" No marker peptide found. Stopping execution.\n")
@@ -221,5 +227,6 @@ def main(spectra=None, taxonomy=None, peptide_table=None, fasta=None, directory=
     print(f"   - More details      : {output2}")
     print(f"   - Report on the run : {report_path}")
     print("")
+    # TO DO: add the new peptide table, if necessary
 
 

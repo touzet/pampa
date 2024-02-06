@@ -96,7 +96,6 @@ class Taxonomy(object):
                 t=taxid
                 while t in self.parent:
                     t=self.parent[t]
-                    print(t)
                     set_of_survivors.add(t)
         set_of_survivors.update(set_of_taxid-lost_taxid)
         

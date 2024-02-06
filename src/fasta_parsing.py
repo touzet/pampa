@@ -41,7 +41,7 @@ def parse_fasta_uniprot_header(header):
     print(header)
     new_sequence=seq.Sequence()
     re_taxid=re.compile('OX=[0-9]*\s')
-    re_protein=re.compile('GN=[a-zA-Z0-9]*\s')
+    re_protein=re.compile('GN=[^\s]*\s')
     re_taxon_name=re.compile('OS=[a-zA-Z\s]*[=\n]') #en cours
     m = re_taxid.search(header)
     taxid=m.group()

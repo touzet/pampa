@@ -40,6 +40,7 @@ def PTM_mass(PTM_string):
     # proline oxydation
     proline="0"
     if 'O' in PTM_string:
+        print(PTM_string)
         re_proline=re.compile('[0-9]*O')
         m = re_proline.search(PTM_string)
         proline=m.group().replace('O','')
@@ -68,8 +69,8 @@ def peptide_mass_with_proline(sequence, number_of_prolines):
     if not ut.is_aa_sequence(sequence):
         return 0
     mass = peptide_mass(sequence)
-    if number_of_prolines>sequence.count('P'):
-        number_of_prolines=sequence.count('P')
+    if number_of_prolines>sequence.count('O'):
+        number_of_prolines=sequence.count('O')
     mass+=OXYPROLINE*number_of_prolines
     return mass
          
@@ -78,19 +79,19 @@ def peptide_mass_with_proline_range(sequence, min_P, max_P):
     if not ut.is_aa_sequence(sequence):
         print(sequence)
         return []
-    if max_P>sequence.count('P'):
-        max_P=sequence.count('P')
+    if max_P>sequence.count('O'):
+        max_P=sequence.count('O')
     mass_list=[]
     mass = peptide_mass(sequence) + min_P*OXYPROLINE
     for i in range (min_P, max_P+1):
-        mass_list.append((str(i)+"P", mass))
+        mass_list.append((str(i)+"O", mass))
         mass+=OXYPROLINE
     return mass_list
                 
 def proline_range(sequence):
     """ Estimates the minimal and maximal number of oxyprolines in a sequence """
     #total number of P
-    proline=sequence.count('P')
+    proline=sequence.count('O')
     # number of P involved in the pattern "G.P"
     period=re.compile('G\wP')
     period_proline=len(period.findall(sequence))
@@ -113,9 +114,14 @@ def add_PTM_or_masses_to_markers(set_of_markers):
     """
     set_of_new_markers=set()
     set_of_deprecated_markers=set()
+    list_of_codes=[]
     for marker in set_of_markers:
-        if len(marker.masses)==0:
-            sequence=marker.sequence
+        sequence=marker.sequence
+        if len(marker.code)==0:
+            if sequence not in list_of_codes:
+                    list_of_codes.append(sequence)
+            marker.code='M'+str(list_of_codes.index(sequence))
+        if len(marker.mass)==0:
             if len(marker.ptm)==0:
                 min_P, max_P=proline_range(sequence)
                 mass_list= peptide_mass_with_proline_range(sequence, min_P, max_P)
@@ -123,13 +129,14 @@ def add_PTM_or_masses_to_markers(set_of_markers):
                     new_marker=markers.Marker()
                     new_marker=copy.deepcopy(marker)
                     new_marker.ptm=ma[0]
-                    new_marker.masses={ma[1]}
-                    new_marker.code=sequence 
+                    new_marker.mass=ma[1]
                     set_of_new_markers.add(new_marker)
                 set_of_deprecated_markers.add(marker)
             else:
                 mass=peptide_mass_with_PTM(sequence,marker.ptm)
-                marker.masses={mass}
+                marker.mass=mass
+                
+                    
     return set_of_markers.union(set_of_new_markers) - set_of_deprecated_markers
     
         

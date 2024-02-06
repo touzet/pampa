@@ -16,18 +16,15 @@ from src import limit as lim
 
     
 def parse_one_row_from_peptide_table(row):
-    (rank, taxid, taxid_name, peptide_seq, ptm, code, masses, protein_name, seqid, begin_pos, end_pos,comment) = row
-    if len(peptide_seq)==0 and len(masses)==0:
+    (rank, taxid, taxid_name, peptide_seq, ptm, code, mass, protein_name, seqid, begin_pos, end_pos,comment) = row
+    if len(peptide_seq)==0 and len(mass)==0:
         raise Exception("Both petide sequence and mass are missing. You should provide at least one of those two elements.")
     ptm=ptm.replace(" ","")
     peptide_seq=peptide_seq.replace(" ","") # + passer en majuscule et controler l'alphabet
     code=code.replace(" ","")
     taxid=taxid.replace(" ","")
-    if len(masses)>0:
-        set_of_masses=set(float(m) for m in masses.split())
-    else:
-        set_of_masses=set() # à modifier pour ajouter la masse. Tenir compte du fait que les PTM sont précisés ou pas
-    new_marker=ma.Marker(rank, taxid, taxid_name, peptide_seq, ptm, code, set_of_masses, protein_name, seqid, begin_pos, end_pos,comment)
+    mass=mass.replace(" ","")
+    new_marker=ma.Marker(rank, taxid, taxid_name, peptide_seq, ptm, code, mass, protein_name, seqid, begin_pos, end_pos,comment)
     
     return new_marker
 
@@ -55,7 +52,7 @@ def parse_peptide_tables(list_of_peptide_tables, limit, taxonomy):
 def build_peptide_table_from_set_of_markers(set_of_markers,tsv_outfile_name, append_file=""):
     if len(append_file)==0:
         tsv_file = open(tsv_outfile_name, "w")
-        tsv_file.write("Rank \t Taxid \t Taxon name \t Sequence \t PTM \t Code \t Masses \t Gene \t SeqId \t Begin \t End \t Comment\n")
+        tsv_file.write("Rank \t Taxid \t Taxon name \t Sequence \t PTM \t Code \t Mass \t Gene \t SeqId \t Begin \t End \t Comment\n")
     else:
         shutil.copyfile(append_file, tsv_outfile_name)
         tsv_file = open(tsv_outfile_name, "a") 
