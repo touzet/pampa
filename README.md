@@ -116,7 +116,7 @@ Two other accompanying files are automatically created, in the same directory.
 
 ## General formats and definitions
 
-The full version of PAMPA, as implemented in PAMPA CLASSIFY and PAMPA CRAFT, relies on a series of formats and data structures essential for managing mass spectra, peptide markers and protein sequences.
+The full version of PAMPA, as implemented in PAMPA CLASSIFY and PAMPA CRAFT, relies on a series of formats and data structures essential for managing mass spectra, peptide markers and protein sequences. We introduce them in this section.
 
 ### Mass spectra 
 
