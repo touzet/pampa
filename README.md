@@ -78,7 +78,7 @@ In all cases, we recommend deisotoping the mass spectra before processing them.
 
 ### <a id="limit"></a> Limiting search (-l)
 
-[Optional] It is possible to filter the marker peptides to consider to limit the search according to various criteria such as organism, gene name, sequence identifier, or PTMs. For that, you can use the '-l' option together with a _limit file_ (see the [Limiting searches](#Limiting-searches) section). 
+[Optional] It is possible to filter the marker peptides to consider to limit the search according to various criteria such as organism (OS=), taxid (OX=), gene name (GN=), sequence identifier (SeqID=), or PTMs (PTM=). For that, you can use the '-l' option together with a _limit file_ . The full description of the syntax is given in section [Limiting search](#Limiting-searches). 
 
 
 
@@ -353,11 +353,11 @@ _Option -f :_ The specified file can contain an arbitrary number of FASTA sequen
 _Option -d:_ The directory can contain an arbitrary number of FASTA files, following the same requirements as with '-f' option.
 Only files with extension _.fa_ or _.fasta_ will be examined. 
 
-_Option -l:_ This option allows to filter the set of FASTA sequences to limit the selection according to the organism (OS=), the taxid (OX=), the gene name (GN=), the sequence identifier (SeqID=). The full description of the syntax is given in section [Limiting search](#limit).
+_Option -l:_ This option allows to filter the set of FASTA sequences to limit the selection according to the organism (OS=), the taxid (OX=), the gene name (GN=), the sequence identifier (SeqID=). The full description of the syntax is given in section [Limiting search](#Limiting-searches).
 
 #### Output file (-o)
 
-_[Required]_ This is the name of the new peptide table created by the program. 
+[Required]This is the name of the new peptide table created by the program, that contains homologous marker peptides. 
 
 ### --denovo option
 
