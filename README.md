@@ -56,7 +56,7 @@ This command executes the program on all mass spectra within the 'SpectraFolder'
 
 ### Mass spectra (-s) 
 
-_[Required]_ The program processes a batch of mass spectra simultaneously. All mass spectra files are contained within the same folder, with one file dedicated to each mass spectrum. These files should have one of the following extensions: .csv or .txt (in CSV format), .mgf (in MGF format), or .mzML (in mzML format). Any other files present will be disregarded. You can specify the path to the folder using the '-s' option.
+[Required] The program processes a batch of mass spectra simultaneously. All mass spectra files are contained within the same folder, with one file dedicated to each mass spectrum. These files should have one of the following extensions: .csv or .txt (in CSV format), .mgf (in MGF format), or .mzML (in mzML format). Any other files present will be disregarded. You can specify the path to the folder using the '-s' option.
 
  - _CSV format_: It consists of two columns. The first column is designated for mass (m/z), and the second column records intensity (I). Columns are separated by either a comma (',') or a semicolon (';'). The initial row serves as the header.
  - _MGF format_: Mascot Generic Format
@@ -66,25 +66,25 @@ In all cases, we recommend deisotoping the mass spectra before processing them.
 
 ### Error margin (-e)
 
-_[Required]_ The error margin is related to the resolution of the mass spectrometer, that is its ability to distinguish closely spaced peaks. We employ it to set an upper bound on the deviation between a peak and the theoretical mass of the marker peptide. This option can be expressed in Daltons or in ppm.
+[Required] The error margin is related to the resolution of the mass spectrometer, that is its ability to distinguish closely spaced peaks. We employ it to set an upper bound on the deviation between a peak and the theoretical mass of the marker peptide. This option can be expressed in Daltons or in ppm.
  -  If the value is smaller than 1, it is assumed to be in Da (Daltons). In this case, recommended values are  0.1 for maldi TOF, and 0.01 for maldi FT.
  -  If the value is larger than 1, it is assumed to be in ppm (parts per million). In this case, recommended values are 50 for maldi TOF, and 5 for maldi FTICR.
 
 ### <a id="peptide"></a>Organism selection (-- mammals)
 
 
-_[Required]_ PAMPA LIGHT utilizes a predefined set of marker peptides in conjunction with the NCBI taxonomy for species identification. The markers are accessible through _peptide tables_, which are stored in TSV files distributed with the code (see the [Peptide tables](#Peptide-tables) section), together with the taxonomy (see the [Taxonomy](#Taxonomy) section).
+[Required] PAMPA LIGHT utilizes a predefined set of marker peptides in conjunction with the NCBI taxonomy for species identification. The markers are accessible through _peptide tables_, which are stored in TSV files distributed with the code (see the [Peptide tables](#Peptide-tables) section), together with the taxonomy (see the [Taxonomy](#Taxonomy) section).
 
 
 ### <a id="limit"></a> Limiting search (-l)
 
-_[Optional]_ It is possible to filter the marker peptides to consider to limit the search according to various criteria such as organism, gene name, sequence identifier, or PTMs. For that, you can use the '-l' option together with a _limit file_ (see the [Limiting searches](#Limiting-searches) section). 
+[Optional] It is possible to filter the marker peptides to consider to limit the search according to various criteria such as organism, gene name, sequence identifier, or PTMs. For that, you can use the '-l' option together with a _limit file_ (see the [Limiting searches](#Limiting-searches) section). 
 
 
 
 ### Output files (-o)
 
-_[Required]_  This option enables you to specify the name of the main output file, in TSV format. You can include the desired path to the directory where the file should be created. If the specified directory does not exist, it will be created automatically.
+[Required]  This option enables you to specify the name of the main output file, in TSV format. You can include the desired path to the directory where the file should be created. If the specified directory does not exist, it will be created automatically.
 
 For each spectrum, the output file will give the best assignment, based on the highest number of marker peptides. It contains the following information:
 - Peaks from the spectrum that match the marker petides,  
@@ -103,20 +103,7 @@ Two other accompanying files are automatically created, in the same directory.
 
 ## General formats and definitions
 
-The full version of PAMPA, as implemented in PAMPA CLASSIFY and PAMPA CRAFT, relies on a series of formats and data structures essential for managing mass spectra, peptide markers and protein sequences. We introduce them in this section.
-
-### Mass spectra 
-
-PAMPA recognizes three formats for mass spectra:
-
-  - _CSV format_: It consists of two columns. The first column is designated for mass (m/z), and the second column records intensity (I). Columns are separated by either a comma (',') or a semicolon (';'). The initial row serves as the header.
-
-  - _MGF format_: Mascot Generic Format
-
-  - _mzML format_: see https://www.psidev.info/mzML
-
-In all cases, we recommend deisotoping the mass spectra before processing them.
-
+The full version of PAMPA, as implemented in PAMPA CLASSIFY and PAMPA CRAFT, relies on a series of formats and data structures essential for managing peptide markers and protein sequences. We introduce them in this section.
 
 ### Peptide tables
 
@@ -303,13 +290,13 @@ Only files with extension _.fa_ or _.fasta_ will be examined.
 
 ### Taxonomy (-t)
 
-_[Optional]_  The program provides an optional feature to include taxonomic information in species identification. In this scenario, you can either provide a taxonomy file or utilize a pre-defined taxonomy file available in the Taxonomy directory. Instructions for constructing your own taxonomy file are detailed in the  [Taxonomy](#Taxonomy) section.
+[Optional]  The program provides an optional feature to include taxonomic information in species identification. In this scenario, you can either provide a taxonomy file or utilize a pre-defined taxonomy file available in the Taxonomy directory. Instructions for constructing your own taxonomy file are detailed in the  [Taxonomy](#Taxonomy) section.
 
 When this option is invoked, the software will indicate, for each spectrum, the taxonomic resolution of the assignment. This is computed as the largest clade of the taxonomy that is compatible with the prediction.
 
 ### Neighbouring (-n and -a)
 
-_[Optional]_  By default, PAMPA identifies the species with the highest number of marker peptides. 
+[Optional]  By default, PAMPA identifies the species with the highest number of marker peptides. 
 The -n option allows to obtain also near-optimal solutions. For that, you can set the suboptimality 
 range as a percentage from 0 to 100, with the default being 100 
 (corresponding to solutions with the highest number of marker peptides). 
@@ -352,13 +339,13 @@ With this option, the input consists of a set of well-defined marker peptides, a
 
 #### Peptide table (-p)
 
-_[Required]_ This table contains the list of marker peptides that will be used as models to find new markers in new sequences by homology.
+[Required] This table contains the list of marker peptides that will be used as models to find new markers in new sequences by homology.
 The format of this table is described in section [Peptide tables](#Peptide-tables). 
 
 
 #### Target sequences (-f, -d and -l)
 
-_[The use of either -f or -d is mandatory. -l is optional]_
+[Either -f or -d is required. -l is optional]
 The target sequences are the amino-acids sequences in which the new markers are searched. Those sequences can be available either in a (multi-)FASTA file (-f option), or in a directory containing FASTA files (-d option). In both cases, the set of sequences can optionnally be _limited_ to a subset of organisms, molecules or sequence identifiers with -l option.
 
 _Option -f :_ The specified file can contain an arbitrary number of FASTA sequences, coming from various organisms. Refer to the [FASTA sequences](#FASTA-sequences) section for details on the syntax used in FASTA headings.
@@ -401,7 +388,7 @@ _Option -l:_ This option allows to filter the set of FASTA sequences to limit th
 
 #### Output file (-o)
 
-_[Required]_ This is the name of the new table containing tryptic peptides created by the program. 
+[Required] This is the name of the new table containing tryptic peptides created by the program. 
 
 ### --fillin option
 
@@ -418,11 +405,11 @@ Peptide mass is computed from the peptide sequence and the PTM description. If n
 
 #### Peptide table (-p)
 
-_[Required]_ Name of the peptide table to complete. 
+[Required] Name of the peptide table to complete. 
 
 #### Output file (-o)
 
-_[Required]_ Name of the new table obtained by completion of the input table.  
+[Required] Name of the new table obtained by completion of the input table.  
 
 
 ## Bug Report
