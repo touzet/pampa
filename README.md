@@ -4,11 +4,11 @@
 PAMPA (Protein Analysis by Mass Spectrometry for Ancient Species) is a versatile software suite tailored to effectively handle various tasks associated with ZooMS (Zooarchaeology by Mass Spectrometry) data.
 
 It consists of three primary scripts: 
-  - pampa_light: facilitates fast and easy species identification from mass spectra using marker peptides.
-  - pampa_classify:  also dedicated to taxonomic assignment, offering a comprehensive range of advanced options.
-  - pampa_craft: enables the user to define their own markers by creating custom set of peptide markers. 
+  - PAMPA LIGHT: facilitates fast and easy species identification from mass spectra using marker peptides.
+  - PAMPA CLASSIFY:  also dedicated to taxonomic assignment, offering a comprehensive range of advanced options.
+  - PAMPA CRAFT: enables the user to define their own markers by creating custom set of peptide markers. 
 
-Moreover, PAMPA is user-friendly software capable of processing any number of mass spectra in a single run and conducting in-depth exploration of diverse assignment possibilities within the taxonomic space.
+PAMPA is user-friendly software capable of processing any number of mass spectra in a single run and conducting in-depth exploration of diverse assignment possibilities within the taxonomic space.
 
 
 ## How to install the program ?
@@ -35,6 +35,7 @@ For PAMPA CLASSIFY and PAMPA CRAFT, we recommend starting by reviewing the [Gene
 ## PAMPA LIGHT
 
 As the name suggests, PAMPA LIGHT is a streamlined version of PAMPA, focusing on essential features for species identification. It takes a set of mass spectra as input and attempts to determine the best taxonomic assignment for each of them through the utilization of a curated compilation of marker peptides. 
+
 ```
 usage: python3 pampa_light.py 
 	[-h]
@@ -81,16 +82,7 @@ _Required_ The error margin is related to the resolution of the mass spectromete
 
 **[optional]** It is possible to filter the marker peptides to consider to limit the search according to various criteria such as organism, gene name, sequence identifier, or PTMs. For that, you can use the '-l' option together with a _limit file_ (see the [Limiting searches](#Limiting-searches) section). 
 
-### Neighbouring (-n and -a)
 
-**[optional]**  By default, PAMPA identifies the species with the highest number of marker peptides. 
-The -n option allows to obtain also near-optimal solutions. For that, you can set the suboptimality 
-range as a percentage from 0 to 100, with the default being 100 
-(corresponding to solutions with the highest number of marker peptides). 
-For example, if the optimal solutions has 11 marker peptides, '-n 80' will provide solutions with 9 markers or more.
-
-By default, the '-n' option will generate only near-optimal solutions that are not included in any other solution.
-When used together with '-n,'  the '-a' option allows to change this, so that the program computes all solutions, even those that are included in other solutions.  
 
 ### Output files (-o)
 
@@ -310,6 +302,16 @@ Only files with extension _.fa_ or _.fasta_ will be examined.
 The program provides an optional feature to include taxonomic information in species identification. In this scenario, you can either provide a taxonomy file or utilize a pre-defined taxonomy file available in the Taxonomy directory. Instructions for constructing your own taxonomy file are detailed in the  [Taxonomy](#Taxonomy) section.
 
 When this option is invoked, the software will indicate, for each spectrum, the taxonomic resolution of the assignment. This is computed as the largest clade of the taxonomy that is compatible with the prediction.
+
+### Neighbouring (-n and -a)
+
+**[optional]**  By default, PAMPA identifies the species with the highest number of marker peptides. 
+The -n option allows to obtain also near-optimal solutions. For that, you can set the suboptimality 
+range as a percentage from 0 to 100, with the default being 100 
+(corresponding to solutions with the highest number of marker peptides). 
+For example, if the optimal solutions has 11 marker peptides, '-n 80' will provide solutions with 9 markers or more.
+
+The '-a' option is linked to the '-n' option and modifies it behavior. When the '-n' option is used alone, it generates only near-optimal solutions that are not included in any other solution. However, when used together with '-n,' the '-a' option makes the program to compute all solutions, even those that are included in other solutions.  
 
 ## PAMPA CRAFT 
 
