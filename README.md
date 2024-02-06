@@ -8,7 +8,7 @@ It consists of three primary scripts:
   - PAMPA CLASSIFY:  also dedicated to taxonomic assignment, offering a comprehensive range of advanced options.
   - PAMPA CRAFT: enables the user to define their own markers by creating custom set of peptide markers. 
 
-PAMPA is user-friendly software capable of processing any number of mass spectra in a single run and conducting in-depth exploration of diverse assignment possibilities within the taxonomic space.
+PAMPA is a user-friendly software capable of processing any number of mass spectra in a single run and conducting in-depth exploration of diverse assignment possibilities within the taxonomic space.
 
 
 ## How to install the program ?
