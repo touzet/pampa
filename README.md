@@ -98,7 +98,7 @@ For each spectrum, the output file will give the best assignment, based on the h
 Two other accompanying files are automatically created, in the same directory.
 
 - detail_&lt;outputfile&gt; (TSV file): this file contains the detail of the assignment (which markers are found for which species). It also provides the intensity of the peaks used in the assignment.
-- report_&lt;outputfile&lt; (TXT file): this file contains a report on the run's inputs (number of mass spectra, number of species tested,  parameters...)
+- report_&lt;outputfile&gt; (TXT file): this file contains a report on the run's inputs (number of mass spectra, number of species tested,  parameters...)
 
 
 
@@ -223,12 +223,6 @@ This will select all COL1A1 markers for species from the Pecora infraorder. Equi
 ```
 OX=35500 GN=COL1A1
 ```
-
-### Error margin 
-
-The error margin is related to the resolution of the mass spectrometer, that is its ability to distinguish closely spaced peaks. We employ it to set an upper bound on the deviation between a peak and the theoretical mass of the marker peptide. This option is mandatory, and can be expressed in Daltons or in ppm.
- -  If the value is smaller than 1, it is assumed to be in Da (Daltons). In this case, recommended values are  0.1 for maldi TOF, and 0.01 for maldi FT.
- -  If the value is larger than 1, it is assumed to be in ppm (parts per million). In this case, recommended values are 50 for maldi TOF, and 5 for maldi FTICR.
 
 
 
