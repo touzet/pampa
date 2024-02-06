@@ -370,7 +370,7 @@ _Option -l:_ This option allows to filter the set of FASTA sequences to limit th
 
 #### Output file (-o)
 
-_[Required]_This is the name of the new peptide table created by the program. 
+_[Required]_ This is the name of the new peptide table created by the program. 
 
 ### --denovo option
 
@@ -402,7 +402,7 @@ _Option -l:_ This option allows to filter the set of FASTA sequences to limit th
 
 #### Output file (-o)
 
-_[Required]_This is the name of the new table containing tryptic peptides created by the program. 
+_[Required]_ This is the name of the new table containing tryptic peptides created by the program. 
 
 ### --fillin option
 
@@ -419,11 +419,11 @@ Peptide mass is computed from the peptide sequence and the PTM description. If n
 
 #### Peptide table (-p)
 
-_[Required]_Name of the peptide table to complete. 
+_[Required]_ Name of the peptide table to complete. 
 
 #### Output file (-o)
 
-_[Required]_Name of the new table obtained by completion of the input table.  
+_[Required]_ Name of the new table obtained by completion of the input table.  
 
 
 ## Bug Report
