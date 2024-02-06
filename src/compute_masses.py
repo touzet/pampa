@@ -40,7 +40,6 @@ def PTM_mass(PTM_string):
     # proline oxydation
     proline="0"
     if 'O' in PTM_string:
-        print(PTM_string)
         re_proline=re.compile('[0-9]*O')
         m = re_proline.search(PTM_string)
         proline=m.group().replace('O','')
@@ -77,7 +76,6 @@ def peptide_mass_with_proline(sequence, number_of_prolines):
 def peptide_mass_with_proline_range(sequence, min_P, max_P):
     """ compute the list of all masses, in the form of a pair (PTM,mass), for sequence corresponding for a given number of oxyprolines varying from min_P to max_P""" 
     if not ut.is_aa_sequence(sequence):
-        print(sequence)
         return []
     if max_P>sequence.count('P'):
         max_P=sequence.count('P')
