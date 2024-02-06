@@ -79,8 +79,8 @@ def peptide_mass_with_proline_range(sequence, min_P, max_P):
     if not ut.is_aa_sequence(sequence):
         print(sequence)
         return []
-    if max_P>sequence.count('O'):
-        max_P=sequence.count('O')
+    if max_P>sequence.count('P'):
+        max_P=sequence.count('P')
     mass_list=[]
     mass = peptide_mass(sequence) + min_P*OXYPROLINE
     for i in range (min_P, max_P+1):
@@ -91,7 +91,7 @@ def peptide_mass_with_proline_range(sequence, min_P, max_P):
 def proline_range(sequence):
     """ Estimates the minimal and maximal number of oxyprolines in a sequence """
     #total number of P
-    proline=sequence.count('O')
+    proline=sequence.count('P')
     # number of P involved in the pattern "G.P"
     period=re.compile('G\wP')
     period_proline=len(period.findall(sequence))
