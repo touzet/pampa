@@ -268,9 +268,9 @@ options for suboptimal solutions:
 
 ```
 
-The  **-s** (mass spectra), **-e** (error margin), **-o** (output), **-l** (limit), **-n** (neighbouring) and **-a**  options are the same as with PAMPA LIGHT and the documentation can be found in the [dedicated section](#PAMPA-light).
+The  **-s** (mass spectra), **-e** (error margin), **-o** (output), and **-l** (limit)   options are the same as with PAMPA LIGHT and the documentation can be found in the [dedicated section](#PAMPA-light).
 
-Hereafter, we provide description of **-p**, **-f**, **-d** and **-t** options,  each of which is specific to this module.
+Hereafter, we provide description of **-p**, **-f**, **-d**, **-t**, **-n**, and **-a** options,  each of which is specific to this module.
 
 ### Peptide table (-p)
 
