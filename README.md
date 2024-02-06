@@ -326,13 +326,13 @@ pampa_craft  [-h]
 ```
 
 The three options —-homology, --denovo, and --fillin represent three distinct approaches for constructing a new peptide table: 
-  - by homology from a set of existing peptide markers,
-  - de novo, using in silico tryptic digestion for a collection of protein sequences,
-  - by filling in an existing peptide table, for which masses are missing.
+  - --homology: generates new peptide markers by sequence similarity from an existing set of markers. 
+  - --denovo: Constructs new peptide markers de novo by performing in silico tryptic digestion on a collection of protein sequences. 
+  - --fiilin: Completes an existing peptide table by filling in missing mass values.
 
-The full usage description is given below.
+The full usage description of each of these options is provided below.
 
-### Parameter --homology 
+### --homology option
 
 With this option, the input consists of a set of well-defined marker peptides, and the goal is to search a set of target protein sequences for similar peptides. New peptides are discovered through sequence alignment, allowing up to 10% mismatches between peptides. The algorithm also ensures that the new peptides can undergo tryptic digestion and infers new cleavage sites when necessary. Masses are automatically computed. 
 
@@ -367,9 +367,9 @@ _Option -l:_ This option allows to filter the set of FASTA sequences to limit th
 
 #### Output file (-o)
 
-**Required.** This is the name of the new peptide table created by the program. This option is required.
+This is the name of the new peptide table created by the program. This option is required.
 
-### --denovo
+### --denovo option
 
 This option allows to infer all tryptic peptides from a set of FASTA sequences through in silico digestion, allowing for up to one missed cleavage. Masses are then automatically computed using 
 PTM inference (see [PTM description](#PTM-decription)).
@@ -388,7 +388,7 @@ pampa_craft --denovo
 
 #### Target sequences (-f, -d and -l)
 
-The target sequences consist of amino acid sequences in FASTA format that will undergo tryptic digestion. These sequences can be provided either as individual sequences within a (multi-)FASTA file (using the -f option) or as multiple FASTA files within a directory (using the -d option). The use of either -f or -d is required. Additionally, users have the option to selectively limit the set of sequences to a specific subset of organisms, molecules, or sequence identifiers using the -l option.
+The target sequences consist of amino acid sequences in FASTA format that will undergo tryptic digestion. These sequences can be provided either as a (multi-)FASTA file (using the -f option) or as multiple FASTA files within a directory (using the -d option). The use of either -f or -d is required. Additionally, users have the option to selectively limit the set of sequences to a specific subset of organisms, molecules, or sequence identifiers using the -l option.
 
 _Option -f :_ The specified file can contain an arbitrary number of FASTA sequences, coming from various organisms. Refer to the [FASTA sequences](#FASTA sequences) section for details on the syntax used in FASTA headings.
 
@@ -401,9 +401,11 @@ _Option -l:_ This option allows to filter the set of FASTA sequences to limit th
 
 This is the name of the new table containing tryptic peptides created by the program. This option is required. 
 
-### --fillin 
+### --fillin option
 
-This option allows to automatically compute masses for peptides that lack  this information.  If no PTM description is provided, PTMs are determined automatically based on the rules outlined in the [PTM description](#PTM-description) section. It can be particularly helpful, for instance, in supplementing a manually created peptide table. 
+This option allows to automatically compute masses for peptides that lack  this information.  It can  be particularly helpful, for instance, in supplementing a manually created peptide table. 
+
+Peptide mass is computed from the peptide sequence and the PTM description. If no PTM description is provided, PTMs are determined automatically based on the rules outlined in the [PTM description](#PTM-description) section. This option  
 
 ```
  usage:
