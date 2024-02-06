@@ -1,7 +1,7 @@
 # PAMPA
 
 
-PAMPA (Protein Analysis by Mass Spectrometry for Ancient Species) is a versatile software suite designed to efficiently manage a wide range of tasks related to  ZooMS (Zooarcheological by Mass Spectrometry) data. 
+PAMPA (Protein Analysis by Mass Spectrometry for Ancient Species) is a versatile software suite tailored to effectively handle various tasks associated with ZooMS (Zooarchaeology by Mass Spectrometry) data.
 
 It consists of three primary scripts: 
   - pampa_light: enables fast and easy species identification from mass spectra with marker peptides.
