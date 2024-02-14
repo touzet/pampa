@@ -367,8 +367,6 @@ This option allows to infer all tryptic peptides from a set of FASTA sequences t
 ```
 usage:
 pampa_craft --denovo 
-   -p PEPTIDE_TABLE [PEPTIDE_TABLE]
-   Peptide table(s) that contain model peptide markers
    -f FASTA      Fasta file for new species
    -d DIRECTORY  Directory containing Fasta files for new species
    -l LIMIT      Limit file that 
