@@ -99,8 +99,6 @@ Two other accompanying files are automatically created, in the same directory.
 - report_&lt;outputfile&gt; (TXT file): this file contains a report on the run's inputs (number of mass spectra, number of species tested,  parameters...)
 
 
-
-
 ## General formats and definitions
 
 The full version of PAMPA, as implemented in PAMPA CLASSIFY and PAMPA CRAFT, relies on a series of formats and data structures essential for managing peptide markers and protein sequences. We introduce them in this section.
@@ -220,8 +218,6 @@ This will select all COL1A1 markers for species from the Pecora infraorder. Equi
 ```
 OX=35500 GN=COL1A1
 ```
-
-
 
 ## PAMPA CLASSIFY
 
@@ -429,6 +425,23 @@ This enables filtering markers based on peaks identified within a set of mass sp
 ```
 python3 pampa_craft.py --denovo -s SPECTRA_DIR -f sequences.fasta -o new_table.tsv
 ```
+
+This command generates all tryptic peptides from the sequences of sequences.fasta, computes the theoretical masses, and
+select tryptic peptides that are present in at least half of the mass spectra present in SPECTRA_DIR. The chosen peptides are then compiled into a new table, new_table.tsv.
+
+```
+python3 pampa_craft.py --fillin -p table_A -s SPECTRA_DIR  -o new_table.tsv
+```
+
+This command fills in missing information in table_A (like missing masses) and selects peptides whose masses are present in at least half of the mass spectra in SPECTRA_DIR. The chosen peptides are then compiled into a new table, new_table.tsv.
+
+
+```
+python3 pampa_craft.py -p table_A -s SPECTRA_DIR  -o new_table.tsv
+```
+
+In contrast to the previous example, this command uses peptide markers from table_A as they are. So those with missing masses are ignored. The command selects peptides whose masses are present in at least half of the mass spectra in SPECTRA_DIR. The chosen peptides are then compiled into a new table, new_table.tsv.
+
 
 ## Bug Report
 
