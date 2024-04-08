@@ -105,7 +105,7 @@ The full version of PAMPA, as implemented in PAMPA CLASSIFY and PAMPA CRAFT, rel
 
 ### Peptide tables
 
-Peptide markers are organized within _peptide tables_, which are TSV files consisting of 12 columns corresponding to the 12 fields listed below.
+Peptide markers are organized within _peptide tables_, which are TSV files where each column corresponds to a field.  Twelve fields are recognized by the program.
 
 - Rank: Taxonomic rank
 - Taxid: Taxonomic identifier
@@ -126,7 +126,9 @@ Most of these fields are optional and are here for reference and traceability. O
  - You must provide a taxid for the peptide marker. Rank and taxon names are included primarily to enhance the clarity of results.
  - You should furnish either a sequence, possibly with a PTM description,  or a mass for your marker peptide. If the sequence is provided without a mass, the program will automatically compute the mass from it. To do so, it will utilize either the PTM description (when available) or infer potential PTMs from the sequence.
 
-Where to find peptide tables, how to obtain them ? Several pre-defined tables are included with the PAMPA code, accessible in the Peptide_tables directory. Please avoid relocating or altering these files, as they are utilized by PAMPA LIGHT. Additionally, you can manually create peptide table files using any spreadsheet software and opting for the TSV export format. Alternatively, [PAMPA CRAFT](#PAMPA-CRAFT)  offers automated methods for generating peptide tables.
+Lastly, you have the option to include additional fields (i.e., extra columns) for your own purposes. These fields will be disregarded by PAMPA.
+
+**Where to find peptide tables, how to generate them ?** Several pre-defined tables are included with the PAMPA code, accessible in the Peptide_tables directory. Please avoid relocating or altering these files, as they are utilized by PAMPA LIGHT. Additionally, you can manually create peptide table files using any spreadsheet software and opting for the TSV export format. Alternatively, [PAMPA CRAFT](#PAMPA-CRAFT)  offers automated methods for generating peptide tables.
 
 
 
