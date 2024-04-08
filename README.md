@@ -311,14 +311,16 @@ PAMPA CRAFT  is for the design of custom peptide tables, that can then be utiliz
 ```
 usage: 
 pampa_craft  [-h] 
-   --homology | --denovo | --fillin 
-   [-f FASTA | -d DIRECTORY] [-p PEPTIDE_TABLE] [-l LIMIT] -o OUTPUT 
+   [--homology | --denovo | --fillin] 
+   [-f FASTA | -d DIRECTORY] [-p PEPTIDE_TABLE] [-s SPECTRA PATH] [-l LIMIT] -o OUTPUT 
 ```
 
 The three options —-homology, --denovo, and --fillin represent three distinct approaches for constructing a new peptide table: 
   - --homology: generates new peptide markers by sequence similarity from an existing set of markers. 
   - --denovo: constructs new peptide markers de novo by performing in silico tryptic digestion on a collection of protein sequences. 
-  - --fiilin: completes an existing peptide table by filling in missing mass values.
+  - --fillin: completes an existing peptide table by filling in missing mass values.
+
+The option -s enables filtering markers based on peaks identified within a set of mass spectra.
 
 The full usage description of each of these options is provided below.
 
@@ -333,9 +335,17 @@ With this option, the input consists of a set of well-defined marker peptides, a
    Peptide table(s) that contain model peptide markers
    -f FASTA      Fasta file for new species
    -d DIRECTORY  Directory containing Fasta files for new species
-   -l LIMIT      Limit file that 
+   -l LIMIT      Limit file that applies to the Fasta sequences.
    -o OUTPUT     Path to the output file (new peptide table)
 ```
+
+#### Example
+
+```
+python3 pampa_craft --homology - p table_A.tsv -f sequences.fasta -o table_B.tsv
+```
+
+This command uses peptide markers from table_A.tsv, matches them to amino-acid sequences in sequences.fasta, and generates a new peptide table, table_B, containing markers corresponding to sequences in sequences.fasta. 
 
 #### Peptide table (-p)
 
