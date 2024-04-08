@@ -420,6 +420,16 @@ Peptide mass is computed from the peptide sequence and the PTM description. If n
 [Required] Name of the new table obtained by completion of the input table.  
 
 
+### -s option, spectra filtering 
+
+This enables filtering markers based on peaks identified within a set of mass spectra. It is transverse, and can be applied in conjunction with --homology, --denovo or alone.
+
+#### Examples
+
+```
+python3 pampa_craft.py --denovo -s SPECTRA_DIR -f sequences.fasta -o new_table.tsv
+```
+
 ## Bug Report
 
 PAMPA is still under development. If you come across any bugs or unexpected behavior, please take a moment to report it using our GitHub Issues page. Just click on the "Issues" tab above and create a new issue. You may also contact the author (helene.touzet@univ-lille.fr).
