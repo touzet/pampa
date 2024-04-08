@@ -7,11 +7,18 @@ import sys
 import re
 import sys
 from  src import utils as ut
+from src import sequences
 #from src import limit 
 
+def pretty_print(s):
+    if s==None:
+        return ""
+    else:
+        return s
+    
 class Marker(object):
 
-    def __init__(self, rank="", taxid="", taxon_name="", sequence="", ptm="", code="", mass="", protein="", seqid="", begin="", end="", comment=""):
+    def __init__(self, rank=None, taxid=None, taxon_name=None, sequence=None, ptm=None, code=None, mass=None, protein=None, helical=None, seqid=None, begin=None, end=None, comment=None):
         self.rank = rank
         self.taxid = taxid
         self.taxon_name = taxon_name
@@ -20,13 +27,14 @@ class Marker(object):
         self.code = code
         self.mass = mass
         self.protein = protein
+        self.helical=helical
         self.seqid = seqid
-        self.begin = begin
-        self.end = end
+        self.begin = begin #1-based notation
+        self.end = end  #1-based notation
         self.comment = comment
 
     def __str__(self):
-        return f"{self.rank}\t{self.taxid}\t{self.taxon_name.lstrip()}\t{self.sequence}\t{self.ptm}\t{self.code}\t{self.mass}\t{self.protein}\t{self.seqid}\t{self.begin}\t{self.end}\t{self.comment}"
+        return f"{pretty_print(self.rank)}\t{pretty_print(self.taxid)}\t{pretty_print(self.taxon_name)}\t{pretty_print(self.sequence)}\t{pretty_print(self.ptm)}\t{pretty_print(self.code)}\t{pretty_print(self.mass)}\t{pretty_print(self.protein)}\t{pretty_print(self.helical)}\t{pretty_print(self.seqid)}\t{pretty_print(self.begin)}\t{pretty_print(self.end)}\t{pretty_print(self.comment)}"
 
     
 def sort_by_masses(set_of_markers):
@@ -246,7 +254,7 @@ def limit_markers(set_of_markers, limit_file):
     """
     build a new set of markers that is compliant with the specification of the limit_file (txt file, -l option) 
     """
-    
+    ## DEPRECATED ?
     new_set=set_of_markers
     file=open(limit_file).read().splitlines()
     for line in file:
@@ -286,7 +294,7 @@ def colinearity(set_of_markers):
     """
     print all markers as a matrix: marker name / position[mass] for the species
     """
-    dict_taxon_name_to_taxid={m.taxon_name:m.taxid for m in set_of_markers}    
+    dict_taxon_name_to_taxid={m.taxon_name:m.taxid for m in set_of_markers}
     print("Total number of species: "+str(len( dict_taxon_name_to_taxid))+"\n")
     list_of_proteins=list({m.protein for m in set_of_markers})
     list_of_proteins.sort()
@@ -296,7 +304,7 @@ def colinearity(set_of_markers):
         list_of_seqid.sort(key=lambda x: x[0])
         seqid_length=max({len(s[1]) for s in list_of_seqid})
         taxon_length=max({len(s[0]) for s in list_of_seqid})
-        list_of_codes=list({m.code+" - "+m.ptm for m in set_of_markers if m.protein==prot})
+        list_of_codes=list({str(m.code)+" - "+str(m.ptm) for m in set_of_markers if m.protein==prot})
         list_of_codes.sort()
         matrix = [["" for j in range(len(list_of_codes)+2)] for i in range(len(list_of_seqid)+1)]
         matrix_mass=[["" for j in range(len(list_of_codes)+2)] for i in range(len(list_of_seqid)+1)]
@@ -308,9 +316,9 @@ def colinearity(set_of_markers):
             matrix[i+1][1]= seq[1]
         for m in set_of_markers:
             if m.protein==prot:
-                matrix[list_of_seqid.index((m.taxon_name, m.seqid))+1][list_of_codes.index(m.code+" - "+m.ptm)+2]=str(m.begin)
-                if len(str(m.mass))!=0:
-                    matrix_mass[list_of_seqid.index((m.taxon_name, m.seqid))+1][list_of_codes.index(m.code+" - "+m.ptm)+2]=str(round(float(m.mass),4))
+                matrix[list_of_seqid.index((m.taxon_name, m.seqid))+1][list_of_codes.index(str(m.code)+" - "+str(m.ptm))+2]=str(m.begin)
+                if m.mass!=None and len(str(m.mass))!=0:
+                    matrix_mass[list_of_seqid.index((m.taxon_name, m.seqid))+1][list_of_codes.index(str(m.code)+" - "+str(m.ptm))+2]=str(round(float(m.mass),4))
         s=" "*taxon_length+"\t"+" "*seqid_length
         for code in list_of_codes:
             s=s+"\t"+"{:<15}".format(code)
@@ -324,6 +332,61 @@ def colinearity(set_of_markers):
                     s=s+"\t"
             print(s)
     print("")
+
+
+def sort_and_merge(set_of_markers):
+    # merge all markers having the same taxid, sequence, PTM  and  mass into a single marker. The new seqId is the union of all taxid. What about the comment ?
+
+    list_of_markers=[]
+    for m in set_of_markers:
+        m.taxid=pretty_print(m.taxid)
+        m.code=pretty_print(m.code)
+        m.sequence=pretty_print(m.sequence)
+        m.ptm=pretty_print(m.ptm)
+        m.seqid=pretty_print(m.seqid)
+        if m.mass==None:
+            m.mass=0
+        list_of_markers.append(m)
+    # TO DO: deal with empty mass 
+    list_of_markers.sort(key= lambda m: (m.taxid,m.sequence,m.ptm,float(m.mass),m.seqid))
+    for (i,m) in enumerate(list_of_markers):
+        j=i+1
+        while j<len(list_of_markers) and (list_of_markers[j].taxid, list_of_markers[j].sequence, list_of_markers[j].ptm,float(m.mass))==(m.taxid, m.sequence,m.ptm,float(m.mass)): 
+            m.seqid=m.seqid+" "+list_of_markers[j].seqid
+            if m.comment!=list_of_markers[j].comment:
+                m.comment=m.comment+", "+list_of_markers[j].comment
+            list_of_markers[j].taxid=None
+            j=j+1
+
+    list_of_markers=[m for m in list_of_markers if m.taxid is not None]
+        
+    return list_of_markers
+        
+def add_sequences_and_positions_to_markers(set_of_markers, set_of_sequences):
+    set_of_marker_seqid={m.seqid for m in set_of_markers}
+    dict_of_sequence_seqid={id:s for id in set_of_marker_seqid for s in set_of_sequences if s.seqid==id}
+    set_of_missing_seqid=set_of_marker_seqid-dict_of_sequence_seqid.keys()
+    if len(set_of_missing_seqid)>0:
+        message.warning("No sequence found for SeqID "+str(set_of_missing_seqid)+". Ignored")
+    for m in set_of_markers:
+        if m.seqid in set_of_missing_seqid:
+                continue
+        s=dict_of_sequence_seqid[m.seqid]
+        seq=s.sequence
+        helical_start=sequences.helical_region(seq)[0]
+        if m.sequence==None and m.begin and m.end:
+            m.sequence=seq[int(m.begin)-1:int(m.end)+1]
+        if m.begin==None:
+            pos=seq.find(m.sequence)
+            if pos>-1:
+                m.begin=pos + 1
+                if m.end==None:
+                    m.end=pos+len(m.sequence)
+        if m.helical==None:
+            m.helical=int(m.begin) - helical_start + 1
+               
+    return set_of_markers
+         
  
             
 

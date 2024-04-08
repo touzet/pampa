@@ -1,9 +1,6 @@
 """
 fasta_parsing.py              
-
-
 """
-
 
 from Bio import SeqIO
 from Bio.SeqIO import parse 
@@ -16,34 +13,18 @@ from src import markers
 from src import sequences as seq
 from src import taxonomy as ta
 from src import limit as lim
+from src import message
 
-def parse_fasta_NCBI_header(header, gene_name, taxonomy):
-    """ parsing fasta NCBI headers """
-    print(header)
-    new_sequence=seq.Sequence()
-    re_taxon_name=re.compile('\[.*\]')
-    m = re_taxon_name.search(header)
-    taxon_name=m.group()
-    taxon_name=taxon_name.replace('[','')
-    taxon_name=taxon_name.replace(']','')
-    new_sequence.taxon_name=taxon_name
-    new_sequence.taxid=ta.search_taxid_from_taxon_name(taxon_name, taxonomy)
-    if new_sequence.taxid==None:
-        print("Missing taxon: "+taxon_name)
-    new_sequence.protein=gene_name
-    fields=header.split(" ") # pour le SeqID - ne marche pas avec le "vrai" format uniprot
-    new_sequence.seqid=fields[0]
-    return new_sequence
-
- 
 def parse_fasta_uniprot_header(header):
     """ parsing fasta uniprot headers  """
-    print(header)
+    message.debug(header)
     new_sequence=seq.Sequence()
     re_taxid=re.compile('OX=[^\s]*?(?=\s|$)')
     re_protein=re.compile('GN=[^\s]*?(?=\s|$)')
     re_taxon_name=re.compile('(OS=[a-zA-Z\s]*=)|(OS=[a-zA-Z\s]*?(?=$))') #en cours
     m = re_taxid.search(header)
+    if m==None:
+        raise ValueError()
     taxid=m.group()
     taxid=taxid.lstrip('OX=') # taxid
     taxid=taxid.strip()
@@ -61,20 +42,37 @@ def parse_fasta_uniprot_header(header):
     prot=prot.strip()
     prot=prot.upper()
     new_sequence.protein=prot
-    fields=header.split(" ") # pour le SeqID - ne marche pas avec le "vrai" format uniprot
-    new_sequence.seqid=fields[0]
+    fields=header.split(" ")
+    seqid=fields[0]
+    if '|' in seqid:
+        re_seqid=re.compile('|[a-zA-Z0-9]*|')
+        m=re_seqid.search(seqid)
+        seqid=m.group()
+        seqid=seqid.replace('|','')
+        seqid=seqid.replace(' ','')
+    new_sequence.seqid=seqid
     return new_sequence
 
 def build_set_of_sequences_from_fasta_file(fasta_file_name, gene_name="", taxonomy=None):
     set_of_sequences=set()
     fasta_file = open(fasta_file_name)
+    is_empty=True
     for seq_record in SeqIO.parse(fasta_file, "fasta"):
-        if "OS=" in seq_record.description :
+        is_empty=False
+        try:
             current_sequence=parse_fasta_uniprot_header(seq_record.description)
-        else:
-            current_sequence=parse_fasta_NCBI_header(seq_record.description,gene_name,taxonomy)
-        current_sequence.sequence=str(seq_record.seq) 
+        except ValueError:
+            message.warning("File "+fasta_file_name+", header "+seq_record.description+":\n    taxid (OX=) missing. Sequence ignored." )
+            continue
+        seq=str(seq_record.seq)
+        if len(seq)==0 :
+              message.warning("File "+fasta_file_name+", header "+seq_record.description+":\n    empty sequence. Sequence ignored." )
+              continue
+        current_sequence.sequence=seq
+        #current_sequence.helical=seq.helical_region(current_sequence.sequence)
         set_of_sequences.add(current_sequence)
+    if is_empty:
+        message.warning("File "+fasta_file_name+" is empty.")
     fasta_file.close()
     return set_of_sequences
 
@@ -97,11 +95,41 @@ def build_set_of_sequences_from_fasta_dir(fasta_dir):
     return set_of_sequences
 
 def build_set_of_sequences(fasta, directory, limit, taxonomy):
-    if fasta:
-        set_of_sequences=build_set_of_sequences_from_fasta_file(fasta)
-    elif directory:
-        set_of_sequences=build_set_of_sequences_from_fasta_dir(directory)
+
+    list_of_hard_constraints=[]
+    list_of_soft_constraints=[]
+    list_of_constraints=[]
+      
     if limit:
-        set_of_sequences=lim.apply_limits(limit, set_of_sequences, taxonomy, False)
+        list_of_constraints=lim.parse_limits(limit)
+        list_of_hard_constraints=[constraints[key] for constraints in list_of_constraints for key in constraints if key=="FileName"]
+        list_of_soft_constraints=[constraints for constraints in list_of_constraints if "FileName" not in constraints]
+    
+    if fasta:
+        if  not limit or fasta in list_of_hard_constraints:
+            set_of_hard_sequences=build_set_of_sequences_from_fasta_file(fasta)
+            set_of_soft_sequences=set()
+        else:
+            set_of_hard_sequences=set()
+            set_of_soft_sequences=build_set_of_sequences_from_fasta_file(fasta)
+    elif directory:
+        set_of_hard_sequences=set()
+        if not limit: # TO DO: add taxonomy
+            set_of_hard_sequences=build_set_of_sequences_from_fasta_dir(directory)
+            set_of_soft_sequences=set()
+        else:
+            for file_name in list_of_hard_constraints:
+                set_of_hard_sequences.update(build_set_of_sequences_from_fasta_file(os.path.join(directory, file_name)))          
+            set_of_soft_sequences=build_set_of_sequences_from_fasta_dir(directory)
+            set_of_soft_sequences=lim.apply_limits(list_of_soft_constraints, set_of_soft_sequences, taxonomy, False)
+
+    set_of_sequences=set_of_hard_sequences | set_of_soft_sequences
+
+    
+    message.debug("constraints:" + str(len(list_of_constraints)))
+    message.debug("hard sequences:" + str(len(set_of_hard_sequences)))
+    message.debug("soft sequences:" + str(len(set_of_soft_sequences)))
+    message.debug("soft constraints:" + str(len(list_of_soft_constraints)))
+    
     return set_of_sequences
-            
+    

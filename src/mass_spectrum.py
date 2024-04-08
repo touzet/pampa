@@ -5,10 +5,12 @@
 
 """
 
-from pyteomics import mzml, auxiliary
+from pyteomics import mzml, mgf, auxiliary
 import csv
 import os
 import re
+
+from src import message
 
 class Peak(object):
     """
@@ -44,6 +46,12 @@ class Spectrum(object):
 
     def sort(self):
         self.peaks.sort(key=lambda x: x.mass)
+
+    def __max__(self):
+        return max({self.peaks[i].mass for i in len(self.peaks)})
+
+    def __min(self):
+        return min({self.peaks[i].mass for i in len(self.peaks)})
 
 
 def parser_binarymatrix(peak_file_name):
@@ -82,32 +90,35 @@ def peak_parser_csv(peak_file_name, name):
     """
     Parser for a mass spectrum in csv format
     first row: heading
-    other raws: one peak (mass, intensity) per row
+    other rows: one peak (mass, intensity) per row
     columns are separated by comma or semi-columns
 
     Args:
         peak_file (str): path to the csv file
-
     Returns:
-        list of masses 
+        list of peaks
     Raises:
-
         NameError: if the file is not a csv file
     """
 
-
-    peak_list = []    
-    f= open (peak_file_name)
-    next(f) 
-    for row in f:
-        peak = re.split(',|;', row)
-        if len(peak)>1:
-            new_peak=Peak( float(peak[0]), float(peak[1]))
-            peak_list.append(new_peak)
-        elif len(peak)==1:
-            new_peak=Peak( float(peak[0]), 0.0)
-            peak_list.append(new_peak)
    
+    peak_list = []
+    
+    f= open (peak_file_name)
+    next(f)
+    try:
+        for row in f:
+            peak = re.split(',|;', row)
+            if len(peak)>1:
+                new_peak=Peak( float(peak[0]), float(peak[1]))
+                peak_list.append(new_peak)
+            elif len(peak)==1:
+                new_peak=Peak( float(peak[0]), 0.0)
+                peak_list.append(new_peak)
+    except  : 
+        message.warning("File "+peak_file_name+" is incorrect (wrong format). File ignored." )
+        return Spectrum(name,peak_list,"")
+    
     return Spectrum(name,peak_list,"")
 
 
@@ -120,21 +131,24 @@ def peak_parser_mgf(peak_file_name,name):
         peak_file_name (str): path to the mgf file
 
     Returns:
-        list of masses 
+        list of peaks 
 
     """
     peak_list = []
-    with open(peak_file_name, "r") as filin:
-        l = filin.readline() #we begin to read the 1st line
-        while l != "":
-            ligne = l.rstrip()
-            if ligne != "": 
-                if ligne[0].isdigit():
-                    mass = float(ligne.split()[0])
-                    intensity = float(ligne.split()[1])
-                    peak_list.append(mass,intensity)
-            l = filin.readline() #we begin to read the 2nd line
-            
+    try:
+        f = mgf.read(peak_file_name)
+        mass_array = f[0]["m/z array"] #pour avoir les m/z des pics
+        intensity_array = f[0]["intensity array"] #pour avoir l'intensité des pics
+    except  : 
+        message.warning("File "+peak_file_name+" is incorrect (wrong format). File ignored." )
+        return Spectrum(name,peak_list,"")
+
+    
+    for mass, intensity in zip(mass_array.tolist(), intensity_array.tolist()):
+        peak = Peak(float(mass), float(intensity))
+        if peak not in peak_list:
+            peak_list.append(peak)
+    
     return Spectrum(name,peak_list,"")
 
 
@@ -150,10 +164,14 @@ def peak_parser_mzml(peak_file_name,name):
 
     """
     peak_list = []
-    f = mzml.MzML(peak_file_name, use_index=True) 
-    mass_array = f[0]["m/z array"] #pour avoir les m/z des pics
-    intensity_array = f[0]["intensity array"] #pour avoir l'intensité des pics
- 
+    try:
+        f = mzml.MzML(peak_file_name, use_index=True) 
+        mass_array = f[0]["m/z array"] # m/z 
+        intensity_array = f[0]["intensity array"] # intensity 
+    except  : 
+        message.warning("File "+peak_file_name+" is incorrect (wrong format). File ignored." )
+        return Spectrum(name,peak_list,"")
+    
     for mass, intensity in zip(mass_array.tolist(), intensity_array.tolist()):
         peak = Peak(float(mass), float(intensity))
         if peak not in peak_list:
@@ -174,11 +192,11 @@ def parser(file_path,name):
     Returns:
         Spectrum 
 
-    Raises:
-         UnknownFormat
-
     """
-     
+    if os.path.getsize(file_path) == 0:
+        message.warning("File "+file_path+" is empty.")
+        return Spectrum(name,[],"")
+        
     _, ext = os.path.splitext(file_path)
     if ext == ".csv" or ext == ".CSV" or ext == ".txt" or ext == ".TXT": # csv file 
         spectrum = peak_parser_csv(file_path,name)
@@ -187,9 +205,9 @@ def parser(file_path,name):
     elif ext == ".mzML": # mzML file
         spectrum = peak_parser_mzml(file_path,name)
     else:
-        print(file_path)
-        raise Exception("The format of the spectrum file is unknown. Accepted formats are: csv, mgf and mzML")
-        sys.exit()
+        message.warning("File "+file_path+" is not recognized (unknown format). Accepted formats are csv, mgf and mzML. File ignored.")
+        return Spectrum(name,[],"")
+
     return spectrum
 
 

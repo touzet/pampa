@@ -4,8 +4,9 @@ taxonomy.py
 """
 
 import sys
-#sys.path.append("src")
-from src import utils 
+
+from src import utils
+from src import message
 
 class Taxonomy(object):
     def __init__(self, taxidname={}, rank={}, children={}, descendants={}, parent={},  root="0"):
@@ -186,8 +187,10 @@ def parse_taxonomy_simple_file(taxonomy_file):
     
     with open(taxonomy_file) as in_file:
         next(in_file)
-        for line in in_file:
+        for (i,line) in enumerate(in_file):
             columns = line.split("\t")
+            if len(columns)<5 or len(columns[0])==0 or len(columns[3])==0:
+                message.warning("File "+taxonomy_file+", line "+str(i+2)+": format error. Line is ignored")
             taxid_to_name_dict.update({columns[0]:columns[2]})
             name_to_taxid_dict.update({columns[2]:columns[0]})
             taxid_to_rank_dict.update({columns[0]:columns[4].strip("\n")})

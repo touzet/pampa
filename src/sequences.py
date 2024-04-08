@@ -14,11 +14,12 @@ from src import markers
 
 
 class Sequence(object):
-    def __init__(self, sequence="", taxid="", taxon_name="", seqid="", protein="", rank="", comment=""):
+    def __init__(self, sequence="", taxid="", taxon_name="", seqid="", helical=None, protein="", rank="", comment=""):
         self.sequence = sequence
         self.taxid = taxid
         self.taxon_name = taxon_name
         self.seqid=seqid
+        self.helical=helical
         self.protein=protein
         self.rank = rank
         self.comment = comment
@@ -30,17 +31,41 @@ class Sequence(object):
         return f"Sequence{self.seqid} \t{self.taxid}\t{self.taxon_name.lstrip()}\t{self.sequence}\t{self.protein}\t{self.rank}\t{self.comment}"
 
 
+def helical_region(seq):
+    # positions are 1-based
+    pattern=re.compile('(G\w{2}){5,}')
+    matches=re.finditer(pattern, seq)
+    positions=[match.span() for match in matches]
+    if (len(positions)==0):
+          return None, None
+    start_match=positions[0][0]
+    end_match=positions[0][1]
+    for segment in positions[1:]:
+        if segment[0]-end_match>6:# allowing for errors in the aa sequence 
+            start_match= segment[0]
+        end_match=segment[1]
+    pos_GPM=seq[start_match:].find("GPM")
+    if pos_GPM==-1 or pos_GPM>6:
+        return start_match+1, end_match+1  
+    else:
+        return pos_GPM+start_match +1, end_match+1 
+    
+
 def in_silico_digestion(set_of_sequences, number_of_misscleavages=1, min_length=12, max_length=33, mature=True):
     """ build a set of markers from a set of sequences by in silico digestion"""
     set_of_markers=set()
-    print("MATURE SEQUENCES \n")
     for s in set_of_sequences:
+        min=None
         if mature:
-            (min,max)=mature_sequence(s)
+            (min,max)=helical_region(s.sequence)
+        if min==None:
+            helical=False
+            (min,max)=(0,len(s.sequence))
         else:
-            (min,max)=(0, len(s))
-        print(s.taxon_name+" \t "+s.protein+" \t " + str(min))
+            (min,max)=(min-1, max-1)
+            helical=True               
         mature_seq=s.sequence[min:max]
+       
         set_of_peptides=parser.icleave(mature_seq, parser.expasy_rules['trypsin'], number_of_misscleavages, min_length)
         for (pos, peptide) in set_of_peptides:
             if ('Z' in peptide or 'B' in peptide or 'X' in peptide): ## amino acids
@@ -52,8 +77,12 @@ def in_silico_digestion(set_of_sequences, number_of_misscleavages=1, min_length=
             new_marker.taxid=s.taxid
             new_marker.taxon_name=s.taxon_name
             new_marker.protein=s.protein
+            if not helical :
+                new_marker.helical=None
+            else:
+                new_marker.helical=str(pos+1)
             new_marker.seqid=s.seqid
-            new_marker.begin=min+pos
+            new_marker.begin=min+pos+1
             new_marker.end=new_marker.begin+len(peptide)-1
             new_marker.rank="species"
             new_marker.comment="in silico digestion"
@@ -109,12 +138,15 @@ def mature_sequence(seq):
     return (start_query,end_query)
         
 
+
+    
 def reduce(seq):
     seq=seq.replace(" ", "")
     seq=seq.lower()
     return  seq
 
 
+# still useful ? 
 def limit_sequences(set_of_sequences, limit_file):
     """
     build a new set of sequences that is compliant with the specification of the limit_file (TSV file, -l option) 

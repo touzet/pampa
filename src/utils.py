@@ -4,13 +4,39 @@
 
 def is_aa_sequence(sequence):
     """ test wether the sequence is an amino-acid sequence """
-    return all(aa in 'ACDEFGHIKLMNPQRSTVWY' for aa  in sequence)
+    if sequence==None or len(sequence)==0 :
+        return False
+    return all(aa in 'ACDEFGHIKLMNPQRSTVWY' for aa in sequence)
 
+def matching_masses(theoretical_peak, experimental_peak, resolution):
+    delta= abs(float(theoretical_peak) - float(experimental_peak))
+    if resolution<2:
+        return delta<=resolution #dalton
+    else:
+        return delta/theoretical_peak<=resolution/1000000 #ppm
+
+def is_PTM(PTM_string, set_of_PTM):
+    """ test wether the PTM expression is valid """
+    if PTM_string==None:
+        return True 
+    found_number=""
+    for char in PTM_string:
+        if char.isdigit():
+            found_number += char
+        else:
+          if len(found_number)==0 or (int(found_number)>0 and char not in set_of_PTM):
+            return False
+          found_number=""
+    
+    return True
+    
 def image(set_of_masses):
     result=""
     for mass in set_of_masses:
         result=result+" "+str(mass)
     return result
+
+
 
 
 def update_dictoset(mydict, k,v):

@@ -115,12 +115,12 @@ def add_PTM_or_masses_to_markers(set_of_markers):
     list_of_codes=[]
     for marker in set_of_markers:
         sequence=marker.sequence
-        if len(marker.code)==0:
+        if marker.code==None:
             if sequence not in list_of_codes:
                     list_of_codes.append(sequence)
             marker.code='M'+str(list_of_codes.index(sequence))
-        if len(marker.mass)==0:
-            if len(marker.ptm)==0:
+        if marker.mass==None:
+            if marker.ptm==None:
                 min_P, max_P=proline_range(sequence)
                 mass_list= peptide_mass_with_proline_range(sequence, min_P, max_P)
                 for ma in mass_list:
@@ -133,7 +133,6 @@ def add_PTM_or_masses_to_markers(set_of_markers):
             else:
                 mass=peptide_mass_with_PTM(sequence,marker.ptm)
                 marker.mass=mass
-                
                     
     return set_of_markers.union(set_of_new_markers) - set_of_deprecated_markers
     
