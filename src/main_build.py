@@ -41,9 +41,9 @@ def check_and_update_parameters(peptide_table, fasta, directory, limit, output):
 
     if peptide_table is None:
         escape("Missing parameter: peptide_table (-p)")
-    if not os.path.isfile(peptide_table):
-        escape("File "+peptide_table+" not found (-p).")  
-
+    for pep in peptide_table:
+            if not os.path.isfile(pep):
+                escape("File "+pep+" not found.")    
     if limit:
         if not os.path.isfile(limit):
             escape("File "+limit+" not found (-l).")            
@@ -72,7 +72,10 @@ def create_report(report, output, peptide_table, fasta,  directory, limit,  set_
     print("   PARAMETERS")
     print("---------------------------------\n")
     if peptide_table:
-        print("  Peptide table for model markers : "+ str(peptide_table))
+        print("  Peptide table for model markers : ", end="")
+        for file in peptide_table:
+            print(file, end=" ")
+        print("")
     if fasta:
         print("  Fasta file for new markers      : "+str(fasta))
     else:
@@ -104,17 +107,8 @@ def main(peptide_table=None, fasta=None, directory=None, limit=None, output=None
     
     (peptide_table, fasta, directory, limit, output, report)=check_and_update_parameters(peptide_table, fasta, directory, limit, output)
 
-    set_of_markers=pt.parse_peptide_table(peptide_table)
-    
-    if fasta:
-        set_of_sequences= fa.build_set_of_sequences_from_fasta_file(fasta,True)
-       
-    if directory:
-        set_of_sequences= fa.build_set_of_sequences_from_fasta_dir(directory)
-
-    if limit:
-        set_of_sequences=sequences.extract_relevant_sequences(set_of_sequences, limit)
-
+    set_of_markers= pt.parse_peptide_tables(peptide_table, None, None)
+    set_of_sequences = fa.build_set_of_sequences(fasta, directory, limit, None)      
     set_of_new_markers=known_markers.find_markers_all_sequences(set_of_sequences, set_of_markers)
 
     pt.build_peptide_table_from_set_of_markers(set_of_new_markers,output,"")
