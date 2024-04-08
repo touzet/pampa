@@ -396,7 +396,8 @@ _Option -l:_ This option allows to filter the set of FASTA sequences to limit th
 
 ### --fillin option
 
-This option allows to automatically compute masses for peptides that lack  this information.  It is of particular interest, for instance, in supplementing a manually created peptide table. 
+This option allows to fill in missing fields in a peptide table. It can automatically compute masses for peptides that lack  this information.  
+If Fasta sequences are provided, it can calculate peptide positions or, conversely, deduce the sequence of a peptide marker from its position in the sequence. It is of particular interest, for instance, in supplementing a manually created peptide table. 
 
 Peptide mass is computed from the peptide sequence and the PTM description. If no PTM description is provided, PTMs are determined automatically based on the rules outlined in the [PTM description](#PTM-description) section.  
 
