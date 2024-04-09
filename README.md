@@ -419,28 +419,28 @@ Peptide mass is computed from the peptide sequence and the PTM description. If n
 [Required] Name of the new table obtained by completion of the input table.  
 
 
-### -s option, spectra filtering 
+### -s and -e options, spectra filtering 
 
-This enables filtering markers based on peaks identified within a set of mass spectra. It is transverse, and can be applied in conjunction with --homology, --denovo or alone.
+This pair of option enables filtering markers based on peaks identified within a set of mass spectra. It can be applied in conjunction with --homology, --denovo, or independently. 
 
 #### Examples
 
 ```
-python3 pampa_craft.py --denovo -s SPECTRA_DIR -f sequences.fasta -o new_table.tsv
+python3 pampa_craft.py --denovo -s SPECTRA_DIR -e 0.1 -f sequences.fasta -o new_table.tsv
 ```
 
 This command generates all tryptic peptides from the sequences of sequences.fasta, computes the theoretical masses, and
 select tryptic peptides that are present in at least half of the mass spectra present in SPECTRA_DIR. The chosen peptides are then compiled into a new table, new_table.tsv.
 
 ```
-python3 pampa_craft.py --fillin -p table_A -s SPECTRA_DIR  -o new_table.tsv
+python3 pampa_craft.py --fillin -p table_A -s SPECTRA_DIR   -e 0.1 -o new_table.tsv
 ```
 
 This command fills in missing information in table_A (like missing masses) and selects peptides whose masses are present in at least half of the mass spectra in SPECTRA_DIR. The chosen peptides are then compiled into a new table, new_table.tsv.
 
 
 ```
-python3 pampa_craft.py -p table_A -s SPECTRA_DIR  -o new_table.tsv
+python3 pampa_craft.py -p table_A -s SPECTRA_DIR  -e 0.1 -o new_table.tsv
 ```
 
 In contrast to the previous example, this command uses peptide markers from table_A as they are. So those with missing masses are ignored. The command selects peptides whose masses are present in at least half of the mass spectra in SPECTRA_DIR. The chosen peptides are then compiled into a new table, new_table.tsv.
