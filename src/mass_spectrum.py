@@ -42,16 +42,16 @@ class Spectrum(object):
         return len(self.peaks)
 
     def __getitem__(self,i):
-        return ((self.peaks)[i]).mass
+        return ((self.peaks)[i])
 
     def sort(self):
         self.peaks.sort(key=lambda x: x.mass)
 
     def __max__(self):
-        return max({self.peaks[i].mass for i in len(self.peaks)})
+        return max({peak.mass for peak in self})
 
-    def __min(self):
-        return min({self.peaks[i].mass for i in len(self.peaks)})
+    def __min__(self):
+        return min({peak.mass for peak in self})
 
 
 def parser_binarymatrix(peak_file_name):
@@ -106,6 +106,7 @@ def peak_parser_csv(peak_file_name, name):
     
     f= open (peak_file_name)
     next(f)
+    line=1
     try:
         for row in f:
             peak = re.split(',|;', row)
@@ -115,8 +116,9 @@ def peak_parser_csv(peak_file_name, name):
             elif len(peak)==1:
                 new_peak=Peak( float(peak[0]), 0.0)
                 peak_list.append(new_peak)
+            line += 1
     except  : 
-        message.warning("File "+peak_file_name+" is incorrect (wrong format). File ignored." )
+        message.warning("File "+peak_file_name+", line "+str(line)+":  wrong format. File ignored." )
         return Spectrum(name,peak_list,"")
     
     return Spectrum(name,peak_list,"")
@@ -143,7 +145,6 @@ def peak_parser_mgf(peak_file_name,name):
         message.warning("File "+peak_file_name+" is incorrect (wrong format). File ignored." )
         return Spectrum(name,peak_list,"")
 
-    
     for mass, intensity in zip(mass_array.tolist(), intensity_array.tolist()):
         peak = Peak(float(mass), float(intensity))
         if peak not in peak_list:
