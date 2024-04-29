@@ -2,6 +2,18 @@
    utils.py
 """
 
+def reduced(s):
+    if s is None:
+        return None
+    else:
+        return s.replace(' ','')
+
+def reduced_upper(s):
+     if s is None:
+        return None
+     else:
+        return s.replace(' ','').upper()
+
 def is_aa_sequence(sequence):
     """ test wether the sequence is an amino-acid sequence """
     if sequence==None or len(sequence)==0 :
@@ -10,7 +22,7 @@ def is_aa_sequence(sequence):
 
 def matching_masses(theoretical_peak, experimental_peak, resolution):
     delta= abs(float(theoretical_peak) - float(experimental_peak))
-    if resolution<2:
+    if resolution<1.1:
         return delta<=resolution #dalton
     else:
         return delta/theoretical_peak<=resolution/1000000 #ppm
@@ -35,8 +47,6 @@ def image(set_of_masses):
     for mass in set_of_masses:
         result=result+" "+str(mass)
     return result
-
-
 
 
 def update_dictoset(mydict, k,v):

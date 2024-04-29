@@ -99,7 +99,7 @@ def proline_range(sequence):
         return period_proline, period_proline+1
     
 
-def add_PTM_or_masses_to_markers(set_of_markers):
+def add_PTM_or_masses_to_markers(set_of_markers, flexible=False):
     """
     Compute PTM and masses when there are missing. Existing values are kept.
 
@@ -122,6 +122,11 @@ def add_PTM_or_masses_to_markers(set_of_markers):
         if marker.mass==None:
             if marker.ptm==None:
                 min_P, max_P=proline_range(sequence)
+                if flexible:
+                    if min_P>0:
+                        min_P-=1
+                    if max_P<sequence.count('P'):
+                        max_P+=1
                 mass_list= peptide_mass_with_proline_range(sequence, min_P, max_P)
                 for ma in mass_list:
                     new_marker=markers.Marker()
@@ -136,5 +141,6 @@ def add_PTM_or_masses_to_markers(set_of_markers):
                     
     return set_of_markers.union(set_of_new_markers) - set_of_deprecated_markers
     
+     
         
-
+    

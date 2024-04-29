@@ -6,7 +6,6 @@ from src import message
 from src import utils 
 
 
-
 def reduce(seq):
     #seq=seq.lower()
     return  seq.strip(' ')

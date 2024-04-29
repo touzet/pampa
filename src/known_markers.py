@@ -135,21 +135,21 @@ def find_markers_all_sequences(set_of_sequences, set_of_markers):
     dict_of_taxid={}
     marker_count=0
     for m in set_of_markers: 
-        if len(m.sequence)==0 :
+        if m.sequence==None or len(m.sequence)==0 :
             continue
         else:
             sequence=m.sequence.strip()  
-        if len(m.code)==0:
+        if len(m.code)==0 or m.code==None:
             marker_count+=1
             peptide_name="M"+str(marker_count)
         else:
             peptide_name=m.code
-        if len(m.taxid)==0:
+        if m.taxid==None or len(m.taxid)==0:
             taxid=set()
         else:
             taxid={m.taxid.strip()}
        
-        model_marker=(m.ptm.strip(), peptide_name.strip(), m.protein.strip().upper())
+        model_marker=(ut.reduced(m.ptm), ut.reduced(peptide_name), ut.reduced_upper(m.protein))
         ut.update_dictoset(dict_of_model_markers, sequence, {model_marker})
         #ut.update_dictoset(dict_of_taxid, (sequence,m.ptm.strip()), taxid)
                 

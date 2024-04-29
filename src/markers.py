@@ -27,7 +27,7 @@ class Marker(object):
         self.code = code
         self.mass = mass
         self.protein = protein
-        self.helical=helical
+        self.helical = helical
         self.seqid = seqid
         self.begin = begin #1-based notation
         self.end = end  #1-based notation
@@ -296,7 +296,7 @@ def colinearity(set_of_markers):
     """
     dict_taxon_name_to_taxid={m.taxon_name:m.taxid for m in set_of_markers}
     print("Total number of species: "+str(len( dict_taxon_name_to_taxid))+"\n")
-    list_of_proteins=list({m.protein for m in set_of_markers})
+    list_of_proteins=list({m.protein for m in set_of_markers if m.protein is not None})
     list_of_proteins.sort()
     for prot in list_of_proteins:
         print("\nGene : "+prot)
@@ -371,19 +371,19 @@ def add_sequences_and_positions_to_markers(set_of_markers, set_of_sequences):
     for m in set_of_markers:
         if m.seqid in set_of_missing_seqid:
                 continue
-        s=dict_of_sequence_seqid[m.seqid]
-        seq=s.sequence
+        s = dict_of_sequence_seqid[m.seqid]
+        seq = s.sequence
         helical_start=sequences.helical_region(seq)[0]
         if m.sequence==None and m.begin and m.end:
-            m.sequence=seq[int(m.begin)-1:int(m.end)+1]
+            m.sequence = seq[int(m.begin)-1:int(m.end)+1]
         if m.begin==None:
             pos=seq.find(m.sequence)
-            if pos>-1:
+            if pos > -1:
                 m.begin=pos + 1
                 if m.end==None:
-                    m.end=pos+len(m.sequence)
+                    m.end = pos+len(m.sequence)
         if m.helical==None:
-            m.helical=int(m.begin) - helical_start + 1
+            m.helical = int(m.begin) - helical_start + 1
                
     return set_of_markers
          

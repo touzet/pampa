@@ -30,7 +30,7 @@ def standard(s):
 def floating(s):
     if s==None:
         return None
-    s.replace(" ","")
+    s=s.replace(" ","")
     if len(s)==0:
         return None
     fl=float(s)
@@ -49,40 +49,46 @@ def integer(s):
         raise ValueError()
     return pos
         
-def process_one_row_from_peptide_table(row, i=0, file=''):
+def process_one_row_from_peptide_table(row, i, file):
 
     if "mass" not in row and "sequence" not in row:          
         message.escape("File "+file+ "(peptide table): Both peptide sequence and mass columns are missing in the peptide table. You should provide at least one of those two elements.")
 
-        
     rank=standard(row.get("rank"))
     taxid=standard(row.get("taxid"))
+    if taxid==None:
+         message.warning("File "+file+", line "+str(i)+": missing taxid. Ignored.")
+         return set()
     taxid_name=row.get("taxonname")
     peptide_seq=standard(row.get("sequence")) # + passer en majuscule et controler l'alphabet
     code=standard(row.get("code"))
     ptm=row.get("ptm")
     if not utils.is_PTM(ptm,{'O', 'D', 'P'}):
-        message.warning("File "+file+", line "+str(i)+": wrong PTM, "+row["ptm"]+ ". Ignored." )
+        message.warning("File "+file+", line "+str(i)+": wrong PTM, "+row["ptm"]+ ". Ignored.")
         ptm=None 
     try:
         mass=floating(row.get("mass"))
     except ValueError:
-        message.warning("File "+file+", line "+str(i)+": wrong mass, "+row["mass"]+ ". Ignored." )
+        message.warning("File "+file+", line "+str(i)+": wrong mass, "+row["mass"]+ ". Ignored.")
         mass=None    
-    protein_name=standard(row.get("protein"))
+    protein_name=standard(row.get("gene"))
     helical=standard(row.get("hel"))
     try:
         begin_pos=integer(row.get("begin"))
     except ValueError:
-        message.warning("File "+file+", line "+str(i)+": wrong begin position, "+row["begin"]+ ". Ignored." )
+        message.warning("File "+file+", line "+str(i)+": wrong begin position, "+row["begin"]+ ". Ignored.")
         begin_pos=None
     try:    
         end_pos=integer(row.get("end"))
     except ValueError:
-        message.warning("File "+file+", line "+str(i)+": wrong end position, "+row["end"]+ ". Ignored." )
+        message.warning("File "+file+", line "+str(i)+": wrong end position, "+row["end"]+ ". Ignored.")
         end_pos=None
     comment=row.get("comment")
 
+    if mass==None and peptide_seq==None:
+         message.warning("File "+file+", line "+str(i)+": missing mass and sequence. Ignored.")
+         return set()
+    
     if "seqid" not in row:
         new_marker=ma.Marker(rank, taxid, taxid_name, peptide_seq, ptm, code, mass, protein_name, helical, None, begin_pos, end_pos,comment)
         return {new_marker}
@@ -104,7 +110,9 @@ def parse_peptide_table(peptide_table_file_name):
     for i,row in enumerate(peptide_table):
         cleaned_row = {key.replace(" ","").lower():value for key, value in row.items()}
         new_markers=process_one_row_from_peptide_table(cleaned_row,i+2, peptide_table_file_name)
-        set_of_markers.update(new_markers)  
+        set_of_markers.update(new_markers)
+    if len(set_of_markers)==0:
+        message.warning("File "+peptide_table_file_name+": no valid data found.") 
     return set_of_markers
 
 def parse_peptide_tables(list_of_peptide_tables, limit, taxonomy):

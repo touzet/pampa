@@ -53,7 +53,7 @@ def parse_fasta_uniprot_header(header):
     new_sequence.seqid=seqid
     return new_sequence
 
-def build_set_of_sequences_from_fasta_file(fasta_file_name, gene_name="", taxonomy=None):
+def build_set_of_sequences_from_fasta_file(fasta_file_name):
     set_of_sequences=set()
     fasta_file = open(fasta_file_name)
     is_empty=True
