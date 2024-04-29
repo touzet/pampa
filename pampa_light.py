@@ -8,9 +8,8 @@ assignment with preset options, coming with predefined peptide tables and predef
 
 #!/usr/bin/env python3
 
-
 import argparse
-from src import main_assign
+from src import classify
 
 
 def main():
@@ -30,7 +29,7 @@ def main():
   
     args = parser.parse_args()
 
-    main_assign.main(args.spectra, None, None, None, None, args.limit, args.error, args.neighbour, args.all, args.output, args.mammals, True)  
+    classify.main(args.spectra, None, None, None, None, args.limit, args.error, args.neighbour, args.all, args.output, args.mammals, True, False)  
     
 if __name__ == "__main__":
     main()

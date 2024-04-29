@@ -16,10 +16,23 @@ from src import marker_filtering
 from src import mass_spectrum
 from src import message
 
-def check_and_update_parameters(homology, denovo, fillin, peptide_table, fasta, directory, spectra, limit, output):
+def check_and_update_parameters(homology, denovo, fillin, select, peptide_table, fasta, directory, spectra, limit, output):
     """
-    Parameters checking and fixing
+    Parameters checking and fixing. Configuration of loggers
     """
+
+    if output is None:
+        message.configure("")
+        message.escape("Missing parameter: output (-o).")
+    
+    output_dir, output_file = os.path.split(output)
+    
+    if len(output_dir)>0 :
+        # Ensure the output directory exists. If not, create it.
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
+    message.configure(output_dir)
 
     if homology is None and denovo is None and fillin is None and spectra is None:
          message.escape("Missing parameter: --homology, --denovo, --fillin or -s.")
@@ -35,12 +48,6 @@ def check_and_update_parameters(homology, denovo, fillin, peptide_table, fasta, 
     if (homology and denovo) or (homology and fillin) or (denovo and fillin):
         message.escape("Parameters --homology, --denovo and --fillin are mutually exclusive.")
     
-    if output is None:
-        message.escape("Missing parameter: output (-o).")
-    output_dir, output_file = os.path.split(output)
-    # Ensure the output directory exists
-    if len(output_dir)>0 and not os.path.exists(output_dir):
-        os.makedirs(output_dir)
     extension=output_file[-4:].lower()
     if extension!=".tsv":
         output_file=output_file+".tsv"
@@ -81,7 +88,7 @@ def check_and_update_parameters(homology, denovo, fillin, peptide_table, fasta, 
             if not os.path.isdir(directory):
                 message.escape("Directory "+directory+" not found (-d).")
             
-    return (homology, denovo, fillin, peptide_table, fasta, directory, spectra, limit, output, report)
+    return (homology, denovo, fillin, select, peptide_table, fasta, directory, spectra, limit, output, report)
 
 
 def create_report(report, output, peptide_table, fasta,  directory, limit,  set_of_markers, set_of_new_markers):
@@ -133,6 +140,7 @@ def main():
     parser = argparse.ArgumentParser(formatter_class=CustomFormatter, usage=argparse.SUPPRESS)
     parser.add_argument("--homology",  dest="homology", action='store_true', help="Generate a new table by homology.", required=False)  
     parser.add_argument("--denovo",  dest="denovo", action='store_true', help="De novo generation of a peptide table from Fasta sequences (specified with either -f or -d).", required=False)
+    parser.add_argument("--select", dest="select", action='store_true', help="Selection of peptide markers from a set of spectra.", required=False)
     parser.add_argument("--fillin",  dest="fillin", action='store_true', help="Add missing masses to an existing peptide table (specified with -p).", required=False)
     parser.add_argument("-p", dest="peptide_table",nargs='+', help="Peptide table (TSV file). Required with --homology and --fillin.", type=str)
     parser.add_argument("-o", dest="output", help="Output path (should include the output file name)", type=str)
@@ -146,12 +154,14 @@ def main():
 
     try:
 
-        (homology, denovo, fillin, peptide_table, fasta, directory, spectra, limit, output,report)=check_and_update_parameters(args.homology, args.denovo, args.fillin, args.peptide_table, args.fasta, args.directory, args.spectra, args.limit, args.output)
+        (homology, denovo, fillin, select, peptide_table, fasta, directory, spectra, limit, output,report)=check_and_update_parameters(args.homology, args.denovo, args.fillin, args.select, args.peptide_table, args.fasta, args.directory, args.spectra, args.limit, args.output)
     
         if homology:
             set_of_markers= pt.parse_peptide_tables(peptide_table, None, None)
             set_of_sequences = fa.build_set_of_sequences(fasta, directory, limit, None)      
             set_of_new_markers=known_markers.find_markers_all_sequences(set_of_sequences, set_of_markers)
+            list_of_markers=markers.sort_and_merge(set_of_new_markers)
+            pt.build_peptide_table_from_set_of_markers(set_of_new_markers,output)
        
         if denovo:
             set_of_sequences = fa.build_set_of_sequences(fasta, directory, limit, None)
@@ -159,7 +169,29 @@ def main():
                 message.escape("File "+fasta+": no valid sequences found.\n")
             set_of_new_markers = compute_masses.add_PTM_or_masses_to_markers(seq.in_silico_digestion(set_of_sequences))
             if len(set_of_new_markers)==0:
-                message.escape("No valid peptide markers found.\n")           
+                message.escape("No valid peptide markers found.\n")
+            list_of_markers=markers.sort_and_merge(set_of_new_markers)
+            pt.build_peptide_table_from_set_of_markers(list_of_markers,output)
+
+        if select:
+            if peptide_table:
+                set_of_markers= pt.parse_peptide_tables(peptide_table, None, None)
+            if fasta or directory :
+                set_of_sequences = fa.build_set_of_sequences(fasta, directory, limit, None)
+                if len(set_of_sequences)==0:
+                    message.escape("File "+fasta+": no valid sequences found.\n")
+                set_of_markers = compute_masses.add_PTM_or_masses_to_markers(seq.in_silico_digestion(set_of_sequences), True)
+            if len(set_of_markers)==0:
+                message.escape("No valid markers found.\n")
+            list_of_spectra=[]
+            for f in os.listdir(args.spectra):
+                file_name= os.path.join(args.spectra, f)
+                spectrum=mass_spectrum.parser(file_name,f)
+                list_of_spectra.append(spectrum)
+            minimal_number_of_spectra=max(1, 2*len(list_of_spectra)/3)
+            set_of_confirmed_markers=marker_filtering.filter_set_of_markers(set_of_markers, list_of_spectra, args.resolution, minimal_number_of_spectra)
+            list_of_markers=markers.sort_and_merge(set_of_confirmed_markers)
+            pt.build_peptide_table_from_set_of_markers(set_of_confirmed_markers,output)
 
         if fillin:
             set_of_markers = pt.parse_peptide_tables(peptide_table, limit, None)
@@ -167,22 +199,9 @@ def main():
                 set_of_sequences = fa.build_set_of_sequences(fasta, directory, None, None) 
                 set_of_markers=markers.add_sequences_and_positions_to_markers(set_of_markers, set_of_sequences)
             set_of_new_markers=compute_masses.add_PTM_or_masses_to_markers(set_of_markers)
-        
-
-        if args.spectra:   
-        ## processing of the mass spectrum files: contructs list_of_spectra (list of Spectrum objects)
-            list_of_spectra=[]
-            for f in os.listdir(args.spectra):
-                file_name= os.path.join(args.spectra, f)
-                spectrum=mass_spectrum.parser(file_name,f)
-                list_of_spectra.append(spectrum)
-            minimal_number_of_spectra=max(1, 2*len(list_of_spectra)/3)
-            set_of_confirmed_markers=marker_filtering.filter_set_of_markers(set_of_new_markers, list_of_spectra, args.resolution, minimal_number_of_spectra)
-            list_of_markers=markers.sort_and_merge(set_of_confirmed_markers)
-            pt.build_peptide_table_from_set_of_markers(set_of_confirmed_markers,output)
-        else:
             list_of_markers=markers.sort_and_merge(set_of_new_markers)
             pt.build_peptide_table_from_set_of_markers(list_of_markers,output)
+
         
     except message.InputError:
         if not args.web:
