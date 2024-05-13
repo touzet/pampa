@@ -59,13 +59,15 @@ def check_and_update_parameters(spectra, taxonomy, peptide_table, fasta, directo
 
     if taxonomy:
         if not os.path.isfile(taxonomy):
-            message.warning("File "+taxonomy+" not found. Ignored")
-        if os.path.getsize(taxonomy) == 0:
-            message.warning("File "+taxonomy+" is empty. Ignored")
+            message.warning("File "+taxonomy+" not found. Ignored.")
+            taxonomy=None
+        elif  os.path.getsize(taxonomy) == 0:
+            message.warning("File "+taxonomy+" is empty. Ignored.")
+            taxonomy=None
     if limit:
         if not os.path.isfile(limit):
             message.warning("File "+limit+" not found. No limit applied.")
-        if os.path.getsize(limit) == 0:
+        elif os.path.getsize(limit) == 0:
             message.warning("File "+limit+" is empty. No limit applied.")
     if neighbour not in range(101):
         neighbour=100
@@ -85,7 +87,7 @@ def check_and_update_parameters(spectra, taxonomy, peptide_table, fasta, directo
         if q[1]:
             if not os.path.isfile(fasta):
                 message.escape("File "+fasta+" (-f) not found.")
-            if os.path.getsize(fasta) == 0:
+            elif os.path.getsize(fasta) == 0:
                 message.escape("File "+fasta+" is empty.")
 
         if q[2]: 
@@ -96,7 +98,7 @@ def check_and_update_parameters(spectra, taxonomy, peptide_table, fasta, directo
             for pep in peptide_table:
                 if not os.path.isfile(pep):
                     message.escape("File "+pep+" not found.")
-                if os.path.getsize(pep) == 0:
+                elif os.path.getsize(pep) == 0:
                     message.escape("File "+pep+" is empty.")
 
 
@@ -120,23 +122,44 @@ def check_and_update_parameters(spectra, taxonomy, peptide_table, fasta, directo
     return (spectra, taxonomy, peptide_table, fasta, directory, limit, error, neighbour, all, output, output2, output_dir, report_file, new_table)
 
         
-def create_report(report_file, output_dir, spectra, list_of_spectra, taxonomy, taxonomy_tree, peptide_table, fasta, directory,  limit, error, neighbour, output, output2, new_table, set_of_markers):
+def create_report(report_file, output_dir, spectra, list_of_spectra, taxonomy, taxonomy_tree, peptide_table, fasta, directory,  limit, error, neighbour, output, output2, new_table, set_of_markers, WEB):
 
     report_name=os.path.join(output_dir, report_file)
     sys.stdout=open(report_name, 'w')
     print (time.ctime())
+    if WEB:
+        if peptide_table:
+            peptide_table_file = ""
+            for pt in peptide_table:
+                peptide_table_dir, this_peptide_table_file = os.path.split(pt)
+                peptide_table_file =  peptide_table_file + " "+ this_peptide_table_file
+        if fasta:
+            fasta_dir, fasta_file = os.path.split(fasta)
+        if taxonomy:
+          taxo_dir, taxo_file = os.path.split(taxonomy)
+        else:
+          taxo_file = None
+        spectra_files = str([spectrum.name for spectrum in list_of_spectra])
+    else:
+        peptide_table_file=peptide_table
+        fasta_file=fasta
+        taxo_file=taxonomy
+        spectra_files = str([spectrum.name for spectrum in list_of_spectra])
+        spectra_files= spectra+"/ "+ spectra_files 
+
+          
     print("")
     print("---------------------------------")
     print("   INPUT and PARAMETERS")
     print("---------------------------------\n")
     if peptide_table:
-        print("  Peptide table (markers) : "+ str(peptide_table))
+        print("  Peptide table (markers) : "+ str(peptide_table_file))
     elif fasta:
-        print("  Fasta file (markers)    : "+str(fasta))
+        print("  Fasta file (markers)    : "+str(fasta_file))
     else:
         print("  Fasta file (markers)    : "+str(directory))
-    print("  Taxonomy                : "+str(taxonomy))
-    print("  Mass spectra            : "+spectra)
+    print("  Taxonomy                : "+str(taxo_file))
+    print("  Mass spectra            : "+ str(spectra_files))
     print("  Near-optimal solutions  : ",end="")
     if neighbour==100:
         print("only optimal solutions")
@@ -208,7 +231,7 @@ def main(spectra, taxonomy, peptide_table, fasta, directory, limit, error, neigh
             if len(spectrum)>0:
                 list_of_spectra.append(spectrum)
         if len(list_of_spectra)==0:
-                message.escape("No valid spectra found.\n Please refer to the warning.log file for more details")    
+                message.escape("No valid spectra found.\n Please refer to the warning.log file for more details.")    
         list_of_spectra.sort(key=lambda x: x.name)
         
             
@@ -245,7 +268,7 @@ def main(spectra, taxonomy, peptide_table, fasta, directory, limit, error, neigh
         if fasta or directory:
             pt.build_peptide_table_from_set_of_markers(set_of_markers, new_table)
         
-        create_report(report_file, output_dir, spectra, list_of_spectra, taxonomy, secondary_taxonomy, peptide_table, fasta,  directory, limit, error, neighbour, output, output2, new_table, set_of_markers)
+        create_report(report_file, output_dir, spectra, list_of_spectra, taxonomy, secondary_taxonomy, peptide_table, fasta,  directory, limit, error, neighbour, output, output2, new_table, set_of_markers,web)
         
         # species identification
         assignment.assign_all_spectra(list_of_spectra, set_of_markers, error, taxonomy, secondary_taxonomy, neighbour, allsolutions, output, output2)

@@ -9,17 +9,16 @@ from src import utils
 from src import markers
 
 class Annotated_peak(object):
-    def __init__(self, mass=0, intensity=0, code="", ptm=""):
+    def __init__(self, mass=0, intensity=0, marker=None):
         self.mass = mass
         self.intensity = intensity  # list of (peak,name,ptm)
-        self.code = code 
-        self.ptm = ptm
+        self.marker = marker 
         
     def __eq__(self, other):
-        return self.mass == other.mass and self.code == other.code
+        return self.mass == other.mass and self.marker.code == other.marker.code
 
     def __hash__(self):
-        return hash((self.mass, self.intensity, self.code, self.ptm))
+        return hash((self.mass, self.intensity, self.marker.code, self.marker.ptm))
 
 class Taxon(object):
     def __init__(self, id=None, name=None):
@@ -33,8 +32,9 @@ class Taxon(object):
         return hash((self.id, self.name))
         
 class Assignment(object):
-    def __init__(self, spectrum_name="", peaks=[], taxa=[], lca=None, lca_name=None, lca_rank=None, score=None, hca=None, hca_name=None, hca_rank=None, pvalue=None):
+    def __init__(self, spectrum_name="", spectrum_length=0, peaks=[], taxa=[], lca=None, lca_name=None, lca_rank=None, score=None, hca=None, hca_name=None, hca_rank=None, pvalue=None):
         self.spectrum_name = spectrum_name
+        self.spectrum_length = spectrum_length
         self.peaks=peaks # list of Annotated_peaks
         self.taxa=taxa # list of objects Taxon, all Taxon have the same markers 
         self.lca = lca
@@ -70,39 +70,39 @@ def p_success(spectrum, resolution):
 def pvalue_f(k,n,p_success):
     return binom.sf(k-1,n, p_success)
     
-def assign_peaks_of_the_spectrum(spectrum, mass_taxid_name_list, resolution):  
+def assign_peaks_of_the_spectrum(spectrum, mass_markers_list, resolution):  
     spectrum.sort()  # peaks are sorted according to their mass
-    peak_to_taxid_name_ptm={} #key: peak, value: set of triplets (taxid,name of the marker,ptm)  
+    peak_to_markers={} #key: peak, value: set of markers   
     current_j = 0
     for peak in spectrum:
-        for j in range(current_j,len(mass_taxid_name_list)):
-            diff_peak_pep = peak.mass-mass_taxid_name_list[j][0]
-            if utils.matching_masses(mass_taxid_name_list[j][0], peak.mass, resolution):  # there is a match 
-                utils.update_dictoset(peak_to_taxid_name_ptm, peak, mass_taxid_name_list[j][1])
+        for j in range(current_j,len(mass_markers_list)):
+            diff_peak_pep = peak.mass-mass_markers_list[j][0]
+            if utils.matching_masses(mass_markers_list[j][0], peak.mass, resolution):  # there is a match 
+                utils.update_dictoset(peak_to_markers, peak, mass_markers_list[j][1])
             elif diff_peak_pep<0: # peptide mass is greater than peak mass 
                 current_j = j 
                 break # next peak
-    return peak_to_taxid_name_ptm
+    return peak_to_markers
 
 def number_of_different_peaks(peaks):
     #number of peaks with different name+ptm
-    return len({(p.code,p.ptm) for p in peaks})
+    return len({(p.marker.code,p.marker.ptm) for p in peaks})
 
 def is_included(v,w):
    peaks_of_v={p.mass for  p in v}
    peaks_of_w={p.mass for p in w}
    return peaks_of_v<peaks_of_w
 
-def assign_spectrum(spectrum, mass_taxid_name_list, set_of_markers, resolution, taxonomy, threshold, allsolutions):
-   
-    peak_to_taxid_name_ptm=assign_peaks_of_the_spectrum(spectrum, mass_taxid_name_list, resolution)
-    if len(peak_to_taxid_name_ptm)<4:
+def assign_spectrum(spectrum, mass_markers_list, set_of_markers, resolution, taxonomy, threshold, allsolutions):
+   # mass_taxid_name_list: contains the list of markers sorted by mass
+    peak_to_markers=assign_peaks_of_the_spectrum(spectrum, mass_markers_list, resolution)
+    if len(peak_to_markers)<4:
         return []
 
     taxid_to_annotated_peaks={}
-    for peak in peak_to_taxid_name_ptm:
-        for (taxid,name,ptm) in peak_to_taxid_name_ptm[peak]:
-            utils.update_dictoset(taxid_to_annotated_peaks, taxid, {Annotated_peak(peak.mass, peak.intensity,name, ptm)})
+    for peak in peak_to_markers:
+        for m in peak_to_markers[peak]:
+            utils.update_dictoset(taxid_to_annotated_peaks, m.taxid, {Annotated_peak(peak.mass, peak.intensity, m)})
             
     max_number_of_markers=max({len(v) for v in taxid_to_annotated_peaks.values()}) # incorrect, à revoir
 
@@ -154,7 +154,7 @@ def assign_spectrum(spectrum, mass_taxid_name_list, set_of_markers, resolution, 
         score=taxid_to_score[taxid]
         taxids=list({Taxon(taxid, None) for taxid in eq_taxid})
         set_of_peaks=taxid_to_annotated_peaks[taxid]     
-        a=Assignment(spectrum.name, list(set_of_peaks), taxids, lca, None, None, score, None, None, None, pvalue)
+        a=Assignment(spectrum.name, len(spectrum), list(set_of_peaks), taxids, lca, None, None, score, None, None, None, pvalue)
         list_of_assignments.append(a)
     return list_of_assignments 
 
@@ -170,7 +170,7 @@ def create_json_result_file(output, list_of_assignments):
     for a in list_of_assignments:
         a_dict = vars(a)
         serialized_list_of_taxa=[vars(t) for t in a_dict["taxa"]]
-        serialized_list_of_peaks=[vars(p) for p in a_dict["peaks"]]
+        serialized_list_of_peaks=[{"mass":p.mass, "intensity":p.intensity, "code":p.marker.code, "PTM":p.marker.ptm, "sequence":p.marker.sequence, "protein":p.marker.protein, "begin":p.marker.begin, "end":p.marker.end} for p in a_dict["peaks"]]
         a_dict["peaks"]=serialized_list_of_peaks
         a_dict["taxa"]= serialized_list_of_taxa=[vars(t) for t in a_dict["taxa"]]
         list_of_serialized_objects.append(a_dict)
@@ -179,7 +179,7 @@ def create_json_result_file(output, list_of_assignments):
         
 def create_main_result_file(output, list_of_assignments, taxonomy):
      
-    set_of_marker_full_names={(m.code, m.ptm) for a in list_of_assignments for m in a.peaks}
+    set_of_marker_full_names={(m.marker.code, m.marker.ptm) for a in list_of_assignments for m in a.peaks}
     list_of_marker_full_names=list(set_of_marker_full_names)
     
     # Heading
@@ -199,7 +199,7 @@ def create_main_result_file(output, list_of_assignments, taxonomy):
             s=a.spectrum_name+"\t"*len( list_of_marker_full_names)+"\t\t 0\t None \n"
             f1.write(s)
             continue
-        name_to_peak={(p.code,p.ptm):p.mass for p in a.peaks}
+        name_to_peak={(p.marker.code,p.marker.ptm):p.mass for p in a.peaks}
         s=a.spectrum_name+"\t"
         for (name,ptm) in list_of_marker_full_names:
             if (name,ptm) in  name_to_peak:
@@ -246,7 +246,7 @@ def create_detail_result_file(output_detail, list_of_assignments, taxonomy, B):
     # body
     for sp in dict_of_assignments:
         for peak in dict_of_assignments[sp]:
-            s=sp+"\t"+image(peak.code,peak.ptm)+"\t"+ str(peak.mass)+"\t"+str(peak.intensity)+"\t"
+            s=sp+"\t"+image(peak.marker.code,peak.marker.ptm)+"\t"+ str(peak.mass)+"\t"+str(peak.intensity)+"\t"
             for taxid in list_of_useful_taxid:
                 if taxid in dict_of_assignments[sp][peak] :
                     s=s+"X\t"
@@ -272,10 +272,10 @@ def create_detail_result_file(output_detail, list_of_assignments, taxonomy, B):
 def assign_all_spectra(list_of_spectra, set_of_markers, error, taxonomy, B, threshold, allsolutions, output, output_detail):
 
     # elements of the list are 2-uplets of the form  (mass, {(taxid, code, PTM)})
-    mass_taxid_name_list=markers.sort_by_masses(set_of_markers)
+    mass_markers_list=markers.sort_by_masses(set_of_markers)
     list_of_assignments=[]
     for spectrum in list_of_spectra:
-        list_of_assignments.extend(assign_spectrum(spectrum, mass_taxid_name_list, set_of_markers, error, B, threshold, allsolutions))
+        list_of_assignments.extend(assign_spectrum(spectrum, mass_markers_list, set_of_markers, error, B, threshold, allsolutions))
 
     # completion of assignments
     for a in list_of_assignments:

@@ -49,29 +49,31 @@ def integer(s):
         raise ValueError()
     return pos
         
-def process_one_row_from_peptide_table(row, i, file):
+def process_one_row_from_peptide_table(row, i, file, warning_on):
 
-    if "mass" not in row and "sequence" not in row:          
+    if warning_on and "mass" not in row and "sequence" not in row:          
         message.escape("File "+file+ "(peptide table): Both peptide sequence and mass columns are missing in the peptide table. You should provide at least one of those two elements.")
 
     rank=standard(row.get("rank"))
     taxid=standard(row.get("taxid"))
-    if taxid==None:
-         message.warning("File "+file+", line "+str(i)+": missing taxid. Ignored.")
-         return set()
+    
     taxid_name=row.get("taxonname")
     peptide_seq=standard(row.get("sequence")) # + passer en majuscule et controler l'alphabet
     code=standard(row.get("code"))
     ptm=row.get("ptm")
-    if not utils.is_PTM(ptm,{'O', 'D', 'P'}):
-        message.warning("File "+file+", line "+str(i)+": wrong PTM, "+row["ptm"]+ ". Ignored.")
-        ptm=None 
+    if warning_on:
+        if not utils.is_PTM(ptm,{'O', 'D', 'P'}):
+            message.warning("File "+file+", line "+str(i)+": wrong PTM, "+row["ptm"]+ ". Ignored.")
+            ptm=None
+        if taxid==None:
+            message.warning("File "+file+", line "+str(i)+": missing taxid. Ignored.")
+            return set()
     try:
         mass=floating(row.get("mass"))
     except ValueError:
         message.warning("File "+file+", line "+str(i)+": wrong mass, "+row["mass"]+ ". Ignored.")
         mass=None    
-    protein_name=standard(row.get("gene"))
+    protein_name=standard(row.get("protein"))
     helical=standard(row.get("hel"))
     try:
         begin_pos=integer(row.get("begin"))
@@ -85,7 +87,7 @@ def process_one_row_from_peptide_table(row, i, file):
         end_pos=None
     comment=row.get("comment")
 
-    if mass==None and peptide_seq==None:
+    if warning_on and mass==None and peptide_seq==None:
          message.warning("File "+file+", line "+str(i)+": missing mass and sequence. Ignored.")
          return set()
     
@@ -93,7 +95,7 @@ def process_one_row_from_peptide_table(row, i, file):
         new_marker=ma.Marker(rank, taxid, taxid_name, peptide_seq, ptm, code, mass, protein_name, helical, None, begin_pos, end_pos,comment)
         return {new_marker}
     seqid=standard(row["seqid"])
-    if len(seqid)==0:
+    if seqid is None:
          new_marker=ma.Marker(rank, taxid, taxid_name, peptide_seq, ptm, code, mass, protein_name, helical, None, begin_pos, end_pos,comment)
          return {new_marker}
     seqids=seqid.split()
@@ -104,21 +106,22 @@ def process_one_row_from_peptide_table(row, i, file):
         new_markers.add(new_marker)
     return new_markers
 
-def parse_peptide_table(peptide_table_file_name):
+def parse_peptide_table(peptide_table_file_name, warning_on):
     set_of_markers=set()
     peptide_table = csv.DictReader(open(peptide_table_file_name), delimiter="\t")
     for i,row in enumerate(peptide_table):
         cleaned_row = {key.replace(" ","").lower():value for key, value in row.items()}
-        new_markers=process_one_row_from_peptide_table(cleaned_row,i+2, peptide_table_file_name)
+        new_markers=process_one_row_from_peptide_table(cleaned_row,i+2, peptide_table_file_name, warning_on)
         set_of_markers.update(new_markers)
     if len(set_of_markers)==0:
         message.warning("File "+peptide_table_file_name+": no valid data found.") 
     return set_of_markers
 
-def parse_peptide_tables(list_of_peptide_tables, limit, taxonomy):
+
+def parse_peptide_tables(list_of_peptide_tables, limit, taxonomy, warning_on=True):
     set_of_markers=set()
     for peptide_table  in list_of_peptide_tables:
-        set_of_new_markers=parse_peptide_table(peptide_table)
+        set_of_new_markers=parse_peptide_table(peptide_table, warning_on)
         set_of_markers.update(set_of_new_markers)
     if limit:
         set_of_markers=lim.apply_limits(lim.parse_limits(limit), set_of_markers, taxonomy,True)

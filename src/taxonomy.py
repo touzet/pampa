@@ -19,7 +19,7 @@ class Taxonomy(object):
         self.children=children
         #key (str): taxid
         #value (set of str): set of children of the node taxid
-        #   /!\  leaf nodes are not in this dict
+        #   /!\  leaf nodes are not in this dictionary
         self.descendants=descendants
         #key (str): taxid 
         #value (set of str): set of descendants of the node taxid. Children are identified  by their taxid 
@@ -203,8 +203,7 @@ def parse_taxonomy_simple_file(taxonomy_file):
             taxid_to_parent_dict.update({utils.reduced(columns[0]):utils.reduced(columns[3])})
 
     excluded_taxid=taxid_to_parent_dict.values() - taxid_to_name_dict.keys()
-    print("Taxid exclus")
-    print(excluded_taxid)
+
     if len(excluded_taxid)>0:
         for taxid in excluded_taxid:
             message.warning("File "+taxonomy_file+": taxID "+str(taxid)+" is not documented. Ignored.")
@@ -221,7 +220,6 @@ def parse_taxonomy_simple_file(taxonomy_file):
     taxonomy.init_descendants()
     
     return taxonomy
-
 
  
 def build_flat_taxonomy(set_of_markers):
