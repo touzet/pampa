@@ -8,6 +8,8 @@ import re
 import sys
 from  src import utils as ut
 from src import sequences
+from src import compute_masses
+from src import message
 #from src import limit 
 
 def pretty_print(s):
@@ -38,11 +40,21 @@ class Marker(object):
 
     
 def sort_by_masses(set_of_markers):
-    taxid_name_ptm_to_mass_dict={}
-    for m in set_of_markers:
-        ut.update_dictoset(taxid_name_ptm_to_mass_dict, (m.taxid,m.code,m.ptm), {float(m.mass)})
-    mass_taxid_name_list=ut.create_mass_Xid_list_from_dict(taxid_name_ptm_to_mass_dict)
-    return mass_taxid_name_list
+    mass_to_marker_list=[(m.mass,m) for m in set_of_markers]
+    mass_to_marker_list.sort(key=lambda x: x[0])
+    mass_markers_list=[]
+    current_element=mass_to_marker_list[0]
+    s={current_element[1]}
+    for i in range(1,len(mass_to_marker_list)):
+        new_element=mass_to_marker_list[i]
+        if (new_element[0]==current_element[0]): # identical masses
+            s.add(new_element[1])
+        else: #new mass
+            mass_markers_list.append((current_element[0],s))
+            current_element=new_element
+            s={new_element[1]}
+    mass_markers_list.append((current_element[0],s))
+    return mass_markers_list
     
 def create_marker_landscape(marker_file_name, set_of_markers):
     """
@@ -357,17 +369,17 @@ def sort_and_merge(set_of_markers):
                 m.comment=m.comment+", "+list_of_markers[j].comment
             list_of_markers[j].taxid=None
             j=j+1
-
     list_of_markers=[m for m in list_of_markers if m.taxid is not None]
-        
     return list_of_markers
         
-def add_sequences_and_positions_to_markers(set_of_markers, set_of_sequences):
+def add_sequences_and_positions_to_markers_old(set_of_markers, set_of_sequences):
     set_of_marker_seqid={m.seqid for m in set_of_markers}
     dict_of_sequence_seqid={id:s for id in set_of_marker_seqid for s in set_of_sequences if s.seqid==id}
-    set_of_missing_seqid=set_of_marker_seqid-dict_of_sequence_seqid.keys()
+    set_of_missing_seqid=set_of_marker_seqid - dict_of_sequence_seqid.keys()
+    set_of_marker_taxid={m.taxid for m in set_of_markers}
+    dict_of_sequence_taxid={taxid:{s for s in set_of_sequences if s.taxid==taxid} for taxid in set_of_marker_taxid} 
     if len(set_of_missing_seqid)>0:
-        message.warning("No sequence found for SeqID "+str(set_of_missing_seqid)+". Ignored")
+        message.warning("No sequence found for SeqID " + str(set_of_missing_seqid) + ". Ignored")
     for m in set_of_markers:
         if m.seqid in set_of_missing_seqid:
                 continue
@@ -386,8 +398,139 @@ def add_sequences_and_positions_to_markers(set_of_markers, set_of_sequences):
             m.helical = int(m.begin) - helical_start + 1
                
     return set_of_markers
-         
- 
-            
 
+def supplement_sequence(m, set_of_sequences):
+   
+    matching_sequences=set_of_sequences
+    if m.seqid is not None:
+        matching_sequences= {s for s in matching_sequences if s.seqid==m.seqid}  
+    if m.taxid is not None:
+        matching_sequences= {s for s in matching_sequences if s.taxid==m.taxid}
+    if m.protein is not None:
+        matching_sequences= {s for s in matching_sequences if s.protein==m.protein}
+
+    print(m.taxon_name + ", " + m.protein + " -> " + str(len(matching_sequences))) 
         
+    if len(matching_sequences)==0:
+        message.warning("No protein sequence found for the marker " + str(m) + ".")
+        return {m}
+  
+    if len(matching_sequences)==1:
+        seq=matching_sequences.pop()
+        m.taxon_name=seq.taxon_name
+        m.taxid=seq.taxid 
+        m.seqid=seq.seqid
+        m.rank="species"
+        m.protein=seq.protein
+        if m.sequence is None and m.begin is None:
+            return {m}
+        if m.sequence==None:
+            m.sequence=seq.sequence[int(m.begin)-1:int(m.end)+1]
+            m.comment=m.comment + " supplemented"
+            if m.helical is None:
+                if seq.helical is None :
+                    helical_start=sequences.helical_region(seq.sequence)[0]
+                    seq.helical= helical_start 
+                m.helical=  int(m.begin) - seq.helical + 1
+            return {m}
+        if m.begin==None:
+            pos=(seq.sequence).find(m.sequence)
+            if pos > -1:
+                m.begin= pos + 1
+                m.end=pos + len(m.sequence)
+                if m.helical is None:
+                    if seq.helical is None :
+                        helical_start=sequences.helical_region(seq.sequence)[0]
+                        seq.helical= helical_start 
+                m.helical = int(m.begin) - seq.helical + 1
+                return {m}
+            else:
+                message.warning("No position found for "+ m.sequence +" in marker "+str(m))
+                return {m}
+        if m.helical is None:
+            if seq.helical is None :
+                helical_start=sequences.helical_region(seq.sequence)[0]
+                seq.helical= helical_start 
+            m.helical = int(m.begin) - seq.helical + 1
+        return {m}
+    # multiple sequences        
+    if m.sequence is None:
+        taxids={seq.taxid for seq in matching_sequences}
+        proteins={seq.protein for seq in matching_sequences}
+        taxon_names={seq.taxon_name for seq in matching_sequences}
+        if len(taxids)*len(proteins)*len(taxon_names)==1:
+            m.taxid=taxids.pop()
+            m.protein=proteins.pop()
+            m.taxon_name=taxon_names.pop()
+        message.warning("No marker sequence found for "+str(m))
+        return {m}
+    
+    set_of_markers=set()
+    for seq in matching_sequences:
+        pos=(seq.sequence).find(m.sequence)
+        if pos > -1 :
+            m2=Marker(rank=m.rank, taxid=seq.taxid, taxon_name=seq.taxon_name, sequence=m.sequence, ptm=m.ptm, code=m.code, mass=m.mass, protein=seq.protein, helical=m.helical, seqid=seq.seqid, begin= pos + 1 , end=pos+len(m.sequence), comment=m.comment + " supplemented")
+            set_of_markers.add(m2)
+    if len(set_of_markers)==0:
+        taxids={seq.taxid for seq in matching_sequences}
+        proteins={seq.proteins for seq in matching_sequences}
+        taxon_names={seq.taxon_names for seq in matching_sequences}
+        if len(taxids)*len(proteins)*len(taxon_names)==1:
+            m.taxid=taxids.pop()
+            m.protein=proteins.pop()
+            m.taxon_name=taxon_names.pop()
+        message.warning("No position found for "+m.sequence+" in marker "+str(m))
+        return {m}
+    else:
+        return set_of_markers
+
+def add_sequences_and_positions_to_markers(set_of_markers, set_of_sequences):
+    set_of_new_markers=set()
+    for m in set_of_markers:
+        set_of_new_markers.update(supplement_sequence(m, set_of_sequences))
+    return set_of_new_markers
+
+# use mass to find sequence
+def add_sequences(set_of_markers, set_of_sequences, resolution):
+    set_of_taxid={m.taxid for m in set_of_markers if m.sequence is None}
+    set_of_new_markers={m for m in set_of_markers if m.sequence is not None}
+    for taxid in set_of_taxid:
+        target_masses=[(m.mass,m) for m in set_of_markers if m.taxid==taxid and m.mass is not None and m.sequence is None]
+        target_masses.sort(key=lambda x:x[0])
+        founded_masses={y:0 for (x,y) in target_masses}
+        set_of_seq={s for s in set_of_sequences if s.taxid==taxid}
+        set_of_denovo_markers = compute_masses.add_PTM_or_masses_to_markers(sequences.in_silico_digestion(set_of_seq, 2, 10), True, True)
+        mass_list=[(m.mass,m) for m in set_of_denovo_markers]
+        mass_list.sort(key=lambda x:x[0])
+        current_j=0
+        for mass in target_masses:
+            for j in range(current_j,len(mass_list)):
+                difference = mass[0] - mass_list[j][0]
+                if ut.matching_masses(mass[0], mass_list[j][0], resolution): # on a un match
+                    m=mass[1]
+                    m2= mass_list[j][1]
+                    founded_masses[m]+=1
+                    new_marker=Marker(rank="species", taxid=taxid, taxon_name=m.taxon_name, sequence=m2.sequence, ptm=m2.ptm, code=m.code, begin=m2.begin, end=m2.end, protein=m2.protein, seqid=m2.seqid, helical=m2.helical, comment="match with target mass")
+                    set_of_new_markers.add(new_marker)
+                elif difference<0: # la masse du peptide est supérieure à la masse du pic  
+                    current_j = j
+                    break
+        for m in founded_masses: 
+            if founded_masses[m]==0:
+                message.warning(m.taxon_name+": no matching peptide found for "+str(m.mass)+".")
+            elif founded_masses[m]>1:
+                message.warning(m.taxon_name+": multiple peptides found for "+str(m.mass)+".")
+                
+    return set_of_new_markers
+
+
+def search_for_incomplete_markers(set_of_markers):
+    set_of_incomplete_markers=set()
+    set_of_complete_markers=set()
+    for m in set_of_markers:
+        for attr_name in vars(m):
+            if getattr(m, attr_name) is None:
+                set_of_incomplete_markers.add(m)
+                continue
+        set_of_complete_markers.add(m)   
+    return set_of_incomplete_markers, set_of_complete_markers
