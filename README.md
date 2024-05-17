@@ -294,13 +294,13 @@ When this option is invoked, the software will indicate, for each spectrum, the 
 
 ### Neighbouring (-n and -a)
 
-[Optional]  By default, PAMPA identifies the species with the highest number of marker peptides. 
+[Optional]  By default, PAMPA identifies the species with the smaller P-value. 
 The -n option allows to obtain also near-optimal solutions. For that, you can set the suboptimality 
 range as a percentage from 0 to 100, with the default being 100 
 (corresponding to solutions with the highest number of marker peptides). 
-For example, if the optimal solutions has 11 marker peptides, '-n 80' will provide solutions with 9 markers or more.
+For example, if the optimal solution has 11 marker peptides, '-n 80' will provide solutions with 9 markers or more.
 
-The '-a' option is linked to the '-n' option and modifies it behavior. When the '-n' option is used alone, it generates only near-optimal solutions that are not included in any other solution. However, when used together with '-n,' the '-a' option makes the program to compute all solutions, even those that are included in other solutions.  
+The '-a' option is linked to the '-n' option and modifies its behavior. When the '-n' option is used alone, it generates only near-optimal solutions that are not included in any other solution. However, when used together with '-n,' the '-a' option makes the program compute all solutions, even those that are included in other solutions.  
 
 ## PAMPA CRAFT 
 
