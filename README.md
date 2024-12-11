@@ -12,20 +12,20 @@ It consists of two primary scripts:
 PAMPA is written in Python 3.7, and can be installed either by downloading the source code or cloning this repository.  
 
  - downloading, as a zip file: button _code<>_ on the right-hand side of the screen
- - cloning: `git clone https://github.com/touzet/anc_prot.git`
+ - cloning: `git clone https://github.com/touzet/pampa.git`
 
 Additionaly, the full version of PAMPA necessitates the Biopython, pyteomics and scipy libraries.  
 
- - biopython (https://biopython.org/): `pip install biopython`
- - pyteomics (https://pypi.org/project/pyteomics/): `pip install pyteomics`
+ - biopython (https://biopython.org/)
+ - pyteomics (https://pypi.org/project/pyteomics/)
  - scipy.stats (https://scipy.org/)
-
 
 
 
 ## How to use the program ?
 
-The documentation for PAMPA is available on PAMPA's https://github.com/touzet/pampa/wiki
+The documentation for PAMPA is available on PAMPA's wiki: https://github.com/touzet/pampa/wiki
+
 
 
 ## Bug Report
