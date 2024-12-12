@@ -2,12 +2,8 @@
 
 __PAMPA (Protein Analysis by Mass Spectrometry for Ancient Species)__ is a versatile software suite tailored to effectively handle various tasks associated with ZooMS (Zooarchaeology by Mass Spectrometry) data and peptide markers.
 
-It consists of two primary scripts: 
-  - PAMPA CLASSIFY:  fast and easy species identification from mass spectra using peptide markers. 
-  - PAMPA CRAFT: creation of custom set of peptide markers. 
 
-
-## How to install the program ?
+### How to install the program ?
 
 PAMPA is written in Python 3.7, and can be installed either by downloading the source code or cloning this repository.  
 
@@ -22,13 +18,13 @@ Additionaly, the full version of PAMPA necessitates the Biopython, pyteomics and
 
 
 
-## How to use the program ?
+### How to use the program ?
 
 The documentation for PAMPA is available on PAMPA's wiki: https://github.com/touzet/pampa/wiki
 
 
 
-## Bug Report
+### Bug Report
 
 PAMPA is still under development. If you come across any bugs or unexpected behavior, please take a moment to report it using our GitHub Issues page. Just click on the "Issues" tab above and create a new issue. You may also contact the author (helene.touzet@univ-lille.fr).
 
