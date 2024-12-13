@@ -1,3 +1,4 @@
+![](https://github.com/touzet/pampa/blob/5d1b0e45fb3279b025fa9278defd2dd329df37ff/img/pampa_logo.svg)
 
 # PAMPA
 
