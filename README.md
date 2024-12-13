@@ -1,7 +1,5 @@
 ![](https://github.com/touzet/pampa/blob/5d1b0e45fb3279b025fa9278defd2dd329df37ff/img/pampa_logo.svg)
 
-# PAMPA
-
 __PAMPA (Protein Analysis by Mass Spectrometry for Ancient Species)__ is a versatile software suite tailored to effectively handle various tasks associated with ZooMS (Zooarchaeology by Mass Spectrometry) data and peptide markers.
 
 
