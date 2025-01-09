@@ -1,0 +1,169 @@
+Taxon Id	Common name	Scientific name	Parent	Rank
+9898		Ammotragus	9963	genus
+9899	Barbary sheep	Ammotragus lervia	9898	species
+9922		Capra	9963	genus
+9923	Wild goat	Capra hircus aegagrus	9922	species
+9925	Goat	Capra hircus	9922	species
+9935		Ovis	9963	genus
+9938	Mouflon	Ovis aries musimon	9940	subspecies
+9939		Ovis sp.	1110705	species
+9940	Sheep	Ovis aries	9935	species
+9943	Dall's sheep	Ovis dalli	9935	species
+9965		Capricornis	9963	genus
+9966	Japanese serow	Capricornis crispus	9965	species
+30527	Argali	Ovis ammon	9935	species
+30528		Ovis aries platyura	9940	subspecies
+34865	Sumatran serow	Capricornis sumatraensis	9965	species
+34866	Taiwan serow	Capricornis swinhoei	9965	species
+34868		Rupicapra	9963	genus
+34869	Alpine chamois	Rupicapra rupicapra	34868	species
+34870		Naemorhedus	9963	genus
+34871	Himalayan goral	Naemorhedus goral	34870	species
+34872		Oreamnos	9963	genus
+34873	Mountain goat	Oreamnos americanus	34872	species
+37173	Chinese goral	Naemorhedus caudatus	34870	species
+37174	Bighorn sheep	Ovis canadensis	9935	species
+37175		Ovibos	9963	genus
+37176	Muskox	Ovibos moschatus	37175	species
+37177		Ovibos moschatus moschatus	37176	subspecies
+37178		Hemitragus	9963	genus
+37179	Himalayan tahr	Hemitragus jemlahicus	37178	species
+37180		Budorcas	9963	genus
+37181	Golden takin	Budorcas taxicolor	37180	species
+37182	golden takin	Budorcas taxicolor bedfordi	37181	subspecies
+37183	Mishmi takin	Budorcas taxicolor taxicolor	37181	subspecies
+48167	Markhor	Capra falconeri	9922	species
+56194	Snow sheep	Ovis nivicola	9935	species
+59541		Pseudois	9963	genus
+59542	Bharal	Pseudois nayaur	59541	species
+59896	Urial sheep	Ovis vignei	9935	species
+61294		Capra sp.	2619455	species
+72278	Bukhara urial	Ovis vignei bochariensis	59896	subspecies
+72540	West Caucasian tur	Capra caucasica	9922	species
+72541	East Caucasian tur	Capra cylindricornis	9922	species
+72542	Ibex	Capra ibex	9922	species
+72543	Nubian ibex	Capra nubiana	9922	species
+72544	Siberian ibex	Capra sibirica	9922	species
+72545	Pyrenean chamois	Rupicapra pyrenaica	34868	species
+72760	Gobi argali	Ovis ammon darwini	30527	subspecies
+72761		Ovis dalli dalli	9943	subspecies
+80419	Spanish ibex	Capra pyrenaica	9922	species
+80420	Alpine ibex	Capra ibex ibex	72542	subspecies
+112261	Desert bighorn sheep	Ovis canadensis nelsoni	37174	subspecies
+112262		Ovis canadensis canadensis	37174	subspecies
+112503	dwarf bharal	Pseudois schaeferi	59541	species
+123799		Capra aegagrus cretica	9923	subspecies
+130898	Alpine chamois	Rupicapra rupicapra rupicapra	34869	subspecies
+130899		Rupicapra rupicapra tatrica	34869	subspecies
+130900		Rupicapra pyrenaica ornata	72545	subspecies
+130901		Rupicapra pyrenaica parva	72545	subspecies
+130902		Rupicapra pyrenaica pyrenaica	72545	subspecies
+155054	Sichuan takin	Budorcas taxicolor tibetana	37181	subspecies
+156212		Ovis ammon ammon	30527	subspecies
+167725		Ovibos moschatus wardi	37176	subspecies
+189981		Hemitragus sp.	2649108	species
+191607	Transcaspian urial	Ovis vignei arkal	59896	subspecies
+191608		Ovis ammon collium	30527	subspecies
+191609		Ovis ammon nigrimontana	30527	subspecies
+197782		Ovis canadensis mexicana	37174	subspecies
+197787		Ovis canadensis weemsi	37174	subspecies
+201716		Myotragus	9963	genus
+201717	Balearic islands cave goat	Myotragus balearicus	201716	species
+230171		Ovis ammon karelini	30527	subspecies
+230172		Ovis ammon polii	30527	subspecies
+231416		Capra aegagrus blythi	9923	subspecies
+330464	Nilgiri tahr	Hemitragus hylocrius	37178	species
+330465	Arabian tahr	Arabitragus jayakari	2305161	species
+373515	Bukharan markhor	Capra falconeri heptneri	48167	subspecies
+373516	straight-horned markhor	Capra falconeri megaceros	48167	subspecies
+398063		Capra pyrenaica pyrenaica	80419	subspecies
+439458		Ovis ammon hodgsoni	30527	subspecies
+469796	Asiatic mouflon	Ovis orientalis	9935	species
+478592		Capra pyrenaica hispanica	80419	subspecies
+497388		Hemitragus jemlahicus schaferi	37179	subspecies
+498590		Naemorhedus caudatus raddeanus	37173	subspecies
+509045		Ovis ammon severtzovi	30527	subspecies
+509051		Ovis orientalis anatolica	469796	subspecies
+509052		Ovis orientalis gmelini	469796	subspecies
+509053		Ovis orientalis isphahanica	469796	subspecies
+509054		Ovis orientalis laristanica	469796	subspecies
+509055	Blanford urial	Ovis vignei blanfordi	59896	subspecies
+509057	Afghan urial	Ovis vignei cycloceros	59896	subspecies
+509058		Ovis vignei kermanensis	59896	subspecies
+509059	Punjab urial	Ovis vignei punjabiensis	59896	subspecies
+509060	Ladakh urial	Ovis vignei vignei	59896	subspecies
+509850	Walia	Capra walie	9922	species
+555705		Ovis dalli stonei	9943	subspecies
+557290	Cyprus mouflon	Ovis orientalis ophion	469796	subspecies
+561742	Chinese goral	Naemorhedus griseus	34870	species
+573194		Rupicapra rupicapra asiatica	34869	subspecies
+573195		Rupicapra rupicapra balcanica	34869	subspecies
+573196		Rupicapra rupicapra carpatica	34869	subspecies
+573197	Chartreuse chamois	Rupicapra rupicapra cartusiana	34869	subspecies
+573198		Rupicapra rupicapra caucasica	34869	subspecies
+611332		Ovis canadensis x aries	9935	species
+665113		Oreamnos harringtoni	34872	species
+703186		Ovis orientalis x vignei	9935	species
+1047176	Sierra Nevada bighorn sheep	Ovis canadensis sierrae	37174	subspecies
+1073286	Chinese serow	Capricornis milneedwardsii	9965	species
+1088030	Red goral	Naemorhedus baileyi	34870	species
+1110705		unclassified Ovis	9935	no rank
+1110706		Ovis sp. LF-2011	1110705	species
+1194073		Naemorhedus cranbrooki	34870	species
+1204301		Pseudois nayaur nayaur	59542	subspecies
+1221214		Pseudois sp. DL	2632709	species
+1256861		Capricornis milneedwardsii maritimus	1073286	subspecies
+1479154		Naemorhedus sp.	2637309	species
+1515642		Capricornis sp. HD-2014	2621394	species
+1531488		Pseudois nayaur szechuanensis	59542	subspecies
+1591311		Capra caucasica caucasica	72540	subspecies
+1591312		Capra falconeri cashmiriensis	48167	subspecies
+1734079	Himalayan serow	Capricornis thar	9965	species
+1734080		Capricornis thar jamrachi	1734079	subspecies
+1743234		Capra sibirica hagenbecki	72544	subspecies
+1825106		Ovis canadensis cremnobates	37174	subspecies
+1842462		Capricornis sp. YZ-2016	2621394	species
+1842464		Capricornis milneedwardsii argyrochaetes	1073286	subspecies
+1862648		Capricornis sp.	2621394	species
+1867110		Ovis nivicola koriakorum	56194	subspecies
+1867111		Ovis nivicola alleni	56194	subspecies
+1867112		Ovis nivicola lydekkeri	56194	subspecies
+1922214		Bootherium	9963	genus
+1922215		Bootherium bombifrons	1922214	species
+1983724		Capra hircus cretica	9925	subspecies
+1983725		Ovis nivicola nivicola	56194	subspecies
+1983726		Ovis nivicola tschuktschorum	56194	subspecies
+2022395		Rupicapra sp. mtW1	2647444	species
+2022396		Rupicapra sp. mtW2	2647444	species
+2022397		Rupicapra sp. mtC1	2647444	species
+2022398		Rupicapra sp. mtC2	2647444	species
+2022399		Rupicapra sp. mtE2	2647444	species
+2022400		Rupicapra sp. mtE1	2647444	species
+2022401		Rupicapra sp. mtE3	2647444	species
+2022402		Rupicapra sp. mtE4	2647444	species
+2022403		Rupicapra sp. numt2	2647444	species
+2022404		Rupicapra sp. numt1	2647444	species
+2022405		Rupicapra sp. numt3	2647444	species
+2305161		Arabitragus	9963	genus
+2358211		Capra falconeri falconeri	48167	subspecies
+2358213		Naemorhedus goral bedfordi	34871	subspecies
+2544878		Capra nubiana x Capra hircus	9922	species
+2544879		Capra sibirica x Capra hircus	9922	species
+2619455		unclassified Capra	9922	no rank
+2621394		unclassified Capricornis	9965	no rank
+2632709		unclassified Pseudois	59541	no rank
+2637309		unclassified Naemorhedus	34870	no rank
+2647444		unclassified Rupicapra	34868	no rank
+2649108		unclassified Hemitragus	37178	no rank
+2664340	red serow	Capricornis rubidus	9965	species
+2666254		Caprinae intergeneric hybrids	9963	no rank
+2666255		Capra hircus x Ovis aries	2666254	species
+2716129		Rupicapra cf. pyrenaica VCB-2020	34868	species
+2746145		Naemorhedus evansi	34870	species
+2759234		Capra sp. BDJ-2020	2619455	species
+2827210		Rupicapra rupicapra rupicapra x Rupicapra rupicapra balcanica	34869	subspecies
+2918886		Ovis ammon polii x Ovis aries	9935	species
+2927077		Capricornis sp. 1 GL-2022	2621394	species
+2927078		Capricornis sp. 2 GL-2022	2621394	species
+2927079		Capricornis sp. 3 GL-2022	2621394	species
+3135286		Ovis canadensis texianus	37174	subspecies
