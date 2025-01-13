@@ -10,7 +10,7 @@ PAMPA is written in Python 3.7, and can be installed either by downloading the s
  - downloading, as a zip file: button _code<>_ on the right-hand side of the screen
  - cloning: `git clone https://github.com/touzet/pampa.git`
 
-Additionaly, the full version of PAMPA necessitates the Biopython, pyteomics and scipy libraries.  
+PAMPA necessitates the Biopython, pyteomics and scipy libraries.  
 
  - biopython (https://biopython.org/)
  - pyteomics (https://pypi.org/project/pyteomics/)
@@ -24,7 +24,7 @@ The documentation for PAMPA is available on PAMPA's wiki: https://github.com/tou
 
 ### Peptide tables
 
-![mammals](https://docs.google.com/spreadsheets/d/1nwELNshZxF0h6DkIFNAYXDJqmq4NOSUOLWQlTZIzUDQ)
+[mammals](https://docs.google.com/spreadsheets/d/1nwELNshZxF0h6DkIFNAYXDJqmq4NOSUOLWQlTZIzUDQ)
 
 ### Bug Report
 
