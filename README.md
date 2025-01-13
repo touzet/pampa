@@ -22,7 +22,9 @@ Additionaly, the full version of PAMPA necessitates the Biopython, pyteomics and
 
 The documentation for PAMPA is available on PAMPA's wiki: https://github.com/touzet/pampa/wiki
 
+### Peptide tables
 
+![mammals](https://docs.google.com/spreadsheets/d/1nwELNshZxF0h6DkIFNAYXDJqmq4NOSUOLWQlTZIzUDQ)
 
 ### Bug Report
 
