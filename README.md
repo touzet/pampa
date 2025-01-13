@@ -24,7 +24,7 @@ The documentation for PAMPA is available on PAMPA's wiki: https://github.com/tou
 
 ### Peptide tables
 
-[mammals](https://docs.google.com/spreadsheets/d/1nwELNshZxF0h6DkIFNAYXDJqmq4NOSUOLWQlTZIzUDQ)
+Spreadsheet for [mammals](https://docs.google.com/spreadsheets/d/1nwELNshZxF0h6DkIFNAYXDJqmq4NOSUOLWQlTZIzUDQ) (download [TSV](https://github.com/touzet/pampa/blob/main/Peptide_tables/table_mammals.tsv))
 
 ### Bug Report
 
