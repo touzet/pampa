@@ -57,10 +57,10 @@ def check_and_update_parameters(spectra, taxonomy, peptide_table, fasta, directo
     if mammals :
         if not os.path.isfile("Taxonomy/taxonomy_mammals.tsv"):
             message.escape("The taxonomy file has been deleted.")
-        if not os.path.isfile("Peptide_tables/table_mammals_with_deamidation.tsv"):
+        if not os.path.isfile("Peptide_tables/table_mammals.tsv"):
             message.escape("The peptide table file has been deleted.")
         taxonomy="Taxonomy/taxonomy_mammals.tsv"
-        peptide_table=["Peptide_tables/table_mammals_with_deamidation.tsv"]
+        peptide_table=["Peptide_tables/table_mammals.tsv"]
 
     if taxonomy:
         if not os.path.isfile(taxonomy):
