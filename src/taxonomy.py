@@ -9,10 +9,13 @@ from src import utils
 from src import message
 
 class Taxonomy(object):
-    def __init__(self, name={}, rank={}, children={}, descendants={}, parent={},  root=set()):
+    def __init__(self, name={}, common_name={}, rank={}, children={}, descendants={}, parent={},  root=set()):
         self.name=name
         # key (str): taxid 
-        # value (str): name of the taxid
+        # value (str): scientific name of the taxid
+        self.common_name=common_name
+        # key (str): taxid
+        # value (str) : common name of the taxid
         self.rank=rank
          # key (str): taxid 
         # value (str): rank of the taxid
@@ -91,12 +94,14 @@ class Taxonomy(object):
         set_of_survivors.update(set_of_taxid-lost_taxid)
         
         taxid_to_children_dict= {taxid: self.children[taxid] & set_of_survivors for taxid in set_of_survivors & self.children.keys()}
+        taxid_to_common_name_dict = {taxid: self.common_name[taxid]  for taxid in set_of_survivors}
         taxid_to_name_dict = {taxid: self.name[taxid]  for taxid in set_of_survivors} 
         taxid_to_rank_dict = {taxid: self.rank[taxid]  for taxid in set_of_survivors}
 
         B=Taxonomy()
         B.children = taxid_to_children_dict
         B.name = taxid_to_name_dict
+        B.common_name=taxid_to_common_name_dict
         B.rank=taxid_to_rank_dict
         B.init_root()
         B.init_descendants()
@@ -187,9 +192,13 @@ def parse_taxonomy_simple_file(taxonomy_file):
     taxonomy=Taxonomy()
     name_to_taxid_dict={} # key: (name, rank)
     taxid_to_children_dict={}
-    taxid_to_name_dict={} 
+    taxid_to_name_dict={}
+    taxid_to_common_name_dict={}
     taxid_to_rank_dict={}
     taxid_to_parent_dict={}
+    
+    if taxonomy_file is None:
+        return None
     
     with open(taxonomy_file) as in_file:
         next(in_file)
@@ -197,10 +206,11 @@ def parse_taxonomy_simple_file(taxonomy_file):
             columns = line.split("\t")
             if len(columns)<5 or len(columns[0])==0 :
                 message.warning("File "+taxonomy_file+", line "+str(i+2)+": format error. Line is ignored")
-            taxid_to_name_dict.update({utils.reduced(columns[0]):columns[2]})
-            name_to_taxid_dict.update({columns[2]:utils.reduced(columns[0])})
-            taxid_to_rank_dict.update({utils.reduced(columns[0]):columns[4].strip("\n")})
-            taxid_to_parent_dict.update({utils.reduced(columns[0]):utils.reduced(columns[3])})
+            taxid_to_common_name_dict.update({utils.clean(columns[0]):columns[1]})
+            taxid_to_name_dict.update({utils.clean(columns[0]):columns[2]})
+            name_to_taxid_dict.update({columns[2]:utils.clean(columns[0])})
+            taxid_to_rank_dict.update({utils.clean(columns[0]):columns[4].strip("\n")})
+            taxid_to_parent_dict.update({utils.clean(columns[0]):utils.clean(columns[3])})
 
     excluded_taxid=taxid_to_parent_dict.values() - taxid_to_name_dict.keys()
 
@@ -214,6 +224,7 @@ def parse_taxonomy_simple_file(taxonomy_file):
 
     taxonomy.children=taxid_to_children_dict
     taxonomy.name=taxid_to_name_dict
+    taxonomy.common_name=taxid_to_common_name_dict
     taxonomy.rank=taxid_to_rank_dict
     taxonomy.parent=taxid_to_parent_dict
     taxonomy.init_root()
@@ -227,8 +238,8 @@ def build_flat_taxonomy(set_of_markers):
     name={}
     rank={}
     for m in set_of_markers:
-        name[m.taxid]= m.taxon_name
-        rank[m.taxid]=""
+        name[m.taxid()]= m.taxon_name()
+        rank[m.taxid()]=""
     t=Taxonomy(name, rank)
     t.init_root()
     t.init_descendants()
@@ -236,9 +247,10 @@ def build_flat_taxonomy(set_of_markers):
     return t
 
 def search_taxid_from_taxon_name(taxon_name, taxonomy):
-     for key, value in taxonomy.name.items():
-         if taxon_name == value:
-             return key
+    for key, value in taxonomy.name.items():
+        if taxon_name == value:
+            return key
+    return None
 
 def create_taxonomy_file(taxonomy, outfile):
     file=open(outfile,"w")
@@ -252,3 +264,52 @@ def create_taxonomy_file(taxonomy, outfile):
         s=s+" \t"+str(taxonomy.rank.get(taxid)+"\n")
         file.write(s)
     file.close()
+
+
+# add taxid, taxon_name
+def supplement_taxonomic_information(set_of_markers, taxo):
+    taxa_with_missing_taxid={}
+    for m in set_of_markers:
+        match (m.taxid(), m.taxon_name(), taxo):
+            case (None, None, _):
+                None
+            case (None, _, None):
+                utils.update_dictoset(taxa_with_missing_taxid, m.taxon_name(), {m})
+            case (None, _, _):
+                m.field["OX"] = search_taxid_from_taxon_name(m.taxon_name(), taxo)
+            case (_ , None, None):
+                None
+            case (_ , None, _):
+                m.field["OS"]=taxo.name[m.taxid()]
+            case _:
+                None
+    for i,taxon in enumerate(list(taxa_with_missing_taxid.keys())):
+        s={m.taxid() for m in set_of_markers if m.taxon_name()==taxon and m.taxid() is not None}
+        if len(s)==0:
+            new_taxid=''.join(word[0] for word in taxon.split())+str(i+1)
+        else:
+            new_taxid=s.pop()
+        for m in taxa_with_missing_taxid[taxon]:
+            m.field["OX"]= new_taxid
+    return set_of_markers
+    
+def add_taxonomy_ranks(set_of_markers, t):
+    if t is None:
+        message.warning("No taxonomy provided. Unable to apply TAXONOMY completion.")
+        return set_of_markers
+    for m in set_of_markers:
+        if m.taxid() not in t.common_name or m.taxid() not in t.rank:
+            message.warning("TaxID "+ str(m.taxid()) + " not found in TAXONOMY file.")
+            FINISHED=True
+        else:
+            m.field["Common Name"]=t.common_name[m.taxid()]
+            m.field["Rank"]=t.rank[m.taxid()]
+            parent=t.parent[m.taxid()]
+            FINISHED=False
+        while not FINISHED:
+            m.field[t.rank[parent]] = t.name[parent]
+            if parent in t.parent:
+                parent=t.parent[parent]
+            else:
+                FINISHED=True
+    return set_of_markers

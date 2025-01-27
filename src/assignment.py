@@ -4,9 +4,11 @@
 import json
 import math
 from scipy.stats import binom
+import csv
 import sys
 from src import utils 
 from src import markers
+from src import config
 
 class Annotated_peak(object):
     def __init__(self, mass=0, intensity=0, marker=None):
@@ -15,10 +17,10 @@ class Annotated_peak(object):
         self.marker = marker 
         
     def __eq__(self, other):
-        return self.mass == other.mass and self.marker.code == other.marker.code
+        return self.mass == other.mass and self.marker.code() == other.marker.code()
 
     def __hash__(self):
-        return hash((self.mass, self.intensity, self.marker.code, self.marker.ptm))
+        return hash((self.mass, self.intensity, self.marker.code(), self.marker.PTM()))
 
 class Taxon(object):
     def __init__(self, id=None, name=None):
@@ -86,61 +88,106 @@ def assign_peaks_of_the_spectrum(spectrum, mass_markers_list, resolution):
 
 def number_of_different_peaks(peaks):
     #number of peaks with different name+ptm
-    return len({(p.marker.code,p.marker.ptm) for p in peaks})
+    return len({(p.marker.code(),p.marker.PTM()) for p in peaks})
 
 def is_included(v,w):
+    # not used ?
    peaks_of_v={p.mass for  p in v}
    peaks_of_w={p.mass for p in w}
    return peaks_of_v<peaks_of_w
 
-def assign_spectrum(spectrum, mass_markers_list, set_of_markers, resolution, taxonomy, threshold, allsolutions):
+
+def is_better(v,w):
+    masses_of_v={(a.mass):a.intensity for a in v}
+    masses_of_w={(a.mass):a.intensity for a in w}
+    """
+    intensity_of_v={(a.marker.code,a.marker.ptm):a.intensity  for a in v}
+    intensity_of_w={(a.marker.code,a.marker.ptm):a.intensity  for a in w}
+   
+    is_better=False
+    for (code,ptm) in intensity_of_v.keys() & intensity_of_w.keys() :
+        if intensity_of_w[(code,ptm)] >  intensity_of_v[(code,ptm)]:
+            return False
+        if  intensity_of_v[(code,ptm)]>2* intensity_of_w[(code,ptm)]:
+            is_better=True
+    IV = {intensity_of_v[k] for k in intensity_of_v.keys() - intensity_of_w.keys()}
+    IW = {intensity_of_w[k] for k in intensity_of_w.keys() - intensity_of_v.keys()}
+    if len(IV) == 0 or len(IW)==0:
+        return is_better
+    else:
+        return  min(IV)>max(IW)
+    """
+    IV={masses_of_v[k] for k  in masses_of_v.keys() - masses_of_w.keys()}
+    IW ={masses_of_w[k] for k in masses_of_w.keys() - masses_of_v.keys()}
+    if len(IV) == 0 or len(IW)==0:
+        return False
+    else:
+        return  min(IV)>max(IW)
+    
+def assign_spectrum(spectrum, mass_markers_list, set_of_markers, resolution, taxonomy, threshold, allsolutions, minimum_number_of_peaks):
    # mass_taxid_name_list: contains the list of markers sorted by mass
     peak_to_markers=assign_peaks_of_the_spectrum(spectrum, mass_markers_list, resolution)
-    if len(peak_to_markers)<4:
+    if len(peak_to_markers)<minimum_number_of_peaks:
         return []
 
     taxid_to_annotated_peaks={}
     for peak in peak_to_markers:
         for m in peak_to_markers[peak]:
-            utils.update_dictoset(taxid_to_annotated_peaks, m.taxid, {Annotated_peak(peak.mass, peak.intensity, m)})
+            utils.update_dictoset(taxid_to_annotated_peaks, m.taxid(), {Annotated_peak(peak.mass, peak.intensity, m)})
             
     max_number_of_markers=max({len(v) for v in taxid_to_annotated_peaks.values()}) # incorrect, à revoir
 
-    if max_number_of_markers<4:
+    if max_number_of_markers < minimum_number_of_peaks:
         return [] 
 
     # Remove included taxid and equivalent taxid
     excluded_taxid=set()
     equivalent_taxid={}
     for taxid in taxid_to_annotated_peaks:
+        if len(taxid_to_annotated_peaks[taxid])<minimum_number_of_peaks:
+            excluded_taxid.add(taxid)
+            continue
         for taxid2 in taxid_to_annotated_peaks:
-            if  taxid_to_annotated_peaks[taxid]==taxid_to_annotated_peaks[taxid2]:
-                if taxid < taxid2:
+            if taxid < taxid2 and taxid_to_annotated_peaks[taxid]==taxid_to_annotated_peaks[taxid2]:
                     utils.update_dictoset(equivalent_taxid, taxid, {taxid2})
-                else:
-                    continue
-            if taxid_to_annotated_peaks[taxid]<taxid_to_annotated_peaks[taxid2]:
+            if not allsolutions and taxid_to_annotated_peaks[taxid]<taxid_to_annotated_peaks[taxid2]:
                 excluded_taxid.add(taxid)
-                continue
+           
     excluded_taxid.update({t for taxid in equivalent_taxid for t in equivalent_taxid[taxid]})
     for taxid in excluded_taxid:
         del taxid_to_annotated_peaks[taxid]
 
     taxid_to_score={taxid:number_of_different_peaks(taxid_to_annotated_peaks[taxid]) for taxid in taxid_to_annotated_peaks}
+    for taxid in taxid_to_score:
+        if taxid_to_score[taxid]<minimum_number_of_peaks:
+            del taxid_to_annotated_peaks[taxid]
         
     # Find assignment with best P-value
     taxid_to_pvalue={}
     p=p_success(spectrum, resolution)
     for taxid in taxid_to_annotated_peaks:
         number_of_matching_masses=taxid_to_score[taxid]
-        total_number_of_masses=len({m for m in set_of_markers if m.taxid==taxid})
-        taxid_to_pvalue[taxid]=pvalue_f(number_of_matching_masses, total_number_of_masses, p)
+        if number_of_matching_masses==0:
+            taxid_to_pvalue[taxid]=1
+        elif number_of_matching_masses<5:
+            taxid_to_pvalue[taxid]=1/number_of_matching_masses
+        else:
+            total_number_of_masses=len({m.mass() for m in set_of_markers if m.taxid()==taxid})# à initialiser avant pour plus d'efficacite
+            taxid_to_pvalue[taxid]=pvalue_f(number_of_matching_masses, total_number_of_masses, p)
     best_pvalue=1
     for taxid in taxid_to_pvalue:
         if taxid_to_pvalue[taxid]<best_pvalue:
             best_pvalue=taxid_to_pvalue[taxid]
             best_score=taxid_to_score[taxid]
     set_of_optimal_taxid={taxid for taxid in taxid_to_pvalue if taxid_to_pvalue[taxid]==best_pvalue or taxid_to_score[taxid]>=best_score*threshold/100}
+    
+    if not allsolutions:
+        excluded_taxid=set()
+        for taxid in set_of_optimal_taxid:
+            for taxid2 in set_of_optimal_taxid:
+                if is_better(taxid_to_annotated_peaks[taxid2], taxid_to_annotated_peaks[taxid]):
+                    excluded_taxid.add(taxid)
+        set_of_optimal_taxid= set_of_optimal_taxid - excluded_taxid
 
     list_of_assignments=[]
     for taxid in set_of_optimal_taxid:
@@ -156,11 +203,14 @@ def assign_spectrum(spectrum, mass_markers_list, set_of_markers, resolution, tax
         set_of_peaks=taxid_to_annotated_peaks[taxid]     
         a=Assignment(spectrum.name, len(spectrum), list(set_of_peaks), taxids, lca, None, None, score, None, None, None, pvalue)
         list_of_assignments.append(a)
-    return list_of_assignments 
+    return list_of_assignments
 
     
 def image(name, ptm):
-    return name+ "-"+ptm
+    if ptm is None:
+        return name
+    else:
+        return name+ "-"+ ptm
 
 
 
@@ -170,18 +220,36 @@ def create_json_result_file(output, list_of_assignments):
     for a in list_of_assignments:
         a_dict = vars(a)
         serialized_list_of_taxa=[vars(t) for t in a_dict["taxa"]]
-        serialized_list_of_peaks=[{"mass":p.mass, "intensity":p.intensity, "code":p.marker.code, "PTM":p.marker.ptm, "sequence":p.marker.sequence, "protein":p.marker.protein, "begin":p.marker.begin, "end":p.marker.end} for p in a_dict["peaks"]]
+        serialized_list_of_peaks=[{"mass":p.mass, "intensity":p.intensity, "code":p.marker.code(), "PTM":p.marker.PTM(), "sequence":p.marker.sequence(), "protein":p.marker.protein(), "begin":p.marker.begin(), "end":p.marker.end()} for p in a_dict["peaks"]]
         a_dict["peaks"]=serialized_list_of_peaks
         a_dict["taxa"]= serialized_list_of_taxa=[vars(t) for t in a_dict["taxa"]]
         list_of_serialized_objects.append(a_dict)
     json.dump(list_of_serialized_objects, json_file, indent=4)
     json_file.close()
+
+
+def create_spectral_file(output, list_of_assignments, list_of_spectra):
+# list_of_assignments and list_of_spectra should share the same indices !! 
+      with open("spectra"+output+".tsv", mode='w', newline='') as outfile:
+            writer = csv.writer(outfile, delimiter='\t')
+            writer.writerow(['spectrum', 'm/z', 'intensity', 'marker'])
+            for i, spectrum in enumerate(list_of_spectra):
+                mass_dict={peak.mass:peak.marker for peak in list_of_assignments[i].peaks} 
+                for peak in spectrum:
+                    row=[spectrum.name, str(peak.mass), peak.intensity]
+                    if  peak.mass in mass_dict:
+                        row.append(mass_dict[peak.mass].code)
+                    writer.writerow(row)
+               
+def extract_sorted_markers(list_of_assignments):
+    set_of_marker_codes={m.marker.code() for a in list_of_assignments for m in a.peaks}
+    list_of_marker_full_names=list({(m.marker.code(), m.marker.PTM()) for a in list_of_assignments for m in a.peaks})
+    list_of_marker_codes=config.sort_headers(set_of_marker_codes)
+    list_of_marker_full_names.sort(key=lambda x:(list_of_marker_codes.index(x[0]),x[1]))
+    return list_of_marker_full_names
         
 def create_main_result_file(output, list_of_assignments, taxonomy):
-     
-    set_of_marker_full_names={(m.marker.code, m.marker.ptm) for a in list_of_assignments for m in a.peaks}
-    list_of_marker_full_names=list(set_of_marker_full_names)
-    
+    list_of_marker_full_names= extract_sorted_markers(list_of_assignments)
     # Heading
     f1 = open(output+".tsv", "w")
     s=""
@@ -199,7 +267,7 @@ def create_main_result_file(output, list_of_assignments, taxonomy):
             s=a.spectrum_name+"\t"*len( list_of_marker_full_names)+"\t\t 0\t None \n"
             f1.write(s)
             continue
-        name_to_peak={(p.marker.code,p.marker.ptm):p.mass for p in a.peaks}
+        name_to_peak={(p.marker.code(),p.marker.PTM()):p.mass for p in a.peaks}
         s=a.spectrum_name+"\t"
         for (name,ptm) in list_of_marker_full_names:
             if (name,ptm) in  name_to_peak:
@@ -246,7 +314,7 @@ def create_detail_result_file(output_detail, list_of_assignments, taxonomy, B):
     # body
     for sp in dict_of_assignments:
         for peak in dict_of_assignments[sp]:
-            s=sp+"\t"+image(peak.marker.code,peak.marker.ptm)+"\t"+ str(peak.mass)+"\t"+str(peak.intensity)+"\t"
+            s=sp+"\t"+image(peak.marker.code(),peak.marker.PTM())+"\t"+ str(peak.mass)+"\t"+str(peak.intensity)+"\t"
             for taxid in list_of_useful_taxid:
                 if taxid in dict_of_assignments[sp][peak] :
                     s=s+"X\t"
@@ -266,7 +334,6 @@ def create_detail_result_file(output_detail, list_of_assignments, taxonomy, B):
             for taxon in taxa:
                 s=s+str(taxon.id)+"("+str(taxon.name)+") "
         f2.write(s+"\n")
-
     f2.close()
 
 def assign_all_spectra(list_of_spectra, set_of_markers, error, taxonomy, B, threshold, allsolutions, output, output_detail):
@@ -274,8 +341,9 @@ def assign_all_spectra(list_of_spectra, set_of_markers, error, taxonomy, B, thre
     # elements of the list are 2-uplets of the form  (mass, {(taxid, code, PTM)})
     mass_markers_list=markers.sort_by_masses(set_of_markers)
     list_of_assignments=[]
+    minimum_number_of_peaks= number_of_missed_cleavages=int(config.parse_config_file()["minimum_number_of_peaks"])
     for spectrum in list_of_spectra:
-        list_of_assignments.extend(assign_spectrum(spectrum, mass_markers_list, set_of_markers, error, B, threshold, allsolutions))
+        list_of_assignments.extend(assign_spectrum(spectrum, mass_markers_list, set_of_markers, error, B, threshold, allsolutions, minimum_number_of_peaks))
 
     # completion of assignments
     for a in list_of_assignments:
@@ -293,4 +361,6 @@ def assign_all_spectra(list_of_spectra, set_of_markers, error, taxonomy, B, thre
    
     create_main_result_file(output, list_of_assignments, taxonomy)
     create_detail_result_file(output_detail, list_of_assignments, taxonomy,B)
+    #create_spectral_file(output, list_of_assignments, list_of_spectra)
     create_json_result_file(output, list_of_assignments)
+    

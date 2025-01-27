@@ -96,7 +96,7 @@ def peak_parser_csv(peak_file_name, name):
     Args:
         peak_file (str): path to the csv file
     Returns:
-        list of peaks
+         list of spectra 
     Raises:
         NameError: if the file is not a csv file
     """
@@ -121,7 +121,7 @@ def peak_parser_csv(peak_file_name, name):
         message.warning("File "+peak_file_name+", line "+str(line)+":  wrong format. File ignored." )
         return Spectrum(name,peak_list,"")
     
-    return Spectrum(name,peak_list,"")
+    return [Spectrum(name,peak_list,"")]
 
 
 
@@ -133,7 +133,7 @@ def peak_parser_mgf(peak_file_name,name):
         peak_file_name (str): path to the mgf file
 
     Returns:
-        list of peaks 
+        list of spectra 
 
     """
     peak_list = []
@@ -150,7 +150,7 @@ def peak_parser_mgf(peak_file_name,name):
         if peak not in peak_list:
             peak_list.append(peak)
     
-    return Spectrum(name,peak_list,"")
+    return [Spectrum(name,peak_list,"")]
 
 
 def peak_parser_mzml(peak_file_name,name):
@@ -161,24 +161,29 @@ def peak_parser_mzml(peak_file_name,name):
         peak_file_name (str): path to the peak file
 
     Returns:
-        list of masses 
+        list of Spectrum  
 
     """
-    peak_list = []
+   
     try:
         f = mzml.MzML(peak_file_name, use_index=True) 
-        mass_array = f[0]["m/z array"] # m/z 
-        intensity_array = f[0]["intensity array"] # intensity 
     except  : 
         message.warning("File "+peak_file_name+" is incorrect (wrong format). File ignored." )
-        return Spectrum(name,peak_list,"")
+        return []
     
-    for mass, intensity in zip(mass_array.tolist(), intensity_array.tolist()):
-        peak = Peak(float(mass), float(intensity))
-        if peak not in peak_list:
-            peak_list.append(peak)
-          
-    return  Spectrum(name,peak_list,"")
+    list_of_spectra=[]   
+    for s in f:
+        mass_array = s["m/z array"] # m/z 
+        intensity_array = s["intensity array"] # intensity
+        name=s["id"]
+        peak_list = []
+        for mass, intensity in zip(mass_array.tolist(), intensity_array.tolist()):
+            peak = Peak(float(mass), float(intensity))
+            if peak not in peak_list:
+                peak_list.append(peak)
+        list_of_spectra.append(Spectrum(name,peak_list,""))
+        
+    return  list_of_spectra
 
 
 def parser(file_path,name):
@@ -191,25 +196,25 @@ def parser(file_path,name):
         name: name of the spectrum
 
     Returns:
-        Spectrum 
+        list of Spectrum
 
     """
     if os.path.getsize(file_path) == 0:
         message.warning("File "+file_path+" is empty.")
-        return Spectrum(name,[],"")
+        return []
         
     _, ext = os.path.splitext(file_path)
     if ext == ".csv" or ext == ".CSV" or ext == ".txt" or ext == ".TXT": # csv file 
-        spectrum = peak_parser_csv(file_path,name)
+        list_of_spectra = peak_parser_csv(file_path,name)
     elif ext == ".mgf" or ext == ".MGF" : # mgf file 
-        spectrum = peak_parser_mgf(file_path,name)
+        list_of_spectra = peak_parser_mgf(file_path,name)
     elif ext == ".mzML": # mzML file
-        spectrum = peak_parser_mzml(file_path,name)
+        list_of_spectra = peak_parser_mzml(file_path,name)
     else:
         message.warning("File "+file_path+" is not recognized (unknown format). Accepted formats are csv, mgf and mzML. File ignored.")
-        return Spectrum(name,[],"")
+        return []
 
-    return spectrum
+    return list_of_spectra
 
 
 

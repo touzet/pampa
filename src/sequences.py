@@ -10,84 +10,102 @@ from Bio import SeqIO
 from Bio import pairwise2
 from Bio.pairwise2 import format_alignment
 
+
 from src import markers 
 
-
 class Sequence(object):
-    def __init__(self, sequence="", taxid="", taxon_name="", seqid="", helical=None, protein="", rank="", comment=""):
-        self.sequence = sequence
-        self.taxid = taxid
-        self.taxon_name = taxon_name
-        self.seqid=seqid
-        self.helical=helical
-        self.protein=protein
-        self.rank = rank
-        self.comment = comment
+    def __init__(self, field={}):
+        self.field = field
 
     def __len__(self):
-        return (len(self.sequence))
+        return (len(self.field["Sequence"]))
         
     def __str__(self):
-        return f"Sequence{self.seqid} \t{self.taxid}\t{self.taxon_name.lstrip()}\t{self.sequence}\t{self.protein}\t{self.rank}\t{self.comment}"
+        return str(self.field)
 
-
+    def seqid(self):
+        return self.field.get("SeqID")
+        
+    def taxid(self):
+        return self.field.get("OX")
+        
+    def taxon_name(self):
+        return self.field.get("OS")
+        
+    def protein(self):
+        return self.field.get("GN")
+        
+    def sequence(self):
+        return self.field.get("Sequence")
+    
 def helical_region(seq):
+    """ 
+    input: COLLAGENE sequence
+    output: (start position, end position) of helical region
+    """
     # positions are 1-based
     pattern=re.compile('(G\w{2}){5,}')
-    matches=re.finditer(pattern, seq)
+    matches=re.finditer(pattern, seq.sequence())
     positions=[match.span() for match in matches]
     if (len(positions)==0):
           return None, None
     start_match=positions[0][0]
     end_match=positions[0][1]
     for segment in positions[1:]:
-        if segment[0]-end_match>6:# allowing for errors in the aa sequence 
+        if segment[0]-end_match>4:# allowing for errors in the aa sequence 
             start_match= segment[0]
         end_match=segment[1]
-    pos_GPM=seq[start_match:].find("GPM")
+    pos_GPM=seq.sequence()[start_match:].find("GPM")
     if pos_GPM==-1 or pos_GPM>6:
         return start_match+1, end_match+1  
     else:
         return pos_GPM+start_match +1, end_match+1 
-    
 
+def raw_in_silico_digestion(seq,  number_of_misscleavages=1, min_length=12):
+    """ build a set of peptides from a sequence by in silico digestion"""
+    set_of_peptides=parser.icleave(seq, parser.expasy_rules['trypsin'], number_of_misscleavages, min_length)
+    return {y for (x,y) in set_of_peptides}
+    
+    
 def in_silico_digestion(set_of_sequences, number_of_misscleavages=1, min_length=12, max_length=33, mature=True):
     """ build a set of markers from a set of sequences by in silico digestion"""
     set_of_markers=set()
     for s in set_of_sequences:
         min=None
         if mature:
-            (min,max)=helical_region(s.sequence)
+            (min,max)=helical_region(s)
         if min==None:
             helical=False
-            (min,max)=(0,len(s.sequence))
+            (min,max)=(0,len(s))
         else:
             (min,max)=(min-1, max-1)
             helical=True               
-        mature_seq=s.sequence[min:max]
-       
-        set_of_peptides=parser.icleave(mature_seq, parser.expasy_rules['trypsin'], number_of_misscleavages, min_length)
+        mature_seq=s.sequence()[min:max]
+        set_of_peptides=  parser.icleave(mature_seq, parser.expasy_rules['trypsin'], number_of_misscleavages, min_length)
+        
         for (pos, peptide) in set_of_peptides:
             if ('Z' in peptide or 'B' in peptide or 'X' in peptide): ## amino acids
                 continue
             if len(peptide)>max_length:
                 continue
-            new_marker=markers.Marker()
-            new_marker.sequence=peptide
-            new_marker.taxid=s.taxid
-            new_marker.taxon_name=s.taxon_name
-            new_marker.protein=s.protein
-            if not helical :
-                new_marker.helical=None
-            else:
-                new_marker.helical=str(pos+1)
-            new_marker.seqid=s.seqid
-            new_marker.begin=min+pos+1
-            new_marker.end=new_marker.begin+len(peptide)-1
-            new_marker.rank="species"
-            new_marker.comment="in silico digestion"
+            dict={}
+            dict["Sequence"]=peptide
+            dict["OX"]=s.taxid()
+            dict["OS"]=s.taxon_name()
+            dict["GN"]=s.protein()
+            dict["Rank"]="species"
+            if helical :
+               dict["Hel"]=pos+1
+            dict["SeqID"]=s.seqid()
+            dict["Length"]=len(peptide)
+            dict["Begin"]=min+pos+1
+            dict["End"]=min+pos+len(peptide)
+            dict["Status"]= "Genetics"
             if mature:
-                new_marker.comment=new_marker.comment + " - mature "
+                dict["Comment"]="in silico digestion."
+            else:
+                dict["Comment"]="in silico digestion - mature"
+            new_marker=markers.Marker(field=dict)
             set_of_markers.add(new_marker)
     return set_of_markers
 
@@ -139,43 +157,11 @@ def mature_sequence(seq):
         
 
 
-    
+# TO remove ?
 def reduce(seq):
     seq=seq.replace(" ", "")
     seq=seq.lower()
     return  seq
 
 
-# still useful ? 
-def limit_sequences(set_of_sequences, limit_file):
-    """
-    build a new set of sequences that is compliant with the specification of the limit_file (TSV file, -l option) 
-    """
-    new_set=set_of_markers
-    summary_file=open(limit_file).read().splitlines()
-    for line in summary_file:      
-        if line[:3]=="GN=":
-            pattern = re.compile(r'GN=([\w\s,]+)')
-            list_of_matches = pattern.findall(line)
-            matches= list_of_matches[0].split(',')
-            new_set={s for s in new_set if s.protein in matches}
 
-        if line[:3]=="OS=":
-            pattern = re.compile(r'OS=([\w\s,]+)')
-            list_of_matches = pattern.findall(line)
-            matches= list_of_matches[0].split(',')
-            matches=[reduce(match) for match in matches]
-            new_set={s for s in new_set if reduce(s.taxon_name) in matches}   
-
-        if line[:6]=="SeqID=":
-            pattern = re.compile(r'SeqID=([\w\s,]+)')
-            list_of_matches = pattern.findall(line)
-            matches= list_of_matches[0].split(',')
-            matches=[reduce(match) for match in matches]
-            new_set={s for s in new_set if reduce(s.seqid) in matches} 
-
-    summary_file.close()
-    return new_set
-
-  
-    

@@ -2,20 +2,74 @@
    utils.py
 """
 
-def reduced(s):
-    if s is None:
+def pretty_print(s):
+    if s==None:
+        return ""
+    else:
+        return s
+
+# remove whitespaces from the beginning and end of a string
+def clean(s):
+    if s==None:
+        return None
+    s= s.strip()
+    if len(s)==0:
         return None
     else:
-        return s.replace(' ','')
+        return s
 
-def reduced_upper(s):
-     if s is None:
+# remove all whitespaces of a string
+def standard(s):
+    if s==None:
         return None
-     else:
-        return s.replace(' ','').upper()
+    s=s.replace(" ","")
+    if len(s)==0:
+        return None
+    else:
+        return s
+
+def floating(s):
+    if s==None:
+        return None
+    s=s.replace(" ","")
+    if len(s)==0:
+        return None
+    fl=float(s)
+    if fl<0:
+        raise ValueError()
+    return fl
+
+def integer(s):
+    if s==None:
+        return None
+    s=s.replace(" ","")
+    if len(s)==0:
+        return None
+    pos=int(s)
+    if pos<0:
+        raise ValueError()
+    return pos
+ 
+# remove all whitespaces of a string and switch to upper cases
+def standard_upper(s):
+    if s is None:
+        return None
+    s=s.replace(' ','').upper()
+    if len(s)==0:
+        return None
+    else:
+        return s
+        
+# Check whether two strings are equivalent: they are equal ignoring whitespace and case differences.
+def equiv(s,t):
+    S_su=standard_upper(s)
+    T_su=standard_upper(t)
+    if S_su is None or T_su is None:
+        return False
+    return S_su==T_su
 
 def is_aa_sequence(sequence):
-    """ test wether the sequence is an amino-acid sequence """
+    """ test whether the sequence is an amino-acid sequence """
     if sequence==None or len(sequence)==0 :
         return False
     return all(aa in 'ACDEFGHIKLMNPQRSTVWY' for aa in sequence)
@@ -121,3 +175,21 @@ def pretty_print_set(s):
     for e in s:
         res_str=res_str+" "+str(e)
     return res_str
+
+def none_float(x):
+    if x is None:
+        return 0.0
+    else:
+        return x
+
+def none_int(x):
+    if x is None:
+        return 0
+    else:
+        return x
+        
+def none_str(x):
+    if x is None:
+        return ""
+    else:
+        return x
