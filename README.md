@@ -20,11 +20,11 @@ PAMPA necessitates the Biopython, pyteomics and scipy libraries.
 
 The documentation for PAMPA is available on PAMPA's wiki: https://github.com/touzet/pampa/wiki
 
-### Peptide tables
+## Peptide tables
 
 Spreadsheet for [mammals](https://docs.google.com/spreadsheets/d/1nwELNshZxF0h6DkIFNAYXDJqmq4NOSUOLWQlTZIzUDQ) (download [TSV](https://github.com/touzet/pampa/blob/main/Peptide_tables/table_mammals.tsv))
 
-### Bug Report
+## Bug Report
 
 PAMPA is still under development. If you come across any bugs or unexpected behavior, please take a moment to report it using our GitHub Issues page. Just click on the "Issues" tab above and create a new issue. You may also contact the author (helene.touzet@univ-lille.fr).
 
