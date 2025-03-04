@@ -20,15 +20,10 @@ def Pmask_distance(seq1, seq2):
         return -1
     r=0
     for c1, c2 in zip(seq1, seq2):
-        match (c1,c2):
-            case ('P', 'P'):
-                None
-            case ('P',_) :
-                r=r+1
-            case (_,'P'):
-                r=r+1
-            case _:
-                None
+        if c1=='P' and c2=='P':
+            None
+        elif c1=='P'or c2=='P':
+            r=r+1
     return r
     
 def find_markers_single_sequence(seq, set_of_digested_peptides, dict_of_model_markers, set_of_markers):
@@ -39,7 +34,6 @@ def find_markers_single_sequence(seq, set_of_digested_peptides, dict_of_model_ma
 
     # for each marker of dict_of_model_markers (characterized by a *code*) find the best location in the sequence seq.
     # output: set of markers
-
 
     helical_start=sequences.helical_region(seq)[0]
     set_of_found_codes=set() # contains the set of codes for  model markers found in the current sequence
@@ -97,7 +91,6 @@ def find_markers_single_sequence(seq, set_of_digested_peptides, dict_of_model_ma
                     elif d<found_markers[code][1] or (d==found_markers[code][1] and d2<found_markers[code][2]):
                         found_markers[code]=(pos,d,d2, marker_seq)
     
-    
     for code in found_markers:
         (pos,d,d2, marker_seq)=found_markers[code]
         l=len(marker_seq)
@@ -114,7 +107,8 @@ def find_markers_single_sequence(seq, set_of_digested_peptides, dict_of_model_ma
             dict["Sequence"]=new_sequence
             dict["Begin"]= pos+1
             dict["Length"]=l
-            if helical_start is not None and pos> helical_start:
+            print("Helical start"+str(helical_start)+" / start"+str(pos) )
+            if helical_start is not None and pos>helical_start:
                 dict["Hel"]=pos-helical_start+2
             dict["End"]=pos+l
             dict["Rank"]="species"
@@ -162,6 +156,8 @@ def check_helix_position(set_of_markers, set_of_new_markers):
     for m in set_of_new_markers:
         if m.helical() is None:
             set_of_dubious_markers.add(m)
+        elif m.code() not in dict_codes:
+            continue
         elif m.helical()==dict_codes[m.code()]:
             m=markers.post_comment(m,"Expected position in helical region. ")
             set_of_correct_sequences.add(m.sequence())
