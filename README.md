@@ -20,9 +20,13 @@ PAMPA necessitates the Biopython, pyteomics and scipy libraries.
 
 The documentation for PAMPA is available on PAMPA's wiki: https://github.com/touzet/pampa/wiki
 
-## Peptide tables
+## Peptide tables for COL1A1 and COL1A2 markers
 
 Spreadsheet for [mammals](https://docs.google.com/spreadsheets/d/1nwELNshZxF0h6DkIFNAYXDJqmq4NOSUOLWQlTZIzUDQ) (download [TSV](https://github.com/touzet/pampa/blob/main/Peptide_tables/table_mammals.tsv))
+
+## COL1A1 and COL1A2 sequences
+
+See this repository: https://github.com/touzet/pampa_sequences
 
 ## Bug Report
 
