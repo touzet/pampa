@@ -177,6 +177,8 @@ def table_print_rec(t, taxid, rank):
         table_print_rec(t, c, rank+1)
         
 def table_print(t, taxid=None):
+    if t is None:
+        return
     if taxid:
         table_print(t,taxid,0)
     else:
@@ -270,18 +272,20 @@ def create_taxonomy_file(taxonomy, outfile):
 def supplement_taxonomic_information(set_of_markers, taxo):
     taxa_with_missing_taxid={}
     for m in set_of_markers:
-        match (m.taxid(), m.taxon_name(), taxo):
-            case (None, None, _):
+        if m.taxid() is None:
+            if m.taxon_name() is None:
                 None
-            case (None, _, None):
+            elif taxo is None:
                 utils.update_dictoset(taxa_with_missing_taxid, m.taxon_name(), {m})
-            case (None, _, _):
+            else:
                 m.field["OX"] = search_taxid_from_taxon_name(m.taxon_name(), taxo)
-            case (_ , None, None):
-                None
-            case (_ , None, _):
-                m.field["OS"]=taxo.name[m.taxid()]
-            case _:
+        else:
+            if m.taxon_name() is None:
+                if taxo is None:
+                    None
+                else:
+                    m.field["OS"]=taxo.name[m.taxid()]
+            else:
                 None
     for i,taxon in enumerate(list(taxa_with_missing_taxid.keys())):
         s={m.taxid() for m in set_of_markers if m.taxon_name()==taxon and m.taxid() is not None}
