@@ -18,6 +18,31 @@ from src import message
 from src import utils
 from src import config
 
+def rename_field(field):
+        clean={
+            "GENE":"GN",
+            "PROTEIN":"GN",
+            "TAXID":"OX",
+            "TAXON":"OS",
+            "TAXON NAME":"OS",
+            "SEQID":"SeqID"
+                }
+        if field.upper() in clean:
+            return clean[field.upper()]
+        else:
+            return field
+            
+def restitute_field(field):
+    restitute={
+        "OX": "TaxID",
+        "OS": "Taxon name",
+        "GN": "Gene"
+        }
+    if field in restitute:
+        return restitute[field]
+    else:
+        return field
+    
 
 def process_fields_of_a_row(row):
     clean_row={}
@@ -26,17 +51,7 @@ def process_fields_of_a_row(row):
         clean_value=utils.clean(value)
         if clean_key is None or clean_value is None:
             continue
-        match clean_key.upper():
-            case "GENE"| "PROTEIN":
-                clean_key="GN"
-            case "TAXID" :
-                clean_key="OX"
-            case "TAXON NAME":
-                clean_key="OS"
-            case "SEQID":
-                clean_key="SeqID"
-            case _:
-                None
+        clean_key=rename_field(clean_key)
         clean_row[clean_key]=clean_value
     return clean_row
         
@@ -104,14 +119,14 @@ def process_one_row_from_peptide_table(row, i, file=None, warning_on=False):
 def parse_peptide_table(peptide_table_file_name, warning_on):
     set_of_markers=set()
     peptide_table = csv.DictReader(open(peptide_table_file_name), delimiter="\t")
-    list_of_headers=peptide_table.fieldnames
+    list_of_headers=list(map(utils.clean, peptide_table.fieldnames))
     for i,row in enumerate(peptide_table):
        # cleaned_row = {key.replace(" ","").lower():value for key, value in row.items()}
         new_markers=process_one_row_from_peptide_table(row,i+2, peptide_table_file_name, warning_on)
         set_of_markers.update(new_markers)
     if len(set_of_markers)==0:
         message.warning("File "+peptide_table_file_name+": no valid data found.") 
-    return set_of_markers, list_of_headers
+    return set_of_markers, list(map(rename_field, list_of_headers))
 
 
 def parse_peptide_tables(list_of_peptide_tables, list_of_constraints, taxonomy, warning_on=True):
@@ -124,17 +139,6 @@ def parse_peptide_tables(list_of_peptide_tables, list_of_constraints, taxonomy, 
     if len(list_of_peptide_tables)>1:
         list_of_headers=[]
     return set_of_markers, list_of_headers
-
-def transform(key):
-    match key:
-        case "OX":
-            return "TaxID"
-        case "OS":
-            return "Taxon name"
-        case "GN":
-            return "Gene"
-        case _:
-            return key
 
 
 def marker_order(m1, m2, list_of_codes):
@@ -156,20 +160,19 @@ def marker_order(m1, m2, list_of_codes):
 def build_peptide_table_from_set_of_markers(set_of_markers, outfile_name, list_of_headers=None, append_file=""):
     TSV_file = open(outfile_name, "w")
     if not list_of_headers:
-        headers={transform(key) for m in set_of_markers for key in m.field}
+        headers={restitute_field(key) for m in set_of_markers for key in m.field}
         list_of_headers=(config.sort_headers(headers))
     else:
-        list_of_headers_upper=list(map(utils.standard_upper, list_of_headers))
+        list_of_headers=list(map(restitute_field, list_of_headers))
     writer = csv.DictWriter(TSV_file, fieldnames=list_of_headers, delimiter="\t")
     writer.writeheader()
-    #writer.writerow({key:transform(key) for key in list_of_headers})
     # ordering markers
     set_of_codes=[m.code() for m in set_of_markers]
     list_of_codes=config.sort_headers(set_of_codes)
     list_of_markers=list(set_of_markers)
     list_of_markers.sort(key=cmp_to_key(partial(marker_order, list_of_codes=list_of_codes)))
     for m in list_of_markers:
-        dict={h:m.field[key] for key in m.field for  h in list_of_headers if   utils.equiv(h, transform(key))}
+        dict={h:m.field[key] for key in m.field for  h in list_of_headers if utils.equiv(h,restitute_field(key))}
         writer.writerow(dict)
     TSV_file.close()
     
