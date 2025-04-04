@@ -92,6 +92,8 @@ def check_and_update_parameters(homology, deamidation, allpeptides, fillin, sele
         if q[1]:
             if not os.path.isdir(directory):
                 message.escape("Directory "+directory+" not found (-d).")
+                
+      # TO DO : add taxonomy
             
     return (homology, deamidation, allpeptides, fillin, selection, peptide_table, fasta, directory, spectra, limit, taxonomy, output, report, output_dir, report_file)
 
@@ -116,9 +118,9 @@ def create_report_allpeptides(set_of_sequences, number_of_missed_cleavage, min_l
     print("  Mode : ALL PEPTIDES")
     print("  In silico digestion:")
     print("     Enzyme: trypsine")
-    print("     Maximal number of missed cleavages :"+str(number_of_missed_cleavage))
-    print("     Minimal peptide length :"+str(min_length))
-    print("     Maximal peptide length :"+str(max_length))
+    print("     Maximal number of missed cleavages: "+str(number_of_missed_cleavage))
+    print("     Minimal peptide length: "+str(min_length))
+    print("     Maximal peptide length: "+str(max_length))
 
     print("---------------------------------")
     print("   INPUT SEQUENCES")
@@ -207,13 +209,14 @@ def main():
         
         create_report_header(report)
         list_of_constraints=lmt.parse_limits(limit)
+        primary_taxonomy=ta.parse_taxonomy_simple_file(taxonomy)
     
         if homology:
             set_of_markers, _ = pt.parse_peptide_tables(peptide_table, None, None)
-           
-            set_of_sequences = fa.build_set_of_sequences(fasta, directory, list_of_constraints, None)
-           
-            list_of_markers=homo.find_markers_all_sequences(set_of_sequences, set_of_markers)
+            set_of_sequences = fa.build_set_of_sequences(fasta, directory, list_of_constraints, primary_taxonomy)
+            if taxonomy:
+                primary_taxonomy=ta.parse_taxonomy_simple_file(taxonomy)
+            list_of_markers=homo.find_markers_all_sequences(set_of_sequences, set_of_markers, primary_taxonomy)
             pt.build_peptide_table_from_set_of_markers(list_of_markers,output)
             create_report_homology(set_of_markers)
             
@@ -226,16 +229,31 @@ def main():
             set_of_new_markers=compute_masses.add_deamidation(set_of_markers, set_of_codes)
             pt.build_peptide_table_from_set_of_markers(set_of_markers.union(set_of_new_markers),output, list_of_headers)
             create_report_deamidation(peptide_table, set_of_codes)
-        
             
         if allpeptides:
-            set_of_sequences = fa.build_set_of_sequences(fasta, directory, set_of_constraints, None)
+            set_of_sequences = fa.build_set_of_sequences(fasta, directory, list_of_constraints, None)
             if len(set_of_sequences)==0:
-                message.escape("File "+fasta+": no valid sequences found.\n")
+                message.escape("No valid sequences found.\n")
             data=config.parse_config_file()
-            set_of_new_markers = compute_masses.add_PTM_or_masses_to_markers(seq.in_silico_digestion(set_of_sequences, data["number_of_missed_cleavages"], data["min_peptide_length"], data["max_peptide_length"]))
-            if len(set_of_new_markers)==0:
-                message.escape("No valid peptide markers found.\n")
+            if spectra is None:
+                set_of_new_markers = compute_masses.add_PTM_or_masses_to_markers(seq.in_silico_digestion(set_of_sequences, data["number_of_missed_cleavages"], data["min_peptide_length"], data["max_peptide_length"]))
+                if len(set_of_new_markers)==0:
+                    message.escape("No valid peptide markers found.\n")
+            else:
+                set_of_markers = compute_masses.add_PTM_or_masses_to_markers(seq.in_silico_digestion(set_of_sequences, data["number_of_missed_cleavages"], data["min_peptide_length"], data["max_peptide_length"]), True, True)
+                if len(set_of_markers)==0:
+                    message.escape("No valid peptide markers found.\n")
+                final_list_of_spectra=[]
+                for f in os.listdir(args.spectra):
+                    file_name = os.path.join(spectra, f)
+                    list_of_spectra=mass_spectrum.parser(file_name,f)
+                    if len(list_of_spectra)>0:
+                        final_list_of_spectra.extend(list_of_spectra)
+                if len(final_list_of_spectra)==0:
+                    message.escape("No valid spectra found.\n Please refer to the warning.log file for more detail.")
+                minimal_number_of_spectra=max(1, 1*len(final_list_of_spectra)/5)
+                set_of_new_markers=marker_filtering.filter_set_of_markers(set_of_markers, final_list_of_spectra, args.resolution, minimal_number_of_spectra)
+            
             list_of_markers=markers.sort_and_merge(set_of_new_markers)
             pt.build_peptide_table_from_set_of_markers(list_of_markers,output)
             create_report_allpeptides(set_of_sequences, data["number_of_missed_cleavages"], data["min_peptide_length"], data["max_peptide_length"])
@@ -262,18 +280,14 @@ def main():
         if fillin:
             # to do: check that there is a single peptide table
             set_of_markers, list_of_headers = pt.parse_peptide_tables(peptide_table, list_of_constraints, None, False) # check list_of_constraints here.
-            primary_taxonomy=ta.parse_taxonomy_simple_file(taxonomy)
             set_of_incomplete_markers, set_of_complete_markers, set_of_incomplete_fields  = supplement.search_for_incomplete_markers(set_of_markers, set(list_of_headers))
-            print ("Incomplete fields")
-            print(set_of_incomplete_fields)
             if fasta or directory:
                 set_of_sequences = fa.build_set_of_sequences(fasta, directory, list_of_constraints, None)
                 set_of_incomplete_markers=markers.add_sequences_and_positions_to_markers(set_of_incomplete_markers, set_of_sequences)
                 if args.resolution:
+                    set_of_incomplete_markers=markers.check_masses_and_sequences(set_of_incomplete_markers, args.resolution)
                     set_of_incomplete_markers=markers.find_sequences_from_mass(set_of_incomplete_markers, set_of_sequences, args.resolution)
-                if "Digestion" in set_of_incomplete_fields:
-                    print ("\n DIGESTION\n")
-                    set_of_incomplete_markers=supplement.add_digestion_status(set_of_incomplete_markers, set_of_sequences)
+                set_of_incomplete_markers=supplement.add_digestion_status(set_of_incomplete_markers, set_of_sequences)
             set_of_new_markers=compute_masses.add_PTM_or_masses_to_markers(set_of_incomplete_markers)
             set_of_new_markers=ta.supplement_taxonomic_information(set_of_new_markers, primary_taxonomy)
             
