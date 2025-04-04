@@ -13,8 +13,7 @@ from src import markers
 # input:
 # list of markers, represented by a sorted list of masses (in increasing order)
 # one spectrum
-# indique pour chaque marqueur s'il y a un pic correspondant
-# resultat: liste avec le nom du spectre si match 
+# output: list of matching peaks
 def compare_set_of_markers_for_one_spectrum(mass_list, spectrum, resolution):
     spectrum.sort()  
     peak_list=[None for m in mass_list] 

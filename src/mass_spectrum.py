@@ -101,9 +101,7 @@ def peak_parser_csv(peak_file_name, name):
         NameError: if the file is not a csv file
     """
 
-   
     peak_list = []
-    
     f= open (peak_file_name)
     next(f)
     line=1
@@ -164,24 +162,46 @@ def peak_parser_mzml(peak_file_name,name):
         list of Spectrum  
 
     """
-   
+    list_of_spectra=[]
+    file_name, _= os.path.splitext(peak_file_name)
+    with mzml.MzML(peak_file_name) as reader:
+        for spectrum in reader:
+            peak_list = []
+            name= file_name+" "+(
+            spectrum.get('scanList', {})
+            .get('scan', [{}])[0]  # Get first scan if available
+            .get('name', spectrum.get('id', 'Unknown'))  # Default to 'id' if 'name' is missing
+            )
+            #name = spectrum.get('name', spectrum.get('id', 'Unknown'))
+            #name= spectrum.get('id', 'Unknown')  # Get spectrum ID
+            mz_values = spectrum['m/z array']  # Extract m/z values
+            intensity_values = spectrum['intensity array']  # Extract intensity values
+            for mass, intensity in zip(mz_values, intensity_values):
+                peak = Peak(float(mass), float(intensity))
+                peak_list.append(peak)
+            list_of_spectra.append(Spectrum(name,peak_list,""))
+        
+       
+
+    '''
     try:
-        f = mzml.MzML(peak_file_name, use_index=True) 
-    except  : 
+        #f = mzml.MzML(peak_file_name, use_index=True)
+        f = mzml.MzML(peak_file_name)
+    except  :
         message.warning("File "+peak_file_name+" is incorrect (wrong format). File ignored." )
         return []
-    
     list_of_spectra=[]   
     for s in f:
         mass_array = s["m/z array"] # m/z 
         intensity_array = s["intensity array"] # intensity
-        name=s["id"]
+        name=s.get('id', 'Unknown')
         peak_list = []
         for mass, intensity in zip(mass_array.tolist(), intensity_array.tolist()):
             peak = Peak(float(mass), float(intensity))
             if peak not in peak_list:
                 peak_list.append(peak)
         list_of_spectra.append(Spectrum(name,peak_list,""))
+        '''
         
     return  list_of_spectra
 

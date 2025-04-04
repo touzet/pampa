@@ -303,17 +303,19 @@ def colinearity(set_of_markers):
 
 
 def str_union(s1, s2):
+    if s1 is None:
+        return s2
+    if s2 is None:
+        return s1
     s=set(s1.split()) | set(s2.split())
-    t=' '.join(s)
-    return t
+    return ' '.join(s)
+
 
 def sort_and_merge(set_of_markers):
     # merge all markers having the same taxid, sequence, PTM  and  mass into a single marker. The new seqId is the union of all taxid. What about the comment ?
     if len(set_of_markers)<2:
         return list(set_of_markers)
     list_of_markers=list(set_of_markers)
-  
-        
     # TO DO: deal with empty mass 
     list_of_markers.sort(key= lambda m: (ut.none_str(m.taxid()),ut.none_str(m.sequence()),ut.none_str(m.PTM()),ut.none_float(m.mass()),ut.none_int(m.begin()),ut.none_str(m.seqid())))
     list_of_selected_markers=[]
@@ -383,7 +385,7 @@ def find_positions_from_sequence(m, matching_sequences):
     for seq in matching_sequences:
         pos=(seq.sequence()).find(m.sequence())
         if pos>-1:
-            if m.length() is not None and m.length() !=len(seq.sequence()):
+            if m.length() is not None and m.length() !=len(m.sequence()):
                 message.warning("Peptide length modified in marker "+str(m)+". ")
             if m.begin() is not None and m.begin()!=pos+1 :
                 message.warning("Begin position modified in marker "+str(m)+". ")
@@ -396,7 +398,7 @@ def find_positions_from_sequence(m, matching_sequences):
             dict["OX"]=seq.taxid()
             dict["OS"]=seq.taxon_name()
             dict["GN"]=seq.protein()
-            dict["Hel"]= pos + sequences.helical_region(seq)[0]
+            dict["Hel"]= pos - sequences.helical_region(seq)[0] +2
             dict["SeqID"]= seq.seqid()
             dict["Begin"]=pos+1
             dict["End"]= pos + len(m.sequence())
@@ -441,13 +443,30 @@ def find_sequence_from_positions(m, matching_sequences):
         dict["SeqID"]=seq.seqid()
         dict["Begin"]=begin
         dict["End"]=end
-        dict["Status"]="Genetic"
+        if m.status() is None:
+            dict["Status"]="Genetic"
         m2=Marker(field=dict)
         m2=update_comment(m2,"Sequence deduced from positions. ")
         set_of_markers.add(m2)
     return set_of_markers
         
-    
+def check_masses_and_sequences(set_of_markers, resolution):
+    for m in set_of_markers:
+        if m.sequence() is None or m.mass() is None:
+            continue
+        m2=Marker(field={"Sequence":m.sequence()})
+        candidate_markers=compute_masses.add_PTM_or_masses_to_markers({m2}, True, True)
+        Found=False
+        for cm in candidate_markers:
+            if ut.matching_masses(cm.mass(), m.mass(), resolution):
+                Found=True
+                m.field["mass"]=cm.mass()
+                m.field["PTM"]=cm.PTM()
+                m=post_comment(m, " Adjusted mass (was "+str(m.mass())+").")
+        if not Found:
+            m=post_comment(m, " Inconsistent mass.")
+    return set_of_markers
+
 # use mass to find sequence
 def find_sequences_from_mass(set_of_markers, set_of_sequences, resolution):
     set_of_target_markers={m for m in set_of_markers if (m.taxid() or m.taxon_name()) and m.mass() and m.sequence() is None}  # missing sequences for the set of markers
