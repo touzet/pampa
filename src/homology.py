@@ -136,8 +136,10 @@ def find_helical_position(set_of_markers):
         if m.helical() is None or str(m.helical())=="0":
             continue
         dict_codes[m.code()].append(m.helical())
-    #dict_couting={}
     for code in dict_codes:
+        if len(dict_codes[code])==0:
+            dict_codes[code]=0
+            continue
         counts = Counter(dict_codes[code])
         most_common, freq = counts.most_common(1)[0]  # Get the most frequent element and its count
         if freq > len(dict_codes[code]) / 2:
@@ -150,23 +152,20 @@ def check_quality(set_of_markers, set_of_new_markers):
     dict_codes=find_helical_position(set_of_markers)
     set_of_sequences={m.sequence() for m in set_of_markers}
     set_of_new_sequences={m.sequence() for m in set_of_new_markers}
-    dict_of_new_sequences={seq:len({m for m in set_of_new_markers if m.sequence()==seq}) for seq in set_of_new_sequences}
-        
+    dict_of_new_sequences={seq:len({m.taxon_name() for m in set_of_new_markers if m.sequence()==seq}) for seq in set_of_new_sequences}
     for m in set_of_new_markers:
         exist_sequence=(m.sequence() in set_of_sequences) or (dict_of_new_sequences[m.sequence()]>1)
-        if m.helical() is None and exist_sequence:
-            m.field["Quality"]="1"
-        elif m.helical() is None and not exist_sequence:
-            m.field["Quality"]="0"
-        elif exist_sequence and m.helical()==dict_codes[m.code()] :
-            m.field["Quality"]="3"
+        exist_code= dict_codes[m.code()]>0 and m.helical() is not None
+        if not exist_code:
+            m.field["Quality"]=0
         elif m.helical()==dict_codes[m.code()]:
-            m.field["Quality"]="2"
-        elif exist_sequence and (abs(m.helical()-dict_codes[m.code()])<4):
-            m.field["Quality"]="2"
+            m.field["Quality"]=2
+        elif abs(m.helical()-dict_codes[m.code()])<4:
+            m.field["Quality"]=1
         else:
-            m.field["Quality"]="1"
-
+            m.field["Quality"]=0
+        if exist_sequence:
+            m.field["Quality"]+=1
     return set_of_new_markers
 
 def find_markers_all_sequences(set_of_sequences, set_of_markers, taxo):
@@ -199,7 +198,6 @@ def find_markers_all_sequences(set_of_sequences, set_of_markers, taxo):
         set_of_new_markers.update(s)
         
     list_of_new_markers=markers.sort_and_merge(set_of_new_markers)
-    
     list_of_new_markers=check_quality(set_of_markers, list_of_new_markers)
 
     return list_of_new_markers
