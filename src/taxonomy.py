@@ -317,3 +317,20 @@ def add_taxonomy_ranks(set_of_markers, t):
             else:
                 FINISHED=True
     return set_of_markers
+
+def find_closest_ID(target, set_of_taxids, taxo):
+    node=target
+    set_of_taxids={t for t in set_of_taxids if t is not None}
+    if len(set_of_taxids)==0:
+        return "."
+    if target not in taxo:
+        print ("Lost taxid: "+target)
+        return ". "
+    print(target+ " "+str(set_of_taxids))
+    while node not in set_of_taxids and len(set_of_taxids & taxo.descendants[node])==0:
+        if node in taxo.parent:
+            node=taxo.parent[node]
+        else:
+            print("This is the end "+str(node))
+            return ""
+    return "["+taxo.rank[node]+"]. "

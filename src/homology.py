@@ -6,8 +6,10 @@ from collections import Counter
 
 from src import utils as ut
 from src import compute_masses as mass
+from src import taxonomy
 from src import sequences 
 from src import markers
+from src import collagen
 from src import config
 
 def hamming_distance(seq1, seq2):
@@ -15,18 +17,8 @@ def hamming_distance(seq1, seq2):
         return -1
     return sum(c1 != c2 for c1, c2 in zip(seq1, seq2))
 
-def Pmask_distance(seq1, seq2):
-    if len(seq1)!=len(seq2):
-        return -1
-    r=0
-    for c1, c2 in zip(seq1, seq2):
-        if c1=='P' and c2=='P':
-            None
-        elif c1=='P'or c2=='P':
-            r=r+1
-    return r
     
-def find_markers_single_sequence(seq, set_of_digested_peptides, dict_of_model_markers, set_of_markers):
+def find_markers_single_sequence(seq, set_of_digested_peptides, dict_of_model_markers, set_of_markers, taxo):
     # seq: protein (object defined in sequences.py)
     # dict_of_model_markers, dictionary, key: peptide sequence [string], value: set of 3-uplets (PTM, code, gene_name)
     # dict_of_taxid, key: (sequence,PTM), value: set of taxid
@@ -84,7 +76,7 @@ def find_markers_single_sequence(seq, set_of_digested_peptides, dict_of_model_ma
         for pos in range(0, len(seq.sequence())-l):
             d=hamming_distance((seq.sequence())[pos:pos+l], marker_seq)
             if d<len(marker_seq)/10+1:
-                d2=Pmask_distance((seq.sequence())[pos:pos+l], marker_seq)
+                d2=collagen.Pmask_distance((seq.sequence())[pos:pos+l], marker_seq)
                 for  code in set_of_codes:
                     if (code not in found_markers) :
                         found_markers[code]=(pos,d,d2, marker_seq)
@@ -107,13 +99,10 @@ def find_markers_single_sequence(seq, set_of_digested_peptides, dict_of_model_ma
             dict["Sequence"]=new_sequence
             dict["Begin"]= pos+1
             dict["Length"]=l
-            print("Helical start"+str(helical_start)+" / start"+str(pos) )
             if helical_start is not None and pos>helical_start:
                 dict["Hel"]=pos-helical_start+2
             dict["End"]=pos+l
             dict["Rank"]="species"
-            dict["PTM"]=model_marker[0]
-            dict["Mass"]=mass.peptide_mass_with_PTM(new_sequence,model_marker[0]) # à modifier pour conserver la masse
             dict["Marker"]=model_marker[1]
             dict["GN"]=model_marker[2]
             dict["Status"]="Genetic"
@@ -122,59 +111,65 @@ def find_markers_single_sequence(seq, set_of_digested_peptides, dict_of_model_ma
             else:
                 dict["Digestion"]="Yes"
             if d==0:
-                dict["Comment"]="Homology : "+ seq.sequence()[pos-1]+" - peptide - "+ seq.sequence()[pos+l]+", exact match. "
+                dict["Comment"]="Homology : "+ seq.sequence()[pos-1]+" - peptide - "+ seq.sequence()[pos+l]+", exact match "
             elif d==1:
-                dict["Comment"]="Homology : "+ seq.sequence()[pos-1]+" - peptide - "+ seq.sequence()[pos+l]+ ", 1 mismatch with " + marker_seq+". "
+                dict["Comment"]="Homology : "+ seq.sequence()[pos-1]+" - peptide - "+ seq.sequence()[pos+l]+ ", 1 mismatch with " + marker_seq+" "
             else:
-                dict["Comment"]="Homology : "+ seq.sequence()[pos-1]+" - peptide - "+ seq.sequence()[pos+l]+ ", "+str(d)+ " mismatches with " + marker_seq+". "
+                dict["Comment"]="Homology : "+ seq.sequence()[pos-1]+" - peptide - "+ seq.sequence()[pos+l]+ ", "+str(d)+ " mismatches with " + marker_seq+" "
+            if taxo:
+                set_of_potential_taxids={m.taxid() for m in set_of_markers if m.sequence()==marker_seq}
+                dict["Comment"]=dict["Comment"]+taxonomy.find_closest_ID(seq.taxid(),set_of_potential_taxids,taxo)
+            else:
+                dict["Comment"]=dict["Comment"]+". "
+            if collagen.P_pattern(new_sequence)[0]==collagen.P_pattern(marker_seq)[0]:
+                dict["PTM"]=model_marker[0]
+            else:
+                dict["Comment"]=dict["Comment"]+ "PTM updated. "
+                
             new_marker=markers.Marker(field=dict)
             set_of_new_markers.add(new_marker)
-            
-    return set_of_new_markers
+    return mass.add_PTM_or_masses_to_markers(set_of_new_markers)
     
 def find_helical_position(set_of_markers):
-    dict_codes={}
+    dict_codes={m.code():[] for m in set_of_markers}
     for m in set_of_markers:
         if m.helical() is None or str(m.helical())=="0":
             continue
-        if m.code() in dict_codes:
-            dict_codes[m.code()].append(m.helical())
-        else:
-            dict_codes[m.code()]=[m.helical()]
-    dict_couting={}
+        dict_codes[m.code()].append(m.helical())
+    #dict_couting={}
     for code in dict_codes:
         counts = Counter(dict_codes[code])
         most_common, freq = counts.most_common(1)[0]  # Get the most frequent element and its count
         if freq > len(dict_codes[code]) / 2:
             dict_codes[code]=most_common
+        else:
+            dict_codes[code]=0
     return dict_codes
     
-def check_helix_position(set_of_markers, set_of_new_markers):
+def check_quality(set_of_markers, set_of_new_markers):
     dict_codes=find_helical_position(set_of_markers)
-    set_of_correct_sequences=set()
-    set_of_dubious_markers=set()
-    for m in set_of_new_markers:
-        if m.helical() is None:
-            set_of_dubious_markers.add(m)
-        elif m.code() not in dict_codes:
-            continue
-        elif m.helical()==dict_codes[m.code()]:
-            m=markers.post_comment(m,"Expected position in helical region. ")
-            set_of_correct_sequences.add(m.sequence())
-        elif abs(m.helical()-dict_codes[m.code()])<4:
-            m=markers.post_comment(m,"Shifted position in helical region. ")
-        else:
-            set_of_dubious_markers.add(m)
-    for m in set_of_dubious_markers:
-        m.field["Hel"]=0
-        if m.sequence() in set_of_correct_sequences:
-            m=markers.post_comment(m,"No helical position. ")
-        else:
-            m=markers.post_comment(m,"Dubious sequence (no helical position, new sequence). ")
+    set_of_sequences={m.sequence() for m in set_of_markers}
+    set_of_new_sequences={m.sequence() for m in set_of_new_markers}
+    dict_of_new_sequences={seq:len({m for m in set_of_new_markers if m.sequence()==seq}) for seq in set_of_new_sequences}
         
+    for m in set_of_new_markers:
+        exist_sequence=(m.sequence() in set_of_sequences) or (dict_of_new_sequences[m.sequence()]>1)
+        if m.helical() is None and exist_sequence:
+            m.field["Quality"]="1"
+        elif m.helical() is None and not exist_sequence:
+            m.field["Quality"]="0"
+        elif exist_sequence and m.helical()==dict_codes[m.code()] :
+            m.field["Quality"]="3"
+        elif m.helical()==dict_codes[m.code()]:
+            m.field["Quality"]="2"
+        elif exist_sequence and (abs(m.helical()-dict_codes[m.code()])<4):
+            m.field["Quality"]="2"
+        else:
+            m.field["Quality"]="1"
+
     return set_of_new_markers
 
-def find_markers_all_sequences(set_of_sequences, set_of_markers):
+def find_markers_all_sequences(set_of_sequences, set_of_markers, taxo):
     # set_of_sequences: set of target fasta sequences[object defined in sequences.py]
     
     # construction of dict_of_model_markers and dict_of_taxid
@@ -200,12 +195,12 @@ def find_markers_all_sequences(set_of_sequences, set_of_markers):
     number_of_missed_cleavages=int(config.parse_config_file()["number_of_missed_cleavages"])
     for seq in set_of_sequences:
         set_of_digested_peptides=sequences.in_silico_digestion({seq}, number_of_missed_cleavages, 12, 33, False)
-        s=find_markers_single_sequence(seq, set_of_digested_peptides, dict_of_model_markers, set_of_markers)
+        s=find_markers_single_sequence(seq, set_of_digested_peptides, dict_of_model_markers, set_of_markers, taxo)
         set_of_new_markers.update(s)
         
     list_of_new_markers=markers.sort_and_merge(set_of_new_markers)
     
-    list_of_new_markers=check_helix_position(set_of_markers, list_of_new_markers)
+    list_of_new_markers=check_quality(set_of_markers, list_of_new_markers)
 
     return list_of_new_markers
 
