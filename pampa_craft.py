@@ -21,10 +21,11 @@ from src import supplement
 from src import compute_masses
 from src import limit as lmt
 
-def check_and_update_parameters(homology, deamidation, allpeptides, fillin, selection, peptide_table, fasta, directory, spectra, limit, taxonomy, output):
+def check_and_update_parameters(homology, deamidation, allpeptides, fillin, selection, peptide_table, fasta, directory, spectra, limit, taxonomy, output, web):
     """
     Parameters checking and fixing. Configuration of loggers
     """
+
 
     if output is None:
         message.configure("")
@@ -95,7 +96,7 @@ def check_and_update_parameters(homology, deamidation, allpeptides, fillin, sele
                 
       # TO DO : add taxonomy
             
-    return (homology, deamidation, allpeptides, fillin, selection, peptide_table, fasta, directory, spectra, limit, taxonomy, output, report, output_dir, report_file)
+    return (homology, deamidation, allpeptides, fillin, selection, peptide_table, fasta, directory, spectra, limit, taxonomy, output, report, output_dir, report_file, web)
 
 def create_report_homology(set_of_markers):
     print("  Mode : HOMOLOGY")
@@ -205,7 +206,7 @@ def main():
 
     try:
         # to do: add taxonomy 
-        (homology, deamidation, allpeptides, fillin, selection, peptide_table, fasta, directory, spectra, limit, taxonomy, output, report, output_dir, report_file)=check_and_update_parameters(args.homology, args.deamidation, args.allpeptides, args.fillin, args.selection, args.peptide_table, args.fasta, args.directory, args.spectra, args.limit, args.taxonomy, args.output)
+        (homology, deamidation, allpeptides, fillin, selection, peptide_table, fasta, directory, spectra, limit, taxonomy, output, report, output_dir, report_file,web)=check_and_update_parameters(args.homology, args.deamidation, args.allpeptides, args.fillin, args.selection, args.peptide_table, args.fasta, args.directory, args.spectra, args.limit, args.taxonomy, args.output, args.web)
         
         create_report_header(report)
         list_of_constraints=lmt.parse_limits(limit)
@@ -214,9 +215,8 @@ def main():
         if homology:
             set_of_markers, _ = pt.parse_peptide_tables(peptide_table, None, None)
             set_of_sequences = fa.build_set_of_sequences(fasta, directory, list_of_constraints, primary_taxonomy)
-            if taxonomy:
-                primary_taxonomy=ta.parse_taxonomy_simple_file(taxonomy)
             list_of_markers=homo.find_markers_all_sequences(set_of_sequences, set_of_markers, primary_taxonomy)
+            list_of_markers=ta.add_taxonomy_ranks(list_of_markers, primary_taxonomy)
             pt.build_peptide_table_from_set_of_markers(list_of_markers,output)
             create_report_homology(set_of_markers)
             
@@ -288,7 +288,7 @@ def main():
                     set_of_incomplete_markers=markers.check_masses_and_sequences(set_of_incomplete_markers, args.resolution)
                     set_of_incomplete_markers=markers.find_sequences_from_mass(set_of_incomplete_markers, set_of_sequences, args.resolution)
                 set_of_incomplete_markers=supplement.add_digestion_status(set_of_incomplete_markers, set_of_sequences)
-            set_of_new_markers=compute_masses.add_PTM_or_masses_to_markers(set_of_incomplete_markers)
+            set_of_new_markers=supplement.add_length(compute_masses.add_PTM_or_masses_to_markers(set_of_incomplete_markers))
             set_of_new_markers=ta.supplement_taxonomic_information(set_of_new_markers, primary_taxonomy)
             
             #list_of_markers=list(set_of_new_markers | set_of_complete_markers)
@@ -302,21 +302,21 @@ def main():
 
         create_report_footer(output_dir, output, report)
         
-        print("")
-        print("   Job completed.")
-        print("   All results are available in the following files.")
-        print("")
-        print(f"   - New peptide table : {output}")
-        print(f"   - Report on the run : {report}")
-        print("")
-    # TO DO: add the new peptide table, if necessary
+        if not web:
+            print("")
+            print("   Job completed.")
+            print("   All results are available in the following files.")
+            print("")
+            print(f"   - New peptide table : {output}")
+            print(f"   - Report on the run : {report}")
+            print("")
 
-        if os.path.getsize(os.path.join(output_dir, "warning.log")) > 0:
-            print("Warnings were raised during the execution.")
-            print("Please refer to the warning.log file for detail.")
+            if os.path.getsize(os.path.join(output_dir, "warning.log")) > 0:
+                print("Warnings were raised during the execution.")
+                print("Please refer to the warning.log file for detail.")
         
     except message.InputError:
-        if not args.web:
+        if not web:
            print("\n   An error occured with your input. Stopping execution.")
            print("   Please refer to the warning.log file for detail.")
         else:
