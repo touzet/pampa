@@ -156,37 +156,34 @@ def marker_order(m1, m2, list_of_codes):
         return 1
     return 0
     
+def sort_headers(list_of_headers, set_of_headers):
+    list_of_selected_headers=[]
+    list_of_other_headers=[]
+    for element in set_of_headers:
+        if element in list_of_headers:
+            list_of_selected_headers.append((list_of_headers.index(element), element))
+        else:
+            list_of_other_headers.append(element)
+    list_of_selected_headers.sort(key=lambda x:x[0])
+    return [x[1] for x in list_of_selected_headers]+list_of_other_headers
+
     
-def build_peptide_table_from_set_of_markers(set_of_markers, outfile_name, list_of_headers=None, append_file=""):
+    
+def build_peptide_table_from_set_of_markers(set_of_markers, outfile_name, sorted_headers, sorted_markers):
+    set_of_headers={restitute_field(key) for m in set_of_markers for key in m.field}
+    sorted_headers=list(map(restitute_field, sorted_headers))
+    sorted_headers=sort_headers(sorted_headers, set_of_headers)
     TSV_file = open(outfile_name, "w")
-    if not list_of_headers:
-        headers={restitute_field(key) for m in set_of_markers for key in m.field}
-        list_of_headers=(config.sort_headers(headers))
-    else:
-        list_of_headers=list(map(restitute_field, list_of_headers))
-    writer = csv.DictWriter(TSV_file, fieldnames=list_of_headers, delimiter="\t")
+    writer = csv.DictWriter(TSV_file, fieldnames=sorted_headers, delimiter="\t")
     writer.writeheader()
     # ordering markers
     set_of_codes=[m.code() for m in set_of_markers]
-    list_of_codes=config.sort_headers(set_of_codes)
+    list_of_codes=sort_headers(sorted_markers,set_of_codes)
     list_of_markers=list(set_of_markers)
     list_of_markers.sort(key=cmp_to_key(partial(marker_order, list_of_codes=list_of_codes)))
     for m in list_of_markers:
-        dict={h:m.field[key] for key in m.field for  h in list_of_headers if utils.equiv(h,restitute_field(key))}
+        dict={h:m.field[key] for key in m.field for  h in sorted_headers if utils.equiv(h,restitute_field(key))}
         writer.writerow(dict)
     TSV_file.close()
     
-    """
-    if len(append_file)==0:
-        
-        tsv_file = open(tsv_outfile_name, "w")
-        tsv_file.write("Rank \t Taxid \t Taxon name \t Sequence \t PTM \t Marker \t Mass \t Gene \t Hel \t SeqId \t Begin \t End \t Status\t Comment\n")
-    else:
-        shutil.copyfile(append_file, tsv_outfile_name)
-        tsv_file = open(tsv_outfile_name, "a") 
-    for marker in set_of_markers:
-        tsv_file.write(str(marker)+"\n")
-    tsv_file.close()
-    """
-
-
+    
