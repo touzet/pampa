@@ -61,14 +61,22 @@ def helical_region(seq):
     else:
         return pos_GPM+start_match +1, end_match+1 
 
-def raw_in_silico_digestion(seq,  number_of_misscleavages=1, min_length=12):
+def raw_in_silico_digestion(seq, config_digestion):
     """ build a set of peptides from a sequence by in silico digestion"""
-    set_of_peptides=parser.icleave(seq, parser.expasy_rules['trypsin'], number_of_misscleavages, min_length)
+    min_length=config_digestion["min_peptide_length"]
+    max_length=config_digestion["min_peptide_length"]
+    enzyme=config_digestion["enzyme"]
+    number_of_misscleavages=config_digestion["number_of_missed_cleavages"]
+    set_of_peptides=parser.icleave(seq, parser.expasy_rules[enzyme], number_of_misscleavages, min_length, max_length)
     return {y for (x,y) in set_of_peptides}
     
     
-def in_silico_digestion(set_of_sequences, number_of_misscleavages=1, min_length=12, max_length=33, mature=True):
+def in_silico_digestion(set_of_sequences, config_digestion, mature=True):
     """ build a set of markers from a set of sequences by in silico digestion"""
+    min_length=config_digestion["min_peptide_length"]
+    max_length=config_digestion["max_peptide_length"]
+    enzyme=config_digestion["enzyme"]
+    number_of_misscleavages=config_digestion["number_of_missed_cleavages"]
     set_of_markers=set()
     for s in set_of_sequences:
         min=None
@@ -81,12 +89,10 @@ def in_silico_digestion(set_of_sequences, number_of_misscleavages=1, min_length=
             (min,max)=(min-1, max-1)
             helical=True               
         mature_seq=s.sequence()[min:max]
-        set_of_peptides=  parser.icleave(mature_seq, parser.expasy_rules['trypsin'], number_of_misscleavages, min_length)
+        set_of_peptides=  parser.icleave(mature_seq, parser.expasy_rules[enzyme], number_of_misscleavages, min_length, max_length)
         
         for (pos, peptide) in set_of_peptides:
             if ('Z' in peptide or 'B' in peptide or 'X' in peptide): ## amino acids
-                continue
-            if len(peptide)>max_length:
                 continue
             dict={}
             dict["Sequence"]=peptide
@@ -156,12 +162,6 @@ def mature_sequence(seq):
     return (start_query,end_query)
         
 
-
-# TO remove ?
-def reduce(seq):
-    seq=seq.replace(" ", "")
-    seq=seq.lower()
-    return  seq
 
 
 
