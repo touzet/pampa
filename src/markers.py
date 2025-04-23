@@ -21,29 +21,17 @@ class Marker(object):
         return str(self.field)
         
     def sequence(self):
-        if "Sequence" in self.field:
-            return self.field["Sequence"]
-        else:
-            return None
-            
+        return self.field.get("Sequence")
+                    
     def taxid(self):
-        if "OX" in self.field:
-            return self.field["OX"]
-        else:
-            return None
+        return self.field.get("OX")
             
     def code(self):
-        if "Marker" in self.field:
-            return self.field["Marker"]
-        else:
-            return None
+        return self.field.get("Marker")
         
     def taxon_name(self):
-        if "OS" in self.field:
-            return self.field["OS"]
-        else:
-            return None
-
+        return self.field.get("OS")
+        
     def PTM(self):
         return self.field.get("PTM")
 
@@ -67,6 +55,9 @@ class Marker(object):
         
     def helical(self):
         return self.field.get("Hel")
+    
+    def quality(self):
+        return self.field.get("Quality")
     
     def status(self):
         return self.field.get("Status")
@@ -477,7 +468,7 @@ def find_sequences_from_mass(set_of_markers, set_of_sequences, resolution):
         set_of_target_sequences.update(find_matching_sequences(m, set_of_sequences))
 
     set_of_new_markers={m for m in set_of_markers if m.sequence()}
-    set_of_denovo_markers = compute_masses.add_PTM_or_masses_to_markers(sequences.in_silico_digestion(set_of_target_sequences, 2, 10), True, True)
+    set_of_denovo_markers = compute_masses.add_PTM_or_masses_to_markers(sequences.in_silico_digestion(set_of_target_sequences, config_digestion), True, True)
     denovo_mass_list=[(m.mass(),m) for m in set_of_denovo_markers] # masses of all tryptic peptides
     denovo_mass_list.sort(key=lambda x:x[0])
     founded_masses={y:0 for (x,y) in target_mass_list}  
