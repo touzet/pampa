@@ -16,166 +16,12 @@ from src import marker_filtering
 from src import mass_spectrum
 from src import message
 from src import taxonomy as ta
-from src import config
+from src import config as conf
 from src import supplement
 from src import compute_masses
 from src import limit as lmt
-
-def check_and_update_parameters(homology, deamidation, allpeptides, fillin, selection, peptide_table, fasta, directory, spectra, limit, taxonomy, output):
-    """
-    Parameters checking and fixing. Configuration of loggers
-    """
-
-    if output is None:
-        message.configure("")
-        message.escape("Missing parameter: output (-o).")
-    
-    output_dir, output_file = os.path.split(output)
-    
-    if len(output_dir)>0 :
-        # Ensure the output directory exists. If not, create it.
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
-
-    message.configure(output_dir)
-
-    if deamidation is None and homology is None and allpeptides is None and fillin is None and spectra is None:
-         message.escape("Missing parameter: --homology, --allpeptides, --fillin, --deamidation,  or -s.")
-
-    if homology is None and allpeptides is None and fillin is None:
-        if not peptide_table:
-            message.escape("Missing parameter: -p (peptide table).")
-        if fasta:
-            message.warning("Unused parameter: -f (fasta file).")
-        if directory:
-            message.warning("Unused parameter: -d (directory for fasta files)")
-            
-    if (homology and allpeptides) or (homology and fillin) or (allpeptides and fillin):
-        message.escape("Parameters --homology, --allpeptides and --fillin are mutually exclusive.")
-    
-    extension=output_file[-4:].lower()
-    if extension!=".tsv":
-        output_file=output_file+".tsv"
-    else:
-        output_file=output_file[:-4]+".tsv"
-    output=os.path.join(output_dir, output_file)
-    report_file="report_"+output_file.replace("tsv", "txt")
-    report=os.path.join(output_dir, report_file)
-
-    if fillin or homology or deamidation:
-        if peptide_table is None:
-            message.escape("Missing parameter: -p (peptide table)")
-        for pep in peptide_table:
-            if not os.path.isfile(pep):
-                message.escape("File "+pep+" not found (-p).")
-                
-    if allpeptides and peptide_table:
-        message.warning("Unused parameter: -p (peptide_table)")
-                
-    if limit:
-        if not os.path.isfile(limit):
-            message.escape("File "+limit+" not found (-l).")
-        if os.path.getsize(limit) == 0:
-            message.warning("File "+limit+" is empty.")
-            
-    if allpeptides or homology:
-        q = (fasta, directory)
-        if not (q[0] or q[1] ):
-            message.escape("Missing target sequences (-f or -d).")
-        if (q[0] and q[1])  :
-            message.escape("Options -f (fasta file) and -d (directory of fasta files) are mutually exclusive.")
-        if q[0]:
-            if not os.path.isfile(fasta):
-                message.escape("File "+fasta+" not found (-f).")
-            if os.path.getsize(fasta) == 0:
-                message.escape("File "+fasta+" is empty.")    
-        if q[1]:
-            if not os.path.isdir(directory):
-                message.escape("Directory "+directory+" not found (-d).")
-                
-      # TO DO : add taxonomy
-            
-    return (homology, deamidation, allpeptides, fillin, selection, peptide_table, fasta, directory, spectra, limit, taxonomy, output, report, output_dir, report_file)
-
-def create_report_homology(set_of_markers):
-    print("  Mode : HOMOLOGY")
-    print("  Input peptide table:" )
-    print("---------------------------------")
-    print(" NEW PEPTIDE TABLE")
-    print("---------------------------------\n")
-    markers.colinearity(set_of_markers)
-    markers.check_set_of_markers(set_of_markers)
-    
-def create_report_deamidation(peptide_table, set_of_codes):
-    print("  Mode : DEAMIDATION")
-    print("  Peptide table: "+ str(peptide_table))
-    if len(set_of_codes)==0:
-        print("  Modified peptide markers: all")
-    else:
-        print("  Modified peptide markers: "+ str(set_of_codes))
-        
-def create_report_allpeptides(set_of_sequences, number_of_missed_cleavage, min_length, max_length):
-    print("  Mode : ALL PEPTIDES")
-    print("  In silico digestion:")
-    print("     Enzyme: trypsine")
-    print("     Maximal number of missed cleavages: "+str(number_of_missed_cleavage))
-    print("     Minimal peptide length: "+str(min_length))
-    print("     Maximal peptide length: "+str(max_length))
-
-    print("---------------------------------")
-    print("   INPUT SEQUENCES")
-    print("---------------------------------")
-    for seq in set_of_sequences:
-        print ("     "+seq.seqid()+" "+seq.protein()+ " "+seq.taxon_name())
-        
-def create_report_supplement(peptide_table,list_of_markers=None, set_of_sequences=None):
-    print("  Mode : SUPPLEMENT\n")
-    print("---------------------------------")
-    print("   INPUT PEPTIDE TABLE")
-    print("---------------------------------")
-    print(str(peptide_table)+"\n")
-    if set_of_sequences:
-        print("---------------------------------")
-        print("   INPUT SEQUENCES")
-        print("---------------------------------")
-        for seq in set_of_sequences:
-            print ("     "+str(seq.seqid())+" "+str(seq.protein())+ " "+str(seq.taxon_name()))
-        print("---------------------------------")
-        print(" NEW PEPTIDE TABLE")
-        print("---------------------------------\n")
-        markers.colinearity(set(list_of_markers))
-        markers.check_set_of_markers(set(list_of_markers))
-
-def create_report_header(report):
-    sys.stdout=open(report, 'w')
-    print("============================================\n")
-    print("                PAMPA CRAFT\n")
-    print("============================================\n")
-    print (time.ctime())
-    print("")
-    print("---------------------------------")
-    print("   PARAMETERS")
-    print("---------------------------------\n")
-
-def create_report_footer(output_dir, output, report):
-    if os.path.getsize(os.path.join(output_dir,'warning.log')) > 0:
-        print("---------------------------------")
-        print("   WARNINGS")
-        print("---------------------------------\n")
-        print("  Warnings were raised regarding your inputs.\n")
-        with open(os.path.join(output_dir,'warning.log'), 'r') as file:
-            for line in file:
-                print("  - "+line, end="")
-        print("")
-    print("")
-    print("---------------------------------")
-    print("   OUTPUT FILES")
-    print("---------------------------------\n")
-    print("  Main result file (TSV)   : "+output)
-    print("  Report (this file)       : "+report)
-
-    sys.stdout = sys.__stdout__
-    
+from src import params_checker
+from src import report as rep
 
 class CustomFormatter(argparse.HelpFormatter):
     def add_argument(self, action):
@@ -201,24 +47,34 @@ def main():
     parser.add_argument("-l", dest="limit",  help="Limit file (txt)", type=str)
     parser.add_argument("-t", dest="taxonomy", help="Taxonomy file (TSV)", type=str)
     parser.add_argument("--web", dest="web",  action='store_true', help=argparse.SUPPRESS, required=False)
+    parser.add_argument("-c", dest="config", help="Config file (json). Default is config.json", type=str, required=False)
     args = parser.parse_args()
 
     try:
-        # to do: add taxonomy 
-        (homology, deamidation, allpeptides, fillin, selection, peptide_table, fasta, directory, spectra, limit, taxonomy, output, report, output_dir, report_file)=check_and_update_parameters(args.homology, args.deamidation, args.allpeptides, args.fillin, args.selection, args.peptide_table, args.fasta, args.directory, args.spectra, args.limit, args.taxonomy, args.output)
+        output_dir=""
+        output=""
+        report="report.txt"
+        web=args.web
         
-        create_report_header(report)
-        list_of_constraints=lmt.parse_limits(limit)
-        primary_taxonomy=ta.parse_taxonomy_simple_file(taxonomy)
+        output_dir, output_file, report_file = params_checker.logger_and_outputdir_configuration(args.output)
+        output=os.path.join(output_dir, output_file)
+        report=os.path.join(output_dir, report_file)
+        rep.create_report_header(report)
+        (homology, deamidation, allpeptides, fillin, selection, peptide_table, fasta, directory, spectra, resolution, limit, taxonomy, config) = params_checker.check_and_update_parameters_craft(args.homology, args.deamidation, args.allpeptides, args.fillin, args.selection, args.peptide_table, args.fasta, args.directory, args.spectra, args.resolution, args.limit, args.taxonomy, args.config)
+        
+        list_of_constraints = lmt.parse_limits(limit)
+        primary_taxonomy = ta.parse_taxonomy_simple_file(taxonomy)
+        config_markers = conf.config_markers(config)
+        config_headers = conf.config_headers(config)
     
         if homology:
             set_of_markers, _ = pt.parse_peptide_tables(peptide_table, None, None)
             set_of_sequences = fa.build_set_of_sequences(fasta, directory, list_of_constraints, primary_taxonomy)
-            if taxonomy:
-                primary_taxonomy=ta.parse_taxonomy_simple_file(taxonomy)
-            list_of_markers=homo.find_markers_all_sequences(set_of_sequences, set_of_markers, primary_taxonomy)
-            pt.build_peptide_table_from_set_of_markers(list_of_markers,output)
-            create_report_homology(set_of_markers)
+            config_digestion=conf.config_digestion(config)
+            list_of_markers=homo.find_markers_all_sequences(set_of_sequences, set_of_markers, primary_taxonomy, config_digestion)
+            list_of_markers=ta.add_taxonomy_ranks(list_of_markers, primary_taxonomy)
+            pt.build_peptide_table_from_set_of_markers(list_of_markers,output, config_headers, config_markers)
+            rep.create_report_homology(peptide_table,set_of_markers, taxonomy, web)
             
         if deamidation:
             set_of_codes=set()
@@ -227,20 +83,20 @@ def main():
                     set_of_codes.update(constraint['Deamidation'])
             set_of_markers, list_of_headers=pt.parse_peptide_tables(peptide_table, None, None)
             set_of_new_markers=compute_masses.add_deamidation(set_of_markers, set_of_codes)
-            pt.build_peptide_table_from_set_of_markers(set_of_markers.union(set_of_new_markers),output, list_of_headers)
-            create_report_deamidation(peptide_table, set_of_codes)
+            pt.build_peptide_table_from_set_of_markers(set_of_markers.union(set_of_new_markers),output, list_of_headers, config_markers)
+            rep.create_report_deamidation(peptide_table, set_of_codes)
             
         if allpeptides:
             set_of_sequences = fa.build_set_of_sequences(fasta, directory, list_of_constraints, None)
             if len(set_of_sequences)==0:
                 message.escape("No valid sequences found.\n")
-            data=config.parse_config_file()
+            config_digestion=conf.config_digestion(config)
             if spectra is None:
-                set_of_new_markers = compute_masses.add_PTM_or_masses_to_markers(seq.in_silico_digestion(set_of_sequences, data["number_of_missed_cleavages"], data["min_peptide_length"], data["max_peptide_length"]))
+                set_of_new_markers = compute_masses.add_PTM_or_masses_to_markers(seq.in_silico_digestion(set_of_sequences, config_digestion))
                 if len(set_of_new_markers)==0:
                     message.escape("No valid peptide markers found.\n")
             else:
-                set_of_markers = compute_masses.add_PTM_or_masses_to_markers(seq.in_silico_digestion(set_of_sequences, data["number_of_missed_cleavages"], data["min_peptide_length"], data["max_peptide_length"]), True, True)
+                set_of_markers = compute_masses.add_PTM_or_masses_to_markers(seq.in_silico_digestion(set_of_sequences, config_digestion), True, True)
                 if len(set_of_markers)==0:
                     message.escape("No valid peptide markers found.\n")
                 final_list_of_spectra=[]
@@ -250,14 +106,13 @@ def main():
                     if len(list_of_spectra)>0:
                         final_list_of_spectra.extend(list_of_spectra)
                 if len(final_list_of_spectra)==0:
-                    message.escape("No valid spectra found.\n Please refer to the warning.log file for more detail.")
-                minimal_number_of_spectra=max(1, 1*len(final_list_of_spectra)/5)
-                set_of_new_markers=marker_filtering.filter_set_of_markers(set_of_markers, final_list_of_spectra, args.resolution, minimal_number_of_spectra)
+                    message.escape("No valid spectra found.\n Please refer to the warning.log file or the report file for more detail.")
+                minimal_number_of_spectra=max(1, 3*len(final_list_of_spectra)/5)
+                set_of_new_markers=marker_filtering.filter_set_of_markers(set_of_markers, final_list_of_spectra, resolution, minimal_number_of_spectra)
             
             list_of_markers=markers.sort_and_merge(set_of_new_markers)
-            pt.build_peptide_table_from_set_of_markers(list_of_markers,output)
-            create_report_allpeptides(set_of_sequences, data["number_of_missed_cleavages"], data["min_peptide_length"], data["max_peptide_length"])
-
+            pt.build_peptide_table_from_set_of_markers(list_of_markers,output, config_headers, config_markers)
+            rep.create_report_allpeptides(set_of_sequences, config_digestion)
                      
         if selection: # not compatible with -f or -d
             set_of_markers, list_of_headers= pt.parse_peptide_tables(peptide_table, None, None)
@@ -271,11 +126,11 @@ def main():
                 if len(list_of_spectra)>0:
                     final_list_of_spectra.extend(list_of_spectra)
             if len(final_list_of_spectra)==0:
-                message.escape("No valid spectra found.\n Please refer to the warning.log file for more detail.")
+                message.escape("No valid spectra found.\n Please refer to the warning.log file or the report file for more detail.")
             minimal_number_of_spectra=max(1, 2*len(final_list_of_spectra)/3)
-            set_of_confirmed_markers=marker_filtering.filter_set_of_markers(set_of_markers, final_list_of_spectra, args.resolution, minimal_number_of_spectra)
+            set_of_confirmed_markers=marker_filtering.filter_set_of_markers(set_of_markers, final_list_of_spectra, resolution, minimal_number_of_spectra)
             list_of_markers=markers.sort_and_merge(set_of_confirmed_markers)
-            pt.build_peptide_table_from_set_of_markers(set_of_confirmed_markers,output, list_of_headers)
+            pt.build_peptide_table_from_set_of_markers(set_of_confirmed_markers,output, list_of_headers, config_markers)
 
         if fillin:
             # to do: check that there is a single peptide table
@@ -283,42 +138,44 @@ def main():
             set_of_incomplete_markers, set_of_complete_markers, set_of_incomplete_fields  = supplement.search_for_incomplete_markers(set_of_markers, set(list_of_headers))
             if fasta or directory:
                 set_of_sequences = fa.build_set_of_sequences(fasta, directory, list_of_constraints, None)
+                config_digestion=conf.config_digestion(config)
                 set_of_incomplete_markers=markers.add_sequences_and_positions_to_markers(set_of_incomplete_markers, set_of_sequences)
-                if args.resolution:
-                    set_of_incomplete_markers=markers.check_masses_and_sequences(set_of_incomplete_markers, args.resolution)
-                    set_of_incomplete_markers=markers.find_sequences_from_mass(set_of_incomplete_markers, set_of_sequences, args.resolution)
-                set_of_incomplete_markers=supplement.add_digestion_status(set_of_incomplete_markers, set_of_sequences)
-            set_of_new_markers=compute_masses.add_PTM_or_masses_to_markers(set_of_incomplete_markers)
+                if resolution:
+                    set_of_incomplete_markers=markers.check_masses_and_sequences(set_of_incomplete_markers, resolution)
+                    set_of_incomplete_markers=markers.find_sequences_from_mass(set_of_incomplete_markers, set_of_sequences, resolution)
+                set_of_incomplete_markers=supplement.add_digestion_status(set_of_incomplete_markers, set_of_sequences, config_digestion)
+            set_of_new_markers=supplement.add_length(compute_masses.add_PTM_or_masses_to_markers(set_of_incomplete_markers))
             set_of_new_markers=ta.supplement_taxonomic_information(set_of_new_markers, primary_taxonomy)
             
             #list_of_markers=list(set_of_new_markers | set_of_complete_markers)
             list_of_markers=markers.sort_and_merge(set_of_new_markers | set_of_complete_markers)
             set_of_markers=ta.add_taxonomy_ranks(list_of_markers, primary_taxonomy)
-            pt.build_peptide_table_from_set_of_markers(set_of_markers,output, list_of_headers)
+            pt.build_peptide_table_from_set_of_markers(set_of_markers,output, list_of_headers, config_markers)
             if fasta or directory:
-                create_report_supplement(peptide_table, list_of_markers, set_of_sequences)
+                rep.create_report_supplement(peptide_table, list_of_markers, set_of_sequences)
             else:
-                create_report_supplement(peptide_table)
+                rep.create_report_supplement(peptide_table)
 
-        create_report_footer(output_dir, output, report)
+        rep.create_report_footer(output_dir, output, report)
         
-        print("")
-        print("   Job completed.")
-        print("   All results are available in the following files.")
-        print("")
-        print(f"   - New peptide table : {output}")
-        print(f"   - Report on the run : {report}")
-        print("")
-    # TO DO: add the new peptide table, if necessary
+        if not web:
+            print("")
+            print("Job completed.")
+            print("All results are available in the following files.")
+            print("")
+            print(f"   - New peptide table : {output}")
+            print(f"   - Report on the run : {report}")
+            print("")
 
-        if os.path.getsize(os.path.join(output_dir, "warning.log")) > 0:
-            print("Warnings were raised during the execution.")
-            print("Please refer to the warning.log file for detail.")
+            if os.path.getsize(os.path.join(output_dir, "warning.log")) > 0:
+                print("Warnings were raised during the execution.")
+                print("Please refer to the warning.log file or the report file for detail.")
         
     except message.InputError:
-        if not args.web:
+        rep.create_report_footer(output_dir, output, report)
+        if not web:
            print("\n   An error occured with your input. Stopping execution.")
-           print("   Please refer to the warning.log file for detail.")
+           print("   Please refer to the warning.log file or the report file for detail.\n")
         else:
            pass
 
