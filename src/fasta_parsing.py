@@ -15,33 +15,32 @@ from src import taxonomy as ta
 from src import limit as lim
 from src import message
 
+def update_field(regex, header, label,dict_sequence):
+    m = regex.search(header)
+    if m==None:
+        raise ValueError() 
+    res=m.group()
+    res=res[4:]
+    res=res.strip()
+    if label in {"OX", "GN"}:
+        res=res.upper()
+    #if '=' in res:
+    res=re.sub(r'\b\w+\s*=$', '', res)
+    dict_sequence[label]=res
+
 def parse_fasta_uniprot_header(header):
     """ parsing fasta uniprot headers  """
     message.debug(header)
+    # Remove spaces before and after '='
+    header = re.sub(r'\s+(?==)', '', header)
+    header = re.sub(r'(?<==)\s+', '', header)
     dict_sequence={}
-    re_taxid=re.compile('OX=[^\s]*?(?=\s|$)')
-    re_protein=re.compile('GN=[^\s]*?(?=\s|$)')
-    re_taxon_name=re.compile('(OS=[a-zA-Z\s]*=)|(OS=[a-zA-Z\s]*?(?=$))') #en cours
-    m = re_taxid.search(header)
-    if m==None:
-        raise ValueError() # TO DO: catch this exception 
-    taxid=m.group()
-    taxid=taxid.lstrip('OX=') # taxid
-    taxid=taxid.strip()
-    dict_sequence["OX"]=taxid
-    m = re_taxon_name.search(header)
-    taxon_name=m.group()
-    taxon_name=taxon_name.replace('OS=','')
-    if '=' in taxon_name:
-        taxon_name=taxon_name[:-3]
-    taxon_name=taxon_name.strip()
-    dict_sequence["OS"]=taxon_name
-    m = re_protein.search(header)
-    prot=m.group()
-    prot=prot.lstrip('GN=')
-    prot=prot.strip()
-    prot=prot.upper()
-    dict_sequence["GN"]=prot
+    re_taxid=re.compile(' OX=[^\s]*?(?=\s|$)',re.IGNORECASE)
+    update_field(re_taxid, header, "OX", dict_sequence)
+    re_protein=re.compile(' GN=[^\s]*?(?=\s|$)',re.IGNORECASE)
+    update_field(re_protein, header, "GN", dict_sequence)
+    re_taxon_name=re.compile('( OS=[a-zA-Z\s]*=)|( OS=[a-zA-Z\s]*?(?=$))',re.IGNORECASE)
+    update_field(re_taxon_name, header, "OS", dict_sequence)
     fields=header.split(" ")
     seqid=fields[0]
     if '|' in seqid:
@@ -53,6 +52,7 @@ def parse_fasta_uniprot_header(header):
     dict_sequence["SeqID"]=seqid
     new_sequence=seq.Sequence(field=dict_sequence)
     return new_sequence
+    
 
 def build_set_of_sequences_from_fasta_file(fasta_file_name):
     set_of_sequences=set()
@@ -63,11 +63,11 @@ def build_set_of_sequences_from_fasta_file(fasta_file_name):
         try:
             current_sequence=parse_fasta_uniprot_header(seq_record.description)
         except ValueError:
-            message.warning("File "+fasta_file_name+", header "+seq_record.description+":\n    taxid (OX=) missing. Sequence ignored." )
+            message.warning("File "+fasta_file_name+", header "+seq_record.description+":\nBad header. Sequence ignored. See PAMPA documentation." )
             continue
         seq=str(seq_record.seq)
         if len(seq)==0 :
-              message.warning("File "+fasta_file_name+", header "+seq_record.description+":\n    empty sequence. Sequence ignored." )
+              message.warning("File "+fasta_file_name+", header "+seq_record.description+":\nEmpty sequence. Sequence ignored. See PAMPA documentation." )
               continue
         current_sequence.field["Sequence"]=seq
         set_of_sequences.add(current_sequence)
