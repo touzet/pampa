@@ -2,26 +2,22 @@
 
 import json
 
-def parse_config_file():
-    with open('config.json') as json_file:
+def parse_config_file(file_name="config.json"):
+    with open(file_name) as json_file:
         data = json.load(json_file)
-        return data
+    return data
 # TO DO: add PTM definition here
 # TO DO: add warning when the file is not found
 
-def sort_headers(set_of_headers):
-    with open('config.json') as json_file:
-        data = json.load(json_file)
-    list_of_selected_headers=[]
-    list_of_other_headers=[]
-    list_of_config_headers=[]
-    for key in data:
-        if  isinstance(data[key], list):
-            list_of_config_headers.extend(data[key])
-    for element in set_of_headers:
-        if element in list_of_config_headers:
-            list_of_selected_headers.append((list_of_config_headers.index(element), element))
-        else:
-            list_of_other_headers.append(element)
-    list_of_selected_headers.sort(key=lambda x:x[0])
-    return [z[1] for z in list_of_selected_headers]+list_of_other_headers
+def config_digestion(file_name):
+    data=parse_config_file(file_name)
+    return {k: data[k] for k in {"enzyme", "number_of_missed_cleavages",
+        "min_peptide_length", "max_peptide_length"}}
+        
+def config_headers(file_name):
+    data=parse_config_file(file_name)
+    return data["taxonomy_ranks"]+data["peptide_table_order"]
+    
+def config_markers(file_name):
+    data=parse_config_file(file_name)
+    return data["marker_order"]
