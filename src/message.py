@@ -15,6 +15,11 @@ logger.propagate=False
 def configure(output_dir):
     if os.path.exists(os.path.join(output_dir,'warning.log')):
         os.remove(os.path.join(output_dir,'warning.log'))
+    if os.path.exists(os.path.join(output_dir,'error.log')):
+        os.remove(os.path.join(output_dir,'error.log'))
+    if os.path.exists(os.path.join(output_dir,'debug.log')):
+        os.remove(os.path.join(output_dir,'debug.log'))
+        
 
     # Create handlers
     error_handler = logging.FileHandler(os.path.join(output_dir,'error.log'))
