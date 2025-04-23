@@ -168,7 +168,7 @@ def check_quality(set_of_markers, set_of_new_markers):
             m.field["Quality"]+=1
     return set_of_new_markers
 
-def find_markers_all_sequences(set_of_sequences, set_of_markers, taxo):
+def find_markers_all_sequences(set_of_sequences, set_of_markers, taxo,config_digestion):
     # set_of_sequences: set of target fasta sequences[object defined in sequences.py]
     
     # construction of dict_of_model_markers and dict_of_taxid
@@ -191,9 +191,8 @@ def find_markers_all_sequences(set_of_sequences, set_of_markers, taxo):
         ut.update_dictoset(dict_of_model_markers, sequence, {model_marker})
         
     set_of_new_markers=set()
-    number_of_missed_cleavages=int(config.parse_config_file()["number_of_missed_cleavages"])
     for seq in set_of_sequences:
-        set_of_digested_peptides=sequences.in_silico_digestion({seq}, number_of_missed_cleavages, 12, 33, False)
+        set_of_digested_peptides=sequences.in_silico_digestion({seq}, config_digestion, False)
         s=find_markers_single_sequence(seq, set_of_digested_peptides, dict_of_model_markers, set_of_markers, taxo)
         set_of_new_markers.update(s)
         
