@@ -23,7 +23,6 @@ PHOSPHORYLATION= 79.9663 # serine (S), threonine (T), or tyrosine (Y)
 def counting_matching_characters(sequence, set_of_PTM):
     return sum(char in set(set_of_PTM) for char in sequence)
 
-
 def peptide_mass(sequence):
     """ mass of a single peptide, no PTM """
     if not ut.is_aa_sequence(sequence):
@@ -32,7 +31,6 @@ def peptide_mass(sequence):
     # was (with molmass) https://pypi.org/project/molmass/
     # formula = Formula(sequence)
     # mass = formula.isotope.mass
-
 
 
 def PTM_mass(PTM_string):
