@@ -34,7 +34,7 @@ class Taxon(object):
         return hash((self.id, self.name))
         
 class Assignment(object):
-    def __init__(self, spectrum_name="", spectrum_length=0, peaks=[], taxa=[], lca=None, lca_name=None, lca_rank=None, score=None, hca=None, hca_name=None, hca_rank=None, pvalue=None):
+    def __init__(self, spectrum_name="", spectrum_length=0, peaks=[], taxa=[], lca=None, lca_name=None, lca_rank=None, score=None, hca=None, hca_name=None, hca_rank=None, pvalue=1):
         self.spectrum_name = spectrum_name
         self.spectrum_length = spectrum_length
         self.peaks=peaks # list of Annotated_peaks
@@ -100,23 +100,7 @@ def is_included(v,w):
 def is_better(v,w):
     masses_of_v={(a.mass):a.intensity for a in v}
     masses_of_w={(a.mass):a.intensity for a in w}
-    """
-    intensity_of_v={(a.marker.code,a.marker.ptm):a.intensity  for a in v}
-    intensity_of_w={(a.marker.code,a.marker.ptm):a.intensity  for a in w}
-   
-    is_better=False
-    for (code,ptm) in intensity_of_v.keys() & intensity_of_w.keys() :
-        if intensity_of_w[(code,ptm)] >  intensity_of_v[(code,ptm)]:
-            return False
-        if  intensity_of_v[(code,ptm)]>2* intensity_of_w[(code,ptm)]:
-            is_better=True
-    IV = {intensity_of_v[k] for k in intensity_of_v.keys() - intensity_of_w.keys()}
-    IW = {intensity_of_w[k] for k in intensity_of_w.keys() - intensity_of_v.keys()}
-    if len(IV) == 0 or len(IW)==0:
-        return is_better
-    else:
-        return  min(IV)>max(IW)
-    """
+    
     IV={masses_of_v[k] for k  in masses_of_v.keys() - masses_of_w.keys()}
     IW ={masses_of_w[k] for k in masses_of_w.keys() - masses_of_v.keys()}
     if len(IV) == 0 or len(IW)==0:
@@ -124,11 +108,14 @@ def is_better(v,w):
     else:
         return  min(IV)>max(IW)
     
+def no_assignment(spectrum):
+    return [Assignment(spectrum.name)]
+    
 def assign_spectrum(spectrum, mass_markers_list, set_of_markers, resolution, taxonomy, threshold, allsolutions, minimum_number_of_peaks):
    # mass_taxid_name_list: contains the list of markers sorted by mass
     peak_to_markers=assign_peaks_of_the_spectrum(spectrum, mass_markers_list, resolution)
     if len(peak_to_markers)<minimum_number_of_peaks:
-        return []
+        return no_assignment(spectrum)
 
     taxid_to_annotated_peaks={}
     for peak in peak_to_markers:
@@ -138,7 +125,7 @@ def assign_spectrum(spectrum, mass_markers_list, set_of_markers, resolution, tax
     max_number_of_markers=max({len(v) for v in taxid_to_annotated_peaks.values()}) # incorrect, à revoir
 
     if max_number_of_markers < minimum_number_of_peaks:
-        return [] 
+        return no_assignment(spectrum)
 
     # Remove included taxid and equivalent taxid
     excluded_taxid=set()
@@ -181,7 +168,7 @@ def assign_spectrum(spectrum, mass_markers_list, set_of_markers, resolution, tax
             best_score=taxid_to_score[taxid]
     set_of_optimal_taxid={taxid for taxid in taxid_to_pvalue if taxid_to_pvalue[taxid]==best_pvalue or taxid_to_score[taxid]>=best_score*threshold/100}
     
-    if not allsolutions:
+    if not allsolutions and threshold==100:
         excluded_taxid=set()
         for taxid in set_of_optimal_taxid:
             for taxid2 in set_of_optimal_taxid:
@@ -252,36 +239,39 @@ def create_main_result_file(output, list_of_assignments, taxonomy):
     list_of_marker_full_names= extract_sorted_markers(list_of_assignments)
     # Heading
     f1 = open(output+".tsv", "w")
-    s=""
+    if taxonomy:
+        s="Spectrum \t Assignment \t Rank \t Maximal clade  \t Rank \t Species \t Pvalue \t #peaks "
+    else:
+        s="Spectrum \t Species \tPvalue\t #peaks "
     for (name,ptm) in  list_of_marker_full_names:
         s=s+"\t"+image(name,ptm)
-    if taxonomy:
-        s=s+"\tPvalue \t #peaks  \t Assignment \t Rank \t Uncertainty \t Rank \t Species\n"
-    else:
-        s=s+"\tPvalue\t #peaks \t Species\n"
+    s=s+"\n"
     f1.write(s)
     
     # Body
     for a in list_of_assignments:
-        if len(a.taxa)==0: # no assignment A REVOIR A REVOIR
-            s=a.spectrum_name+"\t"*len( list_of_marker_full_names)+"\t\t 0\t None \n"
+        if len(a.taxa)==0: # no assignment
+            if taxonomy:
+                s=a.spectrum_name+" \t No assignment \t \t \t \t \t \t"
+            else:
+                s=a.spectrum_name+"\t No assignment \t \t "
+            s=s+"\t"*len( list_of_marker_full_names)+"\n"
             f1.write(s)
             continue
         name_to_peak={(p.marker.code(),p.marker.PTM()):p.mass for p in a.peaks}
         s=a.spectrum_name+"\t"
-        for (name,ptm) in list_of_marker_full_names:
-            if (name,ptm) in  name_to_peak:
-                s=s+str(round(name_to_peak[(name,ptm)],3))
-            s=s+"\t"
         if taxonomy:
             if a.lca!=None:
-                s=s+"{:.2e}".format(a.pvalue)+"\t"+str(a.score)+"\t"+str(a.lca) + " ["+ a.lca_name+ "]\t" + a.lca_rank +"\t"+str(a.hca)+ " ["+ a.hca_name + "]\t" + a.hca_rank +"\t"
+                s=s+str(a.lca) + " ["+ a.lca_name+ "]\t" + a.lca_rank +"\t"+str(a.hca)+ " ["+ a.hca_name + "]\t" + a.hca_rank +"\t"
             else:
-                s=s+"\t None\t\t\t\t" 
-        else:
-            s=s+"{:.2e}".format(a.pvalue)+"\t"+str(a.score)+"\t"
+                s=s+" None\t\t\t\t"
         for t in a.taxa: 
             s=s+str(t.id)+" ["+t.name+"] "
+        s=s+"\t {:.2e}".format(a.pvalue)+"\t"+str(a.score)
+        for (name,ptm) in list_of_marker_full_names:
+            s=s+"\t"
+            if (name,ptm) in  name_to_peak:
+                s=s+str(round(name_to_peak[(name,ptm)],3))
         s=s+"\n"
         f1.write(s)
     f1.close()
@@ -341,7 +331,7 @@ def assign_all_spectra(list_of_spectra, set_of_markers, error, taxonomy, B, thre
     # elements of the list are 2-uplets of the form  (mass, {(taxid, code, PTM)})
     mass_markers_list=markers.sort_by_masses(set_of_markers)
     list_of_assignments=[]
-    minimum_number_of_peaks= number_of_missed_cleavages=int(config.parse_config_file()["minimum_number_of_peaks"])
+    minimum_number_of_peaks=int(config.parse_config_file()["minimum_number_of_peaks"])
     for spectrum in list_of_spectra:
         list_of_assignments.extend(assign_spectrum(spectrum, mass_markers_list, set_of_markers, error, B, threshold, allsolutions, minimum_number_of_peaks))
 
