@@ -3,9 +3,9 @@ import os
 from src import message
 from src import report as rep
 
-def logger_and_outputdir_configuration(output):
+def logger_and_outputdir_configuration(output, command_line):
     if output is None:
-        rep.create_report_header("report.txt")
+        rep.create_report_header(command_line, "report.txt")
         message.configure("")
         message.escape("Missing parameter: output (-o).")
     output_dir, output_file = os.path.split(output)
@@ -20,15 +20,22 @@ def logger_and_outputdir_configuration(output):
     else:
         output_file=output_file[:-4]+".tsv"
     report_file="report_"+output_file.replace("tsv", "txt")
-    output2=os.path.join(output_dir, "detail_"+output_file+".tsv")  ## TO DO
-    return output_dir, output_file, report_file
+    output_detail=os.path.join(output_dir, "detail_"+output_file+".tsv")
+    return output_dir, output_file, report_file, output_detail
 
 def check_config(config):
     if config is None:
-        return "config.json"
+        if not os.path.isfile("config.json"):
+            message.escape("File config.json not found. Stopping execution.")
+        else:
+            return "config.json"
     if not os.path.isfile(config):
-        message.warning("File "+config+" not found (-c). Using config.json instead.")
-        return "config.json"
+        if not os.path.isfile("config.json"):
+            message.warning("User file "+config+" not found (-c).")
+            message.escape("Default file config.json not found. Stopping execution.")
+        else:
+            message.warning("File "+config+" not found (-c). Using config.json instead.")
+            return "config.json"
     return config
     
 def  check_peptide_table(peptide_table):
@@ -68,7 +75,7 @@ def check_sequences(fasta, fasta_dir, mandatory=True):
         if not os.path.isdir(directory):
             message.escape("Directory "+directory+" not found (-d). Stopping execution")
             
-def check_spectra(spectra, error, mandatory=True):
+def check_spectra(spectra, mandatory=True):
     if spectra is None :
         if mandatory:
             message.escape("Missing parameter: spectra (-s). Stopping execution")
@@ -76,32 +83,46 @@ def check_spectra(spectra, error, mandatory=True):
             return
     if not os.path.isdir(spectra):
         message.escape("Directory "+spectra+" not found. Stopping execution")
+    
+def check_error(error, mandatory=True):
     if error is None:
-        message.escape("Missing parameter: error (-e). Stopping execution")
+        if mandatory:
+            message.escape("Missing parameter: error (-e). Stopping execution")
+        else:
+            return
     if error<0:
-        message.escape("Parameter error (-e) should be positive. Stopping execution")
+        message.escape("Parameter error (-e) should be a positive value. Stopping execution")
+        
+def check_spectra_and_error(spectra, error, mandatory=True):
+    mandatory= mandatory or spectra or error
+    check_spectra(spectra, mandatory)
+    check_error(error, mandatory)
+        
+def useless_parameters(list_of_parameters):
+    for p in list_of_parameters:
+        if p[0] is not None:
+            message.warning("Useless parameter: "+p[1]+" "+str(p[0])+". Ignored.")
+            
 
-def check_and_update_parameters_classify(spectra, taxonomy, peptide_table, fasta, directory, limit, deamidation, error, neighbour, all, output, mammals):
+def check_and_update_parameters_classify(spectra, taxonomy, peptide_table, fasta, fasta_dir, limit, deamidation, error, neighbour, all, mammals, config):
     """
     Parameters checking and fixing. Configuration of loggers
     """
-
-    output,report, report_file, output2=check_output(output_dir, output_file)
     config=check_config(config)
     check_limit(limit)
-    check_spectra(spectra, error)
+    check_spectra_and_error(spectra, error)
 
-    if mammals and (peptide_table or fasta or directory):
+    if mammals and (peptide_table or fasta or fasta_dir):
         message.warning("Parameters -p, -f and -d are not compatible with --mammals. Applying --mammals parameter.")
         peptide_table=None
         fasta=None
-        directory=None
+        fasta_dir=None
 
     if mammals :
         if not os.path.isfile("Taxonomy/taxonomy_mammals.tsv"):
-            message.escape("The taxonomy file has been deleted.")
+            message.escape("The file Taxonomy/taxonomy_mammals.tsv is not found.")
         if not os.path.isfile("Peptide_tables/table_mammals.tsv"):
-            message.escape("The peptide table file has been deleted.")
+            message.escape("Peptide_tables/table_mammals.tsv is missing.")
         taxonomy="Taxonomy/taxonomy_mammals.tsv"
         peptide_table=["Peptide_tables/table_mammals.tsv"]
 
@@ -112,22 +133,21 @@ def check_and_update_parameters_classify(spectra, taxonomy, peptide_table, fasta
         message.warning("Parameter -n (neighbouring): value is 100")
     
     if peptide_table:
-        if  fasta or directory:
+        if  fasta or fasta_dir:
             message.escape("Options -p (peptide_table), -f (fasta) and -d (directory of fasta files) are mutually incompatible. Stopping execution")
         else:
             check_peptide_table(peptide_table)
             new_table=None
-    elif fasta or directory:
-        check_sequences(fasta, directory)
+    elif fasta or fasta_dir:
+        check_sequences(fasta, fasta_dir)
         new_table=os.path.join(output_dir, "table_"+output_file)
     else:
         message.escape("Missing information for marker peptides (-p, -f or -d). Stopping execution")
     
-    return (spectra, taxonomy, peptide_table, fasta, directory, limit, deamidation, error, neighbour, all, output, output2, output_dir, report_file, new_table)
+    return (spectra, taxonomy, peptide_table, fasta, fasta_dir, limit, deamidation, error, neighbour, all, new_table, config)
 
 
-
-def check_and_update_parameters_craft(homology, deamidation, allpeptides, fillin, selection, peptide_table, fasta, directory, spectra, resolution, limit, taxonomy, config):
+def check_and_update_parameters_craft(homology, deamidation, allpeptides, fillin, selection, peptide_table, fasta, fasta_dir, spectra, resolution, limit, taxonomy, config):
     """
     Parameters checking and fixing for PAMPA CRAFT.
     Configuration of loggers
@@ -144,24 +164,30 @@ def check_and_update_parameters_craft(homology, deamidation, allpeptides, fillin
 
     if homology :
         check_peptide_table(peptide_table)
-        check_sequences(fasta, directory)
+        check_sequences(fasta, fasta_dir)
         check_taxonomy(taxonomy)
+        useless_parameters([(spectra, '-s'), (resolution,'-e')])
         
     if deamidation:
         check_peptide_table(peptide_table)
-        
+        useless_parameters([(fasta, '-f'), (fasta_dir,'-d'), (taxonomy, '-t'), (spectra,'-s'), (resolution,'-e')])
+
     if allpeptides:
-        check_sequences(fasta, directory)
-        check_spectra(spectra, resolution, False)
+        check_sequences(fasta, fasta_dir)
+        check_spectra_and_error(spectra, resolution, False)
+        useless_parameters([(peptide_table,'-p')])
     
     if fillin:
         check_peptide_table(peptide_table)
         check_sequences(fasta, fasta_dir, False)
         check_taxonomy(taxonomy)
-            
+        check_error(resolution, False)
+        useless_parameters([(spectra,'-s')])
+         
     if selection:
         check_peptide_table(peptide_table)
-        check_spectra(spectra, error)
+        check_spectra_and_error(spectra, resolution)
+        useless_parameters([(fasta,-'f'), (fasta_dir,'-d'), (taxonomy,'-t')])
             
-    return (homology, deamidation, allpeptides, fillin, selection, peptide_table, fasta, directory, spectra, resolution, limit, taxonomy, config)
+    return (homology, deamidation, allpeptides, fillin, selection, peptide_table, fasta, fasta_dir, spectra, resolution, limit, taxonomy, config)
 

@@ -228,15 +228,15 @@ def create_spectral_file(output, list_of_assignments, list_of_spectra):
                         row.append(mass_dict[peak.mass].code)
                     writer.writerow(row)
                
-def extract_sorted_markers(list_of_assignments):
-    set_of_marker_codes={m.marker.code() for a in list_of_assignments for m in a.peaks}
+def extract_sorted_markers(sorted_markers, list_of_assignments):
     list_of_marker_full_names=list({(m.marker.code(), m.marker.PTM()) for a in list_of_assignments for m in a.peaks})
-    list_of_marker_codes=config.sort_headers(set_of_marker_codes)
+    set_of_codes={x[0] for x in list_of_marker_full_names}
+    list_of_marker_codes=utils.sort_headers(sorted_markers,set_of_codes)
     list_of_marker_full_names.sort(key=lambda x:(list_of_marker_codes.index(x[0]),x[1]))
     return list_of_marker_full_names
         
-def create_main_result_file(output, list_of_assignments, taxonomy):
-    list_of_marker_full_names= extract_sorted_markers(list_of_assignments)
+def create_main_result_file(output, list_of_assignments, taxonomy, config_markers):
+    list_of_marker_full_names= extract_sorted_markers(config_markers, list_of_assignments)
     # Heading
     f1 = open(output+".tsv", "w")
     if taxonomy:
@@ -326,12 +326,11 @@ def create_detail_result_file(output_detail, list_of_assignments, taxonomy, B):
         f2.write(s+"\n")
     f2.close()
 
-def assign_all_spectra(list_of_spectra, set_of_markers, error, taxonomy, B, threshold, allsolutions, output, output_detail):
+def assign_all_spectra(list_of_spectra, set_of_markers, error, taxonomy, B, threshold, allsolutions, minimum_number_of_peaks, config_markers, output, output_detail):
 
     # elements of the list are 2-uplets of the form  (mass, {(taxid, code, PTM)})
     mass_markers_list=markers.sort_by_masses(set_of_markers)
     list_of_assignments=[]
-    minimum_number_of_peaks=int(config.parse_config_file()["minimum_number_of_peaks"])
     for spectrum in list_of_spectra:
         list_of_assignments.extend(assign_spectrum(spectrum, mass_markers_list, set_of_markers, error, B, threshold, allsolutions, minimum_number_of_peaks))
 
@@ -349,7 +348,7 @@ def assign_all_spectra(list_of_spectra, set_of_markers, error, taxonomy, B, thre
                 a.hca_rank = B.rank[a.hca]
                 a.hca_name = B.name[a.hca]
    
-    create_main_result_file(output, list_of_assignments, taxonomy)
+    create_main_result_file(output, list_of_assignments, taxonomy, config_markers)
     create_detail_result_file(output_detail, list_of_assignments, taxonomy,B)
     #create_spectral_file(output, list_of_assignments, list_of_spectra)
     create_json_result_file(output, list_of_assignments)

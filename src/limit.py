@@ -41,13 +41,13 @@ def apply_limits(list_of_constraints,  set_of_items, taxonomy, is_marker):
             if taxonomy:
                 current_set={s for s in current_set for t in dict["OS"] if s.taxid() in taxonomy.descendants[ta.search_taxid_from_taxon_name(t,taxonomy)]}
             else:
-                current_set={s for s in current_set for t in dict["OS"] if utils.standard(t)==s.taxon_name()}
+                current_set={s for s in current_set for t in dict["OS"] if utils.equiv(t, s.taxon_name())}
         if "OX" in dict:
             constraint=True
             if taxonomy:
                 current_set={s for s in current_set for t in dict["OX"] if s.taxid() in taxonomy.descendants[t]}
             else:
-                current_set={s for s in current_set for t in dict["OX"] if s.taxid()==utils.standard(t)}
+                current_set={s for s in current_set for t in dict["OX"] if utils.equiv(t, s.taxid())}
         if is_marker and "PTM" in dict:
             constraint=True
             current_set={s for s in current_set if utils.is_PTM(s.PTM(),dict["PTM"])}

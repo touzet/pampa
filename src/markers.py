@@ -292,6 +292,39 @@ def colinearity(set_of_markers):
             print(s)
     print("")
 
+def short_colinearity(set_of_markers):
+    """
+    print all markers as a matrix: species -> list of markers[mass]
+    """
+    list_of_species=list({(m.taxon_name(),m.taxid())for m in set_of_markers})
+    list_of_species.sort(key=lambda x: x[0])
+    print("Total number of species: "+str(len(list_of_species))+"\n")
+    taxon_length=max({len(ut.pretty_print(s[0])+ut.pretty_print(s[1])) for s in list_of_species})+2
+    list_of_codes=list({str(m.code())+"-"+str(m.PTM()) for m in set_of_markers})
+    list_of_codes.sort()
+    code_length=max({len(code) for code in list_of_codes})+1
+    matrix = [["" for j in range(len(list_of_codes)+2)] for i in range(len(list_of_species)+1)]
+    for code in list_of_codes:
+        matrix[0]=["",""]+list_of_codes
+    for (i,sp) in enumerate(list_of_species):
+        matrix[i+1][0]= list_of_species[i][0]
+        matrix[i+1][1]= list_of_species[i][1]
+    for m in set_of_markers:
+        matrix[list_of_species.index((m.taxon_name(), m.taxid()))+1][list_of_codes.index(str(m.code())+"-"+str(m.PTM()))+2]=str(round(float(m.mass()),2))
+    print('Code length : '+str(code_length) )
+    s=" "*taxon_length
+    for code in list_of_codes:
+        s=s+code.rjust(code_length,' ')
+    print(s)
+    for i in range(len(list_of_species)):
+        s= (ut.pretty_print(list_of_species[i][0])+" "+ut.pretty_print(list_of_species[i][1])).ljust(taxon_length)
+        for j in range(len(list_of_codes)):
+            s=s+ut.pretty_print(matrix[i+1][j+2]).rjust(code_length, '.')
+        print(s)
+    print("")
+
+
+
 
 def str_union(s1, s2):
     if s1 is None:

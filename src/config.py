@@ -21,3 +21,6 @@ def config_headers(file_name):
 def config_markers(file_name):
     data=parse_config_file(file_name)
     return data["marker_order"]
+
+def config_minimum_number_of_peaks(file_name):
+    return int(parse_config_file(file_name)["min_number_of_peaks"])

@@ -16,7 +16,7 @@ def main():
 
 
     group1=parser.add_argument_group('\nMandatory options')
-    group1.add_argument("-s", dest="spectra", help="Path to the spectra files. Authorized formats: cvs, mgd, mzML.", type=str, required=True)
+    group1.add_argument("-s", dest="spectra", help="Path to the spectra files. Authorized formats: cvs, mgd, mzML.", type=str)
     group1.add_argument("-e", dest="error", help="Error margin tolerance for the observation (in Dalton or ppm). Recommended values: 0.02 for maldi FT and 0.1 for maldi TOF.", type=float)
     group1.add_argument("-o", dest="output", help="Output path (should include the output file name)", type=str)
     group2=parser.add_argument_group('\nSelection of organisms, basic usage')
@@ -34,10 +34,10 @@ def main():
     group6.add_argument("-n", dest="neighbour", help="Provide near-optimal solutions within a specified percentage margin, ranging between 0 and 100. Default is 100. With -n 100, only optimal solutions are provided.", type=int, required=False, default=100)
     group6.add_argument("-a", dest="all", action='store_true', help="Provide all solutions within the percentage margin specified with option  -n, and not only suboptimal solutions.  Default is False.", required=False, default=False)
     group6.add_argument("--web", dest="web",  action='store_true', help=argparse.SUPPRESS, required=False)
-    
+    group6.add_argument("-c", dest="config", help="Config file (json). Default is config.json", type=str, required=False)
     args = parser.parse_args()
     
-    classify.main(args.spectra,  args.taxonomy, args.peptide_table, args.fasta, args.directory, args.limit, args.deamidation, args.error, args.neighbour, args.all, args.output,args.mammals, args.web)
+    classify.main(" ".join(sys.argv), args.spectra,  args.taxonomy, args.peptide_table, args.fasta, args.directory, args.limit, args.deamidation, args.error, args.neighbour, args.all, args.output,args.mammals, args.web, args.config)
  
 if __name__ == "__main__":
     main()

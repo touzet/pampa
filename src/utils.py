@@ -6,10 +6,12 @@ def pretty_print(s):
     if s==None:
         return ""
     else:
-        return s
+        return str(s)
 
 # remove whitespaces from the beginning and end of a string
 def clean(s):
+    if not isinstance(s, str):
+        return s
     if s==None:
         return None
     s= s.strip()
@@ -20,6 +22,8 @@ def clean(s):
 
 # remove all whitespaces of a string
 def standard(s):
+    if not isinstance(s, str):
+        return s
     if s==None:
         return None
     s=s.replace(" ","")
@@ -29,29 +33,19 @@ def standard(s):
         return s
 
 def floating(s):
-    if s==None:
-        return None
-    s=s.replace(" ","")
-    if len(s)==0:
+    if s=="nan" or s==None:
         return None
     fl=float(s)
     if fl<0:
         raise ValueError()
     return fl
 
-def integer(s):
-    if s==None:
-        return None
-    s=s.replace(" ","")
-    if len(s)==0:
-        return None
-    pos=int(s)
-    if pos<0:
-        raise ValueError()
-    return pos
+
  
 # remove all whitespaces of a string and switch to upper cases
 def standard_upper(s):
+    if not isinstance(s, str):
+        return s
     if s is None:
         return None
     s=s.replace(' ','').upper()
@@ -193,3 +187,14 @@ def none_str(x):
         return ""
     else:
         return x
+
+def sort_headers(list_of_headers, set_of_headers):
+    list_of_selected_headers=[]
+    list_of_other_headers=[]
+    for element in set_of_headers:
+        if element in list_of_headers:
+            list_of_selected_headers.append((list_of_headers.index(element), element))
+        else:
+            list_of_other_headers.append(element)
+    list_of_selected_headers.sort(key=lambda x:x[0])
+    return [x[1] for x in list_of_selected_headers]+list_of_other_headers
