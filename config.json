@@ -1,0 +1,10 @@
+{
+    "taxonomy_ranks": ["subspecies", "Subspecies","species", "Species", "genus", "Genus", "subfamily", "Subfamily","family","Family", "suborder", "Suborder", "order", "Order", "class", "Class", "phylum", "Phylum"],
+    "peptide_table_order":["Rank", "TaxID", "OX", "OS", "Taxon Name", "Taxon name", "Taxon", "Sequence", "PTM", "Mass", "Marker", "GN", "Gene", "Hel", "Length", "SeqID", "SeqId", "Begin", "End", "Status", "Comment"],
+    "enzyme": "trypsin",
+    "number_of_missed_cleavages": 1,
+    "min_peptide_length":12,
+    "max_peptide_length":33,
+    "min_number_of_peaks": 5, 
+    "marker_order": ["P1", "COL1A1-508/P1",  "COL1A1-508", "A", "COL1A2-978/A",  "COL1A2-978", "B", "COL1A2-484/B", "COL1A2-484", "C",  "COL1A2-502/C","COL1A2-502", "P2","COL1A2-292/P2", "COL1A2-292", "D","COL1A2-793/D", "COL1A2-793", "E", "COL1A2-454/E",  "COL1A2-454", "F",   "COL1A1-586/F",  "COL1A1-586","F'", "G",  "COL1A2-757/G",  "COL1A2-757", "G'", "XX"] 
+}
