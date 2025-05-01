@@ -86,7 +86,6 @@ class Taxonomy(object):
         for taxid in set_of_taxid:
             if taxid not in self.parent:
                 lost_taxid.add(taxid)
-                print("une de moins:"+str(taxid)+":")
             else:
                 t=taxid
                 while t in self.parent:
@@ -192,14 +191,17 @@ def parse_taxonomy_simple_file(taxonomy_file):
     taxonomy_file is a TSV file with 5 columns:
     Taxid | Common name	| Scientific name | Parent | Rank
     """
-    if taxonomy_file is None:
-        return None
+    taxonomy=Taxonomy()
     name_to_taxid_dict={} # key: (name, rank)
     taxid_to_children_dict={}
     taxid_to_name_dict={}
     taxid_to_common_name_dict={}
     taxid_to_rank_dict={}
     taxid_to_parent_dict={}
+    
+    if taxonomy_file is None:
+        return None
+    
     with open(taxonomy_file) as in_file:
         next(in_file)
         for (i,line) in enumerate(in_file):
@@ -221,7 +223,7 @@ def parse_taxonomy_simple_file(taxonomy_file):
             
     for taxid in taxid_to_parent_dict.keys():
         utils.update_dictoset(taxid_to_children_dict,taxid_to_parent_dict[taxid],{taxid})
-    taxonomy=Taxonomy()
+
     taxonomy.children=taxid_to_children_dict
     taxonomy.name=taxid_to_name_dict
     taxonomy.common_name=taxid_to_common_name_dict
@@ -229,7 +231,7 @@ def parse_taxonomy_simple_file(taxonomy_file):
     taxonomy.parent=taxid_to_parent_dict
     taxonomy.init_root()
     taxonomy.init_descendants()
-  
+    
     return taxonomy
 
  
