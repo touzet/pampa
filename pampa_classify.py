@@ -12,7 +12,7 @@ from src import classify
 
 def main():
     parser = argparse.ArgumentParser(#formatter_class=CustomFormatter,
-                                         usage="pampa_classify [-h]\n   -s SPECTRA \n   -e ERROR \n   -o OUTPUT FILE \n   -p PEPTIDE_TABLE [PEPTIDE_TABLE] | -f FASTA  | -d DIRECTORY\n   [-l LIMIT]\n   [-t TAXONOMY]\n   [-n NEIGHBOURING] [-a]", description="This script is for species identification.")
+                                         usage="pampa_classify [-h]\n   -s SPECTRA \n   -e ERROR \n   -o OUTPUT FILE \n   -p PEPTIDE_TABLE [PEPTIDE_TABLE] | -f FASTA  | -d DIRECTORY\n   [-l LIMIT]\n   [-t TAXONOMY]\n   [-n NEIGHBOURING] [-a] [-c CONFIG]", description="This script is for species identification.")
 
 
     group1=parser.add_argument_group('\nMandatory options')

@@ -189,12 +189,16 @@ def none_str(x):
         return x
 
 def sort_headers(list_of_headers, set_of_headers):
+    if list_of_headers is None:
+        return set_of_headers
     list_of_selected_headers=[]
     list_of_other_headers=[]
     for element in set_of_headers:
-        if element in list_of_headers:
-            list_of_selected_headers.append((list_of_headers.index(element), element))
+        i = next((i for i, s in enumerate(list_of_headers) if equiv(element, s)), -1)
+        if i>-1:
+            list_of_selected_headers.append((i, element))
         else:
             list_of_other_headers.append(element)
     list_of_selected_headers.sort(key=lambda x:x[0])
     return [x[1] for x in list_of_selected_headers]+list_of_other_headers
+
