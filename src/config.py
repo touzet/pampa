@@ -7,7 +7,6 @@ def parse_config_file(file_name="config.json"):
         data = json.load(json_file)
     return data
 # TO DO: add PTM definition here
-# TO DO: add warning when the file is not found
 
 def config_digestion(file_name):
     data=parse_config_file(file_name)
@@ -24,3 +23,6 @@ def config_markers(file_name):
 
 def config_minimum_number_of_peaks(file_name):
     return int(parse_config_file(file_name)["min_number_of_peaks"])
+
+def config_selection_peaks(file_name):
+    return float(parse_config_file(file_name)["min_proportion_of_peaks"])

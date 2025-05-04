@@ -56,15 +56,18 @@ def process_fields_of_a_row(row):
     clean_row={}
     for key, value in row.items():
         clean_key=utils.clean(key)
-        clean_value=utils.clean(value)
-        if clean_key is None or clean_value is None:
+        if value=="nan":
+            clean_value=None
+        else:
+            clean_value=utils.clean(value)
+        if clean_key is None or clean_value is None  :
             continue
         clean_key=rename_field(clean_key)
         clean_row[clean_key]=clean_value
     return clean_row
    
 def check_marker(row, index, file=None, warning_on=False):
-    clean_row =process_fields_of_a_row(row)
+    clean_row = process_fields_of_a_row(row)
     if warning_on :
         # this one should be elsewhere
         # if "Mass" not in clean_row and "Sequence" not in clean_row:
@@ -79,7 +82,6 @@ def check_marker(row, index, file=None, warning_on=False):
         if "PTM" in clean_row and not utils.is_PTM(row.get("PTM"),{'H', 'D', 'P'}): # config
             message.warning("File "+file+", line "+str(index)+": wrong PTM, "+clean_row["PTM"]+ ". Ignored.")
             del clean_row["PTM"]
-    
     try:
         if "Mass" in clean_row:
             clean_row["Mass"]=utils.floating(clean_row["Mass"])
@@ -122,74 +124,15 @@ def check_marker(row, index, file=None, warning_on=False):
         new_marker=ma.Marker(field=clean_row)
         new_markers.add(new_marker)
     return new_markers
-    
-def process_one_row_from_peptide_table(row, i, file=None, warning_on=False):
-    clean_row =process_fields_of_a_row(row)
-    if warning_on :
-        # this one should be elsewhere
-        # if "Mass" not in clean_row and "Sequence" not in clean_row:
-        # message.escape("File "+file+ "(peptide table): Both peptide sequence and mass columns are missing in the peptide table. You should provide at least one of those two elements.")
-        if "Mass" not in clean_row and "Sequence" not in clean_row:
-            message.warning("File "+file+", line "+str(i)+": missing mass and peptide sequence. Ignored.")
-            return set()
-        if "OS" not in clean_row and "OX" not in clean_row:
-            message.warning("File "+file+", line "+str(i)+": missing taxid and taxon name. Ignored.")
-            return set()
-            
-        if "PTM" in clean_row and not utils.is_PTM(row.get("PTM"),{'H', 'D', 'P'}): # config
-            message.warning("File "+file+", line "+str(i)+": wrong PTM, "+clean_row["PTM"]+ ". Ignored.")
-            del clean_row["PTM"]
-    
-    try:
-        if "Mass" in clean_row:
-            clean_row["Mass"]=utils.floating(clean_row["Mass"])
-    except ValueError:
-        message.warning("File "+file+", line "+str(i)+": wrong mass, "+clean_row["Mass"]+ ". Ignored.")
-        del clean_row["Mass"]
-    try:
-        if "Hel" in clean_row:
-            clean_row["Hel"]=utils.integer(clean_row["Hel"])
-    except ValueError:
-        message.warning("File "+file+", line "+str(i)+": wrong helical position, "+clean_row["Hel"]+ ". Ignored.")
-        del clean_row["Hel"]
-    try:
-        if "Length" in clean_row:
-            clean_row["Length"]=integer(clean_row["Length"])
-    except ValueError:
-        message.warning("File "+file+", line "+str(i)+": wrong peptide length, "+clean_row["Length"]+ ". Ignored.")
-        del clean_row["Length"]
-    try:
-        if "Begin" in clean_row:
-            clean_row["Begin"]=integer(clean_row["Begin"])
-    except ValueError:
-        message.warning("File "+file+", line "+str(i)+": wrong begin position, "+clean_row["Begin"]+ ". Ignored.")
-        del clean_row["Begin"]
-    try:
-        if "End" in clean_row:
-            clean_row["End"]=integer(clean_row["End"])
-    except ValueError:
-        message.warning("File "+file+", line "+str(i)+": wrong end position, "+clean_row["End"]+ ". Ignored.")
-        del clean_row["End"]
-                  
-    if "SeqID" not in clean_row :
-        new_marker=ma.Marker(field=clean_row)
-        return {new_marker}
-        
-    seqids=clean_row["SeqID"].split()
-    new_markers=set()
-    for id in seqids:
-        clean_row["SeqID"]=utils.standard(id)
-        new_marker=ma.Marker(field=clean_row)
-        new_markers.add(new_marker)
-    return new_markers
-
+  
 def parse_peptide_table(peptide_table_file_name, warning_on):
     # Read the TSV file
     df = pd.read_csv(peptide_table_file_name, sep="\t")
+    df = df.astype(str)
     # Drop empty columns
     df = df.drop(columns=[col for col in df.columns
     if 'Unnamed' in col and df[col].isna().all()
-    ])
+    ]) # isna or isnull ?
     list_of_headers= list(map(rename_field,list(map(utils.clean,df.columns.tolist()))))
     list_of_markers = df.to_dict(orient='records')
     set_of_markers=set()
@@ -231,7 +174,7 @@ def marker_order(m1, m2, list_of_codes):
 
     
     
-def build_peptide_table_from_set_of_markers(set_of_markers, outfile_name, sorted_headers, sorted_markers):
+def build_peptide_table_from_set_of_markers(set_of_markers, outfile_name, sorted_headers, sorted_markers=None):
     set_of_headers={restitute_field(key) for m in set_of_markers for key in m.field}
     sorted_headers=list(map(restitute_field, sorted_headers))
     sorted_headers=utils.sort_headers(sorted_headers, set_of_headers)

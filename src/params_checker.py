@@ -20,8 +20,9 @@ def logger_and_outputdir_configuration(output, command_line):
     else:
         output_file=output_file[:-4]+".tsv"
     report_file="report_"+output_file.replace("tsv", "txt")
-    output_detail=os.path.join(output_dir, "detail_"+output_file+".tsv")
-    return output_dir, output_file, report_file, output_detail
+    output_detail="detail_"+output_file[:-4]+".tsv"
+    output_json=output_file[:-4]+".json"
+    return output_dir, output_file, report_file, output_detail, output_json
 
 def check_config(config):
     if config is None:
@@ -72,8 +73,8 @@ def check_sequences(fasta, fasta_dir, mandatory=True):
         if os.path.getsize(fasta) == 0:
             message.escape("File "+fasta+" is empty. Stopping execution")
     if fasta_dir:
-        if not os.path.isdir(directory):
-            message.escape("Directory "+directory+" not found (-d). Stopping execution")
+        if not os.path.isdir(fasta_dir):
+            message.escape("Directory "+fasta_dir+" not found (-d). Stopping execution")
             
 def check_spectra(spectra, mandatory=True):
     if spectra is None :
@@ -140,11 +141,10 @@ def check_and_update_parameters_classify(spectra, taxonomy, peptide_table, fasta
             new_table=None
     elif fasta or fasta_dir:
         check_sequences(fasta, fasta_dir)
-        new_table=os.path.join(output_dir, "table_"+output_file)
     else:
         message.escape("Missing information for marker peptides (-p, -f or -d). Stopping execution")
     
-    return (spectra, taxonomy, peptide_table, fasta, fasta_dir, limit, deamidation, error, neighbour, all, new_table, config)
+    return (spectra, taxonomy, peptide_table, fasta, fasta_dir, limit, deamidation, error, neighbour, all, config)
 
 
 def check_and_update_parameters_craft(homology, deamidation, allpeptides, fillin, selection, peptide_table, fasta, fasta_dir, spectra, resolution, limit, taxonomy, config):
@@ -187,7 +187,7 @@ def check_and_update_parameters_craft(homology, deamidation, allpeptides, fillin
     if selection:
         check_peptide_table(peptide_table)
         check_spectra_and_error(spectra, resolution)
-        useless_parameters([(fasta,-'f'), (fasta_dir,'-d'), (taxonomy,'-t')])
+        useless_parameters([(fasta,'-f'), (fasta_dir,'-d'), (taxonomy,'-t')])
             
     return (homology, deamidation, allpeptides, fillin, selection, peptide_table, fasta, fasta_dir, spectra, resolution, limit, taxonomy, config)
 

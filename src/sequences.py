@@ -106,11 +106,12 @@ def in_silico_digestion(set_of_sequences, config_digestion, mature=True):
             dict["Length"]=len(peptide)
             dict["Begin"]=min+pos+1
             dict["End"]=min+pos+len(peptide)
-            dict["Status"]= "Genetics"
+            dict["Status"]="Genetics"
+            dict["Digestion"]="Yes"
             if mature:
-                dict["Comment"]="in silico digestion."
-            else:
                 dict["Comment"]="in silico digestion - mature"
+            else:
+                dict["Comment"]="in silico digestion "
             new_marker=markers.Marker(field=dict)
             set_of_markers.add(new_marker)
     return set_of_markers
