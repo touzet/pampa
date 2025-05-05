@@ -59,7 +59,7 @@ def main():
         output=os.path.join(output_dir, output_file)
         report=os.path.join(output_dir, report_file)
         rep.create_report_header(" ".join(sys.argv), report)
-        (homology, deamidation, allpeptides, fillin, selection, peptide_table, fasta, directory, spectra, error, limit, taxonomy, config) = params_checker.check_and_update_parameters_craft(args.homology, args.deamidation, args.allpeptides, args.fillin, args.selection, args.peptide_table, args.fasta, args.fasta_dir, args.spectra, args.resolution, args.limit, args.taxonomy, args.config)
+        (homology, deamidation, allpeptides, fillin, selection, peptide_table, fasta, fasta_dir, spectra, error, limit, taxonomy, config) = params_checker.check_and_update_parameters_craft(args.homology, args.deamidation, args.allpeptides, args.fillin, args.selection, args.peptide_table, args.fasta, args.fasta_dir, args.spectra, args.resolution, args.limit, args.taxonomy, args.config)
         
         list_of_constraints = lmt.parse_limits(limit)
         primary_taxonomy = ta.parse_taxonomy_simple_file(taxonomy)
@@ -68,12 +68,12 @@ def main():
     
         if homology:
             set_of_markers, _ = pt.parse_peptide_tables(peptide_table, None, None)
-            set_of_sequences = fa.build_set_of_sequences(fasta, directory, list_of_constraints, primary_taxonomy)
+            set_of_sequences = fa.build_set_of_sequences(fasta, fasta_dir, list_of_constraints, primary_taxonomy)
             config_digestion=conf.config_digestion(config)
             list_of_markers=homo.find_markers_all_sequences(set_of_sequences, set_of_markers, primary_taxonomy, config_digestion)
             list_of_markers=ta.add_taxonomy_ranks(list_of_markers, primary_taxonomy)
             pt.build_peptide_table_from_set_of_markers(list_of_markers,output, config_headers, config_markers)
-            rep.create_report_homology(peptide_table, list_of_markers, set_of_sequences, taxonomy, web)
+            rep.create_report_homology(peptide_table, list_of_markers, fasta, fasta_dir, set_of_sequences, taxonomy, config_digestion, limit, list_of_constraints, web)
             
         if deamidation:
             set_of_codes=set()
@@ -83,15 +83,15 @@ def main():
             set_of_markers, list_of_headers=pt.parse_peptide_tables(peptide_table, None, None)
             set_of_new_markers=compute_masses.add_deamidation(set_of_markers, set_of_codes)
             pt.build_peptide_table_from_set_of_markers(set_of_markers.union(set_of_new_markers),output, list_of_headers, config_markers)
-            rep.create_report_deamidation(peptide_table, set_of_codes, web)
+            rep.create_report_deamidation(peptide_table, set_of_markers, set_of_codes, web)
             
         if allpeptides:
-            set_of_sequences = fa.build_set_of_sequences(fasta, directory, list_of_constraints, None)
+            set_of_sequences = fa.build_set_of_sequences(fasta, fasta_dir, list_of_constraints, None)
             if len(set_of_sequences)==0:
                 message.escape("No valid sequences found.\n")
             config_digestion=conf.config_digestion(config)
             if spectra is None:
-                rep.create_report_allpeptides(set_of_sequences, config_digestion, web)
+                rep.create_report_allpeptides(fasta, fasta_dir, set_of_sequences, config_digestion, limit, web)
                 set_of_new_markers = compute_masses.add_PTM_or_masses_to_markers(seq.in_silico_digestion(set_of_sequences, config_digestion))
                 if len(set_of_new_markers)==0:
                     message.escape("No valid peptide markers found.\n")
@@ -108,7 +108,7 @@ def main():
                 if len(final_list_of_spectra)==0:
                     message.escape("No valid spectra found.\n Please refer to the warning.log file or the report file for more detail.")
                 config_selection=conf.config_selection_peaks(config)
-                rep.create_report_allpeptides(set_of_sequences, config_digestion, web, spectra, final_list_of_spectra, error, config_selection)
+                rep.create_report_allpeptides(fasta, fasta_dir, set_of_sequences, config_digestion, limit, web, spectra, final_list_of_spectra, error, config_selection)
                 minimal_number_of_spectra=max(1, len(final_list_of_spectra)*config_selection)
                 set_of_new_markers=marker_filtering.filter_set_of_markers(set_of_markers, final_list_of_spectra, error, minimal_number_of_spectra)
             
@@ -141,8 +141,8 @@ def main():
             # to do: check that there is a single peptide table
             set_of_markers, list_of_headers = pt.parse_peptide_tables(peptide_table, list_of_constraints, None, False) # check list_of_constraints here.
             set_of_incomplete_markers, set_of_complete_markers, set_of_incomplete_fields  = supplement.search_for_incomplete_markers(set_of_markers, set(list_of_headers))
-            if fasta or directory:
-                set_of_sequences = fa.build_set_of_sequences(fasta, directory, list_of_constraints, None)
+            if fasta or fasta_dir:
+                set_of_sequences = fa.build_set_of_sequences(fasta, fasta_dir, list_of_constraints, None)
                 config_digestion=conf.config_digestion(config)
                 set_of_incomplete_markers=markers.add_sequences_and_positions_to_markers(set_of_incomplete_markers, set_of_sequences)
                 if error:
@@ -156,7 +156,7 @@ def main():
             list_of_markers=markers.sort_and_merge(set_of_new_markers | set_of_complete_markers)
             set_of_markers=ta.add_taxonomy_ranks(list_of_markers, primary_taxonomy)
             pt.build_peptide_table_from_set_of_markers(set_of_markers,output, list_of_headers, config_markers)
-            if fasta or directory:
+            if fasta or fasta_dir:
                 rep.create_report_supplement(peptide_table, web, taxonomy, list_of_markers, set_of_sequences)
             else:
                 rep.create_report_supplement(peptide_table, web, taxonomy)

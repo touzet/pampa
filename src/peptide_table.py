@@ -33,16 +33,7 @@ def rename_field(field):
         else:
             return field
             
-def restitute_field(field):
-    restitute={
-        "OX": "TaxID",
-        "OS": "Taxon name",
-        "GN": "Gene"
-        }
-    if field in restitute:
-        return restitute[field]
-    else:
-        return field
+
     
 def integer(s):
     if pd.isna(s) or s is None or s=="":
@@ -175,8 +166,8 @@ def marker_order(m1, m2, list_of_codes):
     
     
 def build_peptide_table_from_set_of_markers(set_of_markers, outfile_name, sorted_headers, sorted_markers=None):
-    set_of_headers={restitute_field(key) for m in set_of_markers for key in m.field}
-    sorted_headers=list(map(restitute_field, sorted_headers))
+    set_of_headers={utils.restitute_field(key) for m in set_of_markers for key in m.field}
+    sorted_headers=list(map(utils.restitute_field, sorted_headers))
     sorted_headers=utils.sort_headers(sorted_headers, set_of_headers)
     TSV_file = open(outfile_name, "w")
     writer = csv.DictWriter(TSV_file, fieldnames=sorted_headers, delimiter="\t")
@@ -187,7 +178,7 @@ def build_peptide_table_from_set_of_markers(set_of_markers, outfile_name, sorted
     list_of_markers=list(set_of_markers)
     list_of_markers.sort(key=cmp_to_key(partial(marker_order, list_of_codes=list_of_codes)))
     for m in list_of_markers:
-        dict={h:m.field[key] for key in m.field for  h in sorted_headers if utils.equiv(h,restitute_field(key))}
+        dict={h:m.field[key] for key in m.field for  h in sorted_headers if utils.equiv(h,utils.restitute_field(key))}
         writer.writerow(dict)
     TSV_file.close()
     

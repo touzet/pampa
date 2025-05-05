@@ -62,6 +62,7 @@ def main(command_line, spectra, taxonomy, peptide_table, fasta, fasta_dir, limit
             set_of_markers=compute_masses.add_PTM_or_masses_to_markers(set_of_markers)
             config_digestion=None
             set_of_sequences=None
+            new_table=None
         if fasta or fasta_dir:
             set_of_sequences = fa.build_set_of_sequences(fasta, fasta_dir, list_of_constraints, primary_taxonomy)
             config_digestion=config.config_digestion(config_file)
@@ -97,7 +98,7 @@ def main(command_line, spectra, taxonomy, peptide_table, fasta, fasta_dir, limit
         config_nb_of_peaks=config.config_minimum_number_of_peaks(config_file)
         config_markers=config.config_markers(config_file)
         
-        rep.create_report_classify(spectra, final_list_of_spectra, taxonomy, secondary_taxonomy, peptide_table, fasta, fasta_dir, set_of_sequences, set_of_markers, limit, deamidation, error, neighbour, all, new_table, config_digestion, config_nb_of_peaks, web)
+        rep.create_report_classify(spectra, final_list_of_spectra, taxonomy, secondary_taxonomy, peptide_table, fasta, fasta_dir, set_of_sequences, set_of_markers, limit, list_of_constraints, deamidation, error, neighbour, all, new_table, config_digestion, config_nb_of_peaks, web)
         
         rep.create_report_footer(output_dir, output, report)
 
