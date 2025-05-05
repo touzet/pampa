@@ -202,3 +202,13 @@ def sort_headers(list_of_headers, set_of_headers):
     list_of_selected_headers.sort(key=lambda x:x[0])
     return [x[1] for x in list_of_selected_headers]+list_of_other_headers
 
+def restitute_field(field):
+    restitute={
+        "OX": "TaxID",
+        "OS": "Taxon name",
+        "GN": "Gene"
+        }
+    if field in restitute:
+        return restitute[field]
+    else:
+        return field
