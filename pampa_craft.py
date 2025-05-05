@@ -91,7 +91,7 @@ def main():
                 message.escape("No valid sequences found.\n")
             config_digestion=conf.config_digestion(config)
             if spectra is None:
-                rep.create_report_allpeptides(fasta, fasta_dir, set_of_sequences, config_digestion, limit, web)
+                rep.create_report_allpeptides(fasta, fasta_dir, set_of_sequences, config_digestion, limit, list_of_constraints, web)
                 set_of_new_markers = compute_masses.add_PTM_or_masses_to_markers(seq.in_silico_digestion(set_of_sequences, config_digestion))
                 if len(set_of_new_markers)==0:
                     message.escape("No valid peptide markers found.\n")
@@ -108,7 +108,7 @@ def main():
                 if len(final_list_of_spectra)==0:
                     message.escape("No valid spectra found.\n Please refer to the warning.log file or the report file for more detail.")
                 config_selection=conf.config_selection_peaks(config)
-                rep.create_report_allpeptides(fasta, fasta_dir, set_of_sequences, config_digestion, limit, web, spectra, final_list_of_spectra, error, config_selection)
+                rep.create_report_allpeptides(fasta, fasta_dir, set_of_sequences, config_digestion, limit, list_of_constraints, web, spectra, final_list_of_spectra, error, config_selection)
                 minimal_number_of_spectra=max(1, len(final_list_of_spectra)*config_selection)
                 set_of_new_markers=marker_filtering.filter_set_of_markers(set_of_markers, final_list_of_spectra, error, minimal_number_of_spectra)
             
@@ -147,19 +147,19 @@ def main():
                 set_of_incomplete_markers=markers.add_sequences_and_positions_to_markers(set_of_incomplete_markers, set_of_sequences)
                 if error:
                     set_of_incomplete_markers=markers.check_masses_and_sequences(set_of_incomplete_markers, error)
-                    set_of_incomplete_markers=markers.find_sequences_from_mass(set_of_incomplete_markers, set_of_sequences, error)
+                    set_of_incomplete_markers=markers.find_sequences_from_mass(set_of_incomplete_markers, set_of_sequences, error, config_digestion)
                 set_of_incomplete_markers=supplement.add_digestion_status(set_of_incomplete_markers, set_of_sequences, config_digestion)
             set_of_new_markers=supplement.add_length(compute_masses.add_PTM_or_masses_to_markers(set_of_incomplete_markers))
             set_of_new_markers=ta.supplement_taxonomic_information(set_of_new_markers, primary_taxonomy)
             
             #list_of_markers=list(set_of_new_markers | set_of_complete_markers)
             list_of_markers=markers.sort_and_merge(set_of_new_markers | set_of_complete_markers)
-            set_of_markers=ta.add_taxonomy_ranks(list_of_markers, primary_taxonomy)
-            pt.build_peptide_table_from_set_of_markers(set_of_markers,output, list_of_headers, config_markers)
+            set_of_new_markers=ta.add_taxonomy_ranks(list_of_markers, primary_taxonomy)
+            pt.build_peptide_table_from_set_of_markers(set_of_new_markers, output, list_of_headers, config_markers)
             if fasta or fasta_dir:
-                rep.create_report_supplement(peptide_table, web, taxonomy, list_of_markers, set_of_sequences)
+                rep.create_report_supplement(peptide_table, set_of_markers, web, taxonomy, list_of_markers, set_of_sequences)
             else:
-                rep.create_report_supplement(peptide_table, web, taxonomy)
+                rep.create_report_supplement(peptide_table, set_of_markers, web, taxonomy)
 
         rep.create_report_footer(output_dir, output, report)
         
