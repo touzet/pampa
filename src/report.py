@@ -195,7 +195,7 @@ def create_report_selection(spectra_dir, list_of_spectra, peptide_table, set_of_
     print_error(error)
 
     
-def create_report_deamidation(peptide_table, set_of_codes, web):
+def create_report_deamidation(peptide_table, set_of_markers, set_of_codes, web):
     print("PAMPA CRAFT, mode DEAMIDATION\n")
     if len(set_of_codes)==0:
         print("  Modified peptide markers: all\n")
@@ -205,7 +205,7 @@ def create_report_deamidation(peptide_table, set_of_codes, web):
     print_peptide_tables(peptide_table, web)
     print_set_of_markers(set_of_markers)
    
-def create_report_allpeptides(fasta, fasta_dir, set_of_sequences, config_digestion, limit, web, spectra_dir=None, list_of_spectra=None, error=None, config_selection=None):
+def create_report_allpeptides(fasta, fasta_dir, set_of_sequences, config_digestion, limit, list_of_constraints, web, spectra_dir=None, list_of_spectra=None, error=None, config_selection=None):
     print("PAMPA CRAFT, mode ALL PEPTIDES")
     print_title("INPUT SEQUENCES")
     print_fasta(fasta, fasta_dir, web)
@@ -224,7 +224,7 @@ def create_report_allpeptides(fasta, fasta_dir, set_of_sequences, config_digesti
     print_error(error)
         
     
-def create_report_supplement(peptide_table, web, taxonomy, list_of_markers=None, set_of_sequences=None):
+def create_report_supplement(peptide_table, set_of_markers, web, taxonomy, list_of_markers=None, set_of_sequences=None):
     print("PAMPA CRAFT, mode SUPPLEMENT \n")
     print_title("INPUT PEPTIDE TABLE")
     print_peptide_tables(peptide_table, web)

@@ -492,14 +492,13 @@ def check_masses_and_sequences(set_of_markers, resolution):
     return set_of_markers
 
 # use mass to find sequence
-def find_sequences_from_mass(set_of_markers, set_of_sequences, resolution):
+def find_sequences_from_mass(set_of_markers, set_of_sequences, resolution, config_digestion):
     set_of_target_markers={m for m in set_of_markers if (m.taxid() or m.taxon_name()) and m.mass() and m.sequence() is None}  # missing sequences for the set of markers
     target_mass_list=[(m.mass(),m) for m in set_of_target_markers]
     target_mass_list.sort(key=lambda x:x[0])
     set_of_target_sequences=set()
     for m in set_of_target_markers:
         set_of_target_sequences.update(find_matching_sequences(m, set_of_sequences))
-
     set_of_new_markers={m for m in set_of_markers if m.sequence()}
     set_of_denovo_markers = compute_masses.add_PTM_or_masses_to_markers(sequences.in_silico_digestion(set_of_target_sequences, config_digestion), True, True)
     denovo_mass_list=[(m.mass(),m) for m in set_of_denovo_markers] # masses of all tryptic peptides
