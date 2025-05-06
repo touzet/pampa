@@ -14,6 +14,7 @@ def print_title(title):
     print("")
     
 def print_set_of_sequences(set_of_sequences):
+    print("  "+str(len(set_of_sequences))+" FASTA files found\n")
     for seq in set_of_sequences:
         print ("  "+seq.seqid()+"\t"+seq.protein()+ "\t "+seq.taxon_name()+" (TaxID:"+seq.taxid()+")")
     print("")
@@ -37,7 +38,10 @@ def print_set_of_markers(set_of_markers):
         matrix[i+1][0]= list_of_species[i][0]
         matrix[i+1][1]= list_of_species[i][1]
     for m in set_of_markers:
-        matrix[list_of_species.index((m.taxon_name(), m.taxid()))+1][list_of_codes.index(str(m.code())+"-"+str(m.PTM()))+2]=str(round(float(m.mass()),1)).rjust(6)
+        if m.mass() is not None:
+            matrix[list_of_species.index((m.taxon_name(), m.taxid()))+1][list_of_codes.index(str(m.code())+"-"+str(m.PTM()))+2]=str(round(float(m.mass()),1)).rjust(6)
+        else:
+            matrix[list_of_species.index((m.taxon_name(), m.taxid()))+1][list_of_codes.index(str(m.code())+"-"+str(m.PTM()))+2]=""
     for i in range(len(list_of_species)):
         species=utils.pretty_print(list_of_species[i][0])
         s= "  "+(species[:taxon_length] if len(species) > taxon_length else species)
@@ -129,6 +133,7 @@ def create_report_classify(spectra_dir, list_of_spectra, taxonomy, taxonomy_tree
     else:
         print("  Markers automatically infered from sequences in")
         print_fasta(fasta, fasta_dir, web)
+        print("")
         print_set_of_sequences(set_of_sequences)
         print_digestion(config_digestion)
         print("")
@@ -139,16 +144,16 @@ def create_report_classify(spectra_dir, list_of_spectra, taxonomy, taxonomy_tree
         print_limit(list_of_constraints)
     print_title("PARAMETERS")
     print("  Minimum number of peaks : " + str(config_nb_of_peaks))
-    print("  Near-optimal solutions  : ",end="")
+    print("  Near-optimal solutions   : ",end="")
     if neighbour==100:
-        print("only solution with the highest number of matching peaks")
+        print("only solutions with the highest number of matching peaks")
     else:
         print("up to "+str(neighbour)+"% matching peaks")
-    print("  Selection of solutions  : ", end="")
+    print("  Selection of solutions   : ", end="")
     if not all:
         print ("peak intensity and inclusion selection")
     else:
-        print ("all possible solutions")
+        print ("no selection on peak intensity")
     print_error(error)
     if deamidation:
         print ("  Deamidation            : Yes")
@@ -156,12 +161,12 @@ def create_report_classify(spectra_dir, list_of_spectra, taxonomy, taxonomy_tree
         print ("  Deamidation            : Only those present in the peptide table")
     else:
         print ("  Deamidation            : None")
-    #markers.colinearity(set_of_markers)
-    #markers.check_set_of_markers(set_of_markers)
+    print("")
     if taxonomy :
         print_title("TAXONOMY")
         print_file(taxonomy, 'Taxonomy', web)
         #ta.table_print(taxonomy_tree)
+        print("")
 
 def create_report_homology(peptide_table, set_of_markers, fasta, fasta_dir, set_of_sequences, taxonomy,  config_digestion, limit, list_of_constraints, web):
     print("PAMPA CRAFT, mode HOMOLOGY\n")
@@ -187,7 +192,7 @@ def create_report_selection(spectra_dir, list_of_spectra, peptide_table, set_of_
     print("PAMPA CRAFT, mode SELECTION")
     print_title("MASS SPECTRA")
     print_spectra(spectra_dir, list_of_spectra, web)
-    print_title("PEPTIDE MARKERS")
+    print_title("INPUT PEPTIDE TABLE")
     print_peptide_tables(peptide_table, web)
     print_set_of_markers(set_of_markers)
     print_title("PARAMETERS")
@@ -197,13 +202,14 @@ def create_report_selection(spectra_dir, list_of_spectra, peptide_table, set_of_
     
 def create_report_deamidation(peptide_table, set_of_markers, set_of_codes, web):
     print("PAMPA CRAFT, mode DEAMIDATION\n")
+    print_title("INPUT PEPTIDE TABLE")
+    print_peptide_tables(peptide_table, web)
+    print_set_of_markers(set_of_markers)
+    print_title("DEAMIDATION")
     if len(set_of_codes)==0:
         print("  Modified peptide markers: all\n")
     else:
         print("  Modified peptide markers: "+ str(set_of_codes)+"\n")
-    print("PEPTIDE MARKERS")
-    print_peptide_tables(peptide_table, web)
-    print_set_of_markers(set_of_markers)
    
 def create_report_allpeptides(fasta, fasta_dir, set_of_sequences, config_digestion, limit, list_of_constraints, web, spectra_dir=None, list_of_spectra=None, error=None, config_selection=None):
     print("PAMPA CRAFT, mode ALL PEPTIDES")
@@ -228,14 +234,16 @@ def create_report_supplement(peptide_table, set_of_markers, web, taxonomy, list_
     print("PAMPA CRAFT, mode SUPPLEMENT \n")
     print_title("INPUT PEPTIDE TABLE")
     print_peptide_tables(peptide_table, web)
+    print("")
     if taxonomy:
         print_title("TAXONOMY")
         print_file(taxonomy, 'Taxonomy', web)
+        print("")
     if set_of_sequences:
-        print_title("INPUT SEQUENCES")
+        print_title("FASTA SEQUENCES")
         print_set_of_sequences(set_of_sequences)
-        print_title("NEW PEPTIDE TABLE")
-        print_set_of_markers(set_of_markers)
+        #print_title("NEW PEPTIDE TABLE")
+        #print_set_of_markers(set_of_markers)
         #markers.check_set_of_markers(set(list_of_markers))
 
 def create_report_header(command_line, report):
