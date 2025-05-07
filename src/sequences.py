@@ -64,7 +64,7 @@ def helical_region(seq):
 def raw_in_silico_digestion(seq, config_digestion):
     """ build a set of peptides from a sequence by in silico digestion"""
     min_length=config_digestion["min_peptide_length"]
-    max_length=config_digestion["min_peptide_length"]
+    max_length=config_digestion["max_peptide_length"]
     enzyme=config_digestion["enzyme"]
     number_of_misscleavages=config_digestion["number_of_missed_cleavages"]
     set_of_peptides=parser.icleave(seq, parser.expasy_rules[enzyme], number_of_misscleavages, min_length, max_length)

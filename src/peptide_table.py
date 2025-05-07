@@ -34,11 +34,10 @@ def rename_field(field):
             return field
             
 
-    
 def integer(s):
     if pd.isna(s) or s is None or s=="":
         return None
-    n=int(s)
+    n=int(float(s))
     if n<0:
         raise ValueError()
     return n
@@ -161,8 +160,6 @@ def marker_order(m1, m2, list_of_codes):
     if utils.none_str(m1.PTM())>utils.none_str(m2.PTM()):
         return 1
     return 0
-    
-
     
     
 def build_peptide_table_from_set_of_markers(set_of_markers, outfile_name, sorted_headers, sorted_markers=None):
