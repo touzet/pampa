@@ -1,0 +1,7 @@
+	COL1A1-508/P1-0H	COL1A1-508/P1-1H	COL1A2-978/A-0H	COL1A2-978/A-1H	COL1A2-484/B-2H	COL1A2-502/C-1H	COL1A2-292/P2-1H	COL1A2-292/P2-2H	COL1A2-793/D-2H	COL1A2-793/D-3H	COL1A1-586/F-2H	COL1A1-586/F-3H	COL1A2-757/G-4H	COL1A2-757/G-5H	Pvalue 	 #peaks  	 Assignment 	 Rank 	 Uncertainty 	 Rank 	 Species
+Castor-TOF.csv		1105.57	1177.595	1193.616	1427.724	1593.759		1596.766		2129.143				2999.589	3.05e-24	8	51338 [Castor canadensis]	species	29132 [Castoridae]	family	51338 [Castor canadensis] 
+Hedgehog-TOF.csv		1105.566			1453.739	1565.785	1608.81			2207.089	2869.333				1.70e-13	6	9365 [Erinaceus europaeus]	species	9363 [Erinaceidae]	family	9365 [Erinaceus europaeus] 
+Horse-TOF.csv		1105.566	1182.591	1198.57	1427.706	1550.754		1649.732		2145.114	2883.425	2899.362	2983.536	2999.528	8.65e-49	11	9789 [Equus]	genus	9788 [Equidae]	family	9796 [Equus caballus] 9793 [Equus asinus] 89248 [Equus quagga] 
+Rattus-TOF.csv		1105.568		1203.674	1453.736	1566.774		1592.843		2143.159	2883.433		2987.483		1.18e-23	8	10116 [Rattus norvegicus]	species	10116 [Rattus norvegicus]	species	10116 [Rattus norvegicus] 
+Vulpes-TOF.csv		1105.572		1226.641	1437.71	1566.756	1593.793			2131.104	2853.405	2869.461		2999.479	1.34e-30	9	9627 [Vulpes vulpes]	species	9627 [Vulpes vulpes]	species	9627 [Vulpes vulpes] 
+Whale-TOF.csv	1079.518			1205.58	1441.647	1577.7		1652.759	2135.038		2883.336	2899.341	3007.391	3023.382	7.21e-40	10	9766 [Balaenoptera]	genus	9765 [Balaenopteridae]	family	2746895 [Balaenoptera ricei] 9767 [Balaenoptera acutorostrata] 
