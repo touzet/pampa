@@ -1,6 +1,6 @@
-![](https://github.com/touzet/pampa/blob/a759ce89d135a691a0ea604a5d039c7916d5d3e2/img/pampa_logo.svg)
+[](https://github.com/touzet/pampa/blob/main/img/pampa_logo.svg)
 
-__PAMPA (Protein Analysis by Mass Spectrometry for Ancient Species)__ is a versatile software suite tailored to effectively handle various tasks associated with ZooMS (Zooarchaeology by Mass Spectrometry) data and peptide markers.
+__PAMPA (Protein Analysis by Mass Spectrometry for Ancient Species)__ is a software suite tailored to handle various tasks associated with ZooMS (Zooarchaeology by Mass Spectrometry) data and peptide markers.
 
 
 ## Installation
@@ -18,7 +18,7 @@ PAMPA necessitates the Biopython, pyteomics and scipy libraries.
 
 ## Documentation
 
-The documentation for PAMPA is available on PAMPA's wiki: https://github.com/touzet/pampa/wiki
+The documentation is available on PAMPA's wiki: https://github.com/touzet/pampa/wiki
 
 ## Peptide tables for COL1A1 and COL1A2 markers
 
@@ -26,11 +26,9 @@ Spreadsheet for [mammals](https://docs.google.com/spreadsheets/d/1nwELNshZxF0h6D
 
 ## COL1A1 and COL1A2 sequences
 
-See this repository: https://github.com/touzet/pampa_sequences
+A collection of curated COL1A1 and COL1A2 sequences is available at https://github.com/touzet/pampa_sequences
 
 ## Bug Report
 
-PAMPA is still under development. If you come across any bugs or unexpected behavior, please take a moment to report it using our GitHub Issues page. Just click on the "Issues" tab above and create a new issue. You may also contact the author (helene.touzet@univ-lille.fr).
-
-We value all feedback and contributions.  Thank you for helping us make the PAMPA project better!
+PAMPA is still under development. If you need any help or if you come across unexpected behavior, you may contact the author (helene.touzet@univ-lille.fr). We value all feedback and contributions.  Thank you for helping us make the PAMPA project better!
 
