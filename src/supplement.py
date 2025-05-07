@@ -26,7 +26,7 @@ def add_digestion_status(set_of_markers, set_of_sequences,config_digestion):
         if len(compatible_sequences)==0:
             continue
         seq=next(iter(compatible_sequences))
-        set_of_peptides=sequences.raw_in_silico_digestion(seq,config_digestion,False)
+        set_of_peptides=sequences.raw_in_silico_digestion(seq, config_digestion)
         for m in set_of_markers:
             if m.seqid()==seqid:
                 if m.sequence() in set_of_peptides:

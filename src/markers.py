@@ -413,7 +413,7 @@ def find_positions_from_sequence(m, matching_sequences):
                 message.warning("Peptide length modified in marker "+str(m)+". ")
             if m.begin() is not None and m.begin()!=pos+1 :
                 message.warning("Begin position modified in marker "+str(m)+". ")
-            if m.end() is not None and m.end()!=pos + len(seq.sequence()) :
+            if m.end() is not None and m.end()!=pos + len(m.sequence()) :
                 message.warning("End position modified in marker "+str(m)+". ")
             helix=pos + 2 - sequences.helical_region(seq)[0]
             if m.helical() is not None and m.helical()!=helix:
