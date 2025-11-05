@@ -7,5 +7,8 @@
     "max_peptide_length":33,
     "min_number_of_peaks": 5,
     "min_proportion_of_peaks": 0.7,
-    "marker_order": ["P1", "COL1A1-508/P1",  "COL1A1-508", "A", "COL1A2-978/A",  "COL1A2-978", "B", "COL1A2-484/B", "COL1A2-484", "C",  "COL1A2-502/C","COL1A2-502", "P2","COL1A2-292/P2", "COL1A2-292", "D","COL1A2-793/D", "COL1A2-793", "E", "COL1A2-454/E",  "COL1A2-454", "F",   "COL1A1-586/F",  "COL1A1-586","F'", "G",  "COL1A2-757/G",  "COL1A2-757", "G'"] 
+    "marker_order": ["P1", "COL1A1-508/P1",  "COL1A1-508", "A", "COL1A2-978/A",  "COL1A2-978", "B", "COL1A2-484/B", "COL1A2-484", "C",  "COL1A2-502/C","COL1A2-502", "P2","COL1A2-292/P2", "COL1A2-292", "D","COL1A2-793/D", "COL1A2-793", "E", "COL1A2-454/E",  "COL1A2-454", "F",   "COL1A1-586/F",  "COL1A1-586","F'", "G",  "COL1A2-757/G",  "COL1A2-757", "G'"],
+    "substitution_matrices" : "matrix_fitch_placentals",
+    "gamma_matrices" :  ["gamma_placentals_COL1A1.csv", "gamma_placentals_COL1A2.csv"],
+    "conserved" : "conserved_test.json"
 }

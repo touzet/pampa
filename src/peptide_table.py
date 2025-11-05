@@ -7,9 +7,6 @@
 """              
 
 import csv
-import shutil
-import sys
-import re
 from functools import cmp_to_key, partial
 import pandas as pd
 
@@ -17,7 +14,6 @@ from src import markers as ma
 from src import limit as lim
 from src import message
 from src import utils
-from src import config
 
 def rename_field(field):
         clean={

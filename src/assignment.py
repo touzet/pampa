@@ -5,10 +5,9 @@ import json
 import math
 from scipy.stats import binom
 import csv
-import sys
-from src import utils 
+from src import utils
 from src import markers
-from src import config
+
 
 class Annotated_peak(object):
     def __init__(self, mass=0, intensity=0, marker=None):
@@ -71,8 +70,9 @@ def p_success(spectrum, resolution):
 
 def pvalue_f(k,n,p_success):
     return binom.sf(k-1,n, p_success)
-    
-def assign_peaks_of_the_spectrum(spectrum, mass_markers_list, resolution):  
+
+# mass_markers_list: list of pairs (mass, set_of_markers), sorted by increasing mass
+def find_matching_peaks_and_markers(spectrum, mass_markers_list, resolution):
     spectrum.sort()  # peaks are sorted according to their mass
     peak_to_markers={} #key: peak, value: set of markers   
     current_j = 0
@@ -113,10 +113,9 @@ def no_assignment(spectrum):
     
 def assign_spectrum(spectrum, mass_markers_list, set_of_markers, resolution, taxonomy, threshold, allsolutions, minimum_number_of_peaks):
    # mass_taxid_name_list: contains the list of markers sorted by mass
-    peak_to_markers=assign_peaks_of_the_spectrum(spectrum, mass_markers_list, resolution)
+    peak_to_markers=find_matching_peaks_and_markers(spectrum, mass_markers_list, resolution)
     if len(peak_to_markers)<minimum_number_of_peaks:
         return no_assignment(spectrum)
-
     taxid_to_annotated_peaks={}
     for peak in peak_to_markers:
         for m in peak_to_markers[peak]:
@@ -175,7 +174,6 @@ def assign_spectrum(spectrum, mass_markers_list, set_of_markers, resolution, tax
                 if is_better(taxid_to_annotated_peaks[taxid2], taxid_to_annotated_peaks[taxid]):
                     excluded_taxid.add(taxid)
         set_of_optimal_taxid= set_of_optimal_taxid - excluded_taxid
-
     list_of_assignments=[]
     for taxid in set_of_optimal_taxid:
         if taxid in equivalent_taxid:
@@ -183,7 +181,10 @@ def assign_spectrum(spectrum, mass_markers_list, set_of_markers, resolution, tax
         else:
             eq_taxid={taxid}
         if taxonomy:
-                lca=taxonomy.lca(eq_taxid)
+            lca=taxonomy.lca(eq_taxid)
+        else:
+            lca=None
+
         pvalue= taxid_to_pvalue[taxid]
         score=taxid_to_score[taxid]
         taxids=list({Taxon(taxid, None) for taxid in eq_taxid})
@@ -201,15 +202,15 @@ def image(name, ptm):
 
 
 
-def create_json_result_file(output, list_of_assignments):
-    json_file=open(output+".json", "w")
+def create_json_result_file(jsonf, list_of_assignments):
+    json_file=open(jsonf, "w")
     list_of_serialized_objects=[]
     for a in list_of_assignments:
         a_dict = vars(a)
         serialized_list_of_taxa=[vars(t) for t in a_dict["taxa"]]
         serialized_list_of_peaks=[{"mass":p.mass, "intensity":p.intensity, "code":p.marker.code(), "PTM":p.marker.PTM(), "sequence":p.marker.sequence(), "protein":p.marker.protein(), "begin":p.marker.begin(), "end":p.marker.end()} for p in a_dict["peaks"]]
         a_dict["peaks"]=serialized_list_of_peaks
-        a_dict["taxa"]= serialized_list_of_taxa=[vars(t) for t in a_dict["taxa"]]
+        a_dict["taxa"]= serialized_list_of_taxa=[vars(t) for t in a_dict["taxa"]] # super strange
         list_of_serialized_objects.append(a_dict)
     json.dump(list_of_serialized_objects, json_file, indent=4)
     json_file.close()
@@ -217,7 +218,7 @@ def create_json_result_file(output, list_of_assignments):
 
 def create_spectral_file(output, list_of_assignments, list_of_spectra):
 # list_of_assignments and list_of_spectra should share the same indices !! 
-      with open("spectra"+output+".tsv", mode='w', newline='') as outfile:
+      with open("spectra_"+output, mode='w', newline='') as outfile:
             writer = csv.writer(outfile, delimiter='\t')
             writer.writerow(['spectrum', 'm/z', 'intensity', 'marker'])
             for i, spectrum in enumerate(list_of_spectra):
@@ -238,7 +239,7 @@ def extract_sorted_markers(sorted_markers, list_of_assignments):
 def create_main_result_file(output, list_of_assignments, taxonomy, config_markers):
     list_of_marker_full_names= extract_sorted_markers(config_markers, list_of_assignments)
     # Heading
-    f1 = open(output+".tsv", "w")
+    f1 = open(output, "w")
     if taxonomy:
         s="Spectrum \t Assignment \t Rank \t Maximal clade  \t Rank \t Species \t Pvalue \t #peaks "
     else:
@@ -262,7 +263,7 @@ def create_main_result_file(output, list_of_assignments, taxonomy, config_marker
         s=a.spectrum_name+"\t"
         if taxonomy:
             if a.lca!=None:
-                s=s+str(a.lca) + " ["+ a.lca_name+ "]\t" + a.lca_rank +"\t"+str(a.hca)+ " ["+ a.hca_name + "]\t" + a.hca_rank +"\t"
+                s=s+utils.pretty_print(a.lca) + " ["+ utils.pretty_print(a.lca_name)+ "]\t" + utils.pretty_print(a.lca_rank) +"\t"+utils.pretty_print(a.hca)+ " ["+ utils.pretty_print(a.hca_name) + "]\t" + utils.pretty_print(a.hca_rank) +"\t"
             else:
                 s=s+" None\t\t\t\t"
         for t in a.taxa: 
@@ -276,8 +277,7 @@ def create_main_result_file(output, list_of_assignments, taxonomy, config_marker
         f1.write(s)
     f1.close()
 
-def create_detail_result_file(output_detail, list_of_assignments, taxonomy, B):
-
+def create_detail_result_file(detail, list_of_assignments, taxonomy, B):
     # selection of all useful taxid
     set_of_useful_taxid={z.id for a in list_of_assignments for z in a.taxa}
     list_of_useful_taxid=list(set_of_useful_taxid)
@@ -294,7 +294,7 @@ def create_detail_result_file(output_detail, list_of_assignments, taxonomy, B):
         for taxon in a.taxa:
             dict_of_pvalues[a.spectrum_name][taxon.id]=a.pvalue
             
-    f2 =open(output_detail, "w")
+    f2 =open(detail, "w")
     # heading
     s="spectrum\t marker\t m/z \t intensity  "
     for taxid in  list_of_useful_taxid:
@@ -326,14 +326,11 @@ def create_detail_result_file(output_detail, list_of_assignments, taxonomy, B):
         f2.write(s+"\n")
     f2.close()
 
-def assign_all_spectra(list_of_spectra, set_of_markers, error, taxonomy, B, threshold, allsolutions, minimum_number_of_peaks, config_markers, output, output_detail):
-
-    # elements of the list are 2-uplets of the form  (mass, {(taxid, code, PTM)})
-    mass_markers_list=markers.sort_by_masses(set_of_markers)
+def assign_all_spectra(list_of_spectra, set_of_markers, error, taxonomy, B, threshold, allsolutions, minimum_number_of_peaks, config_markers, output, detail, jsonf):
+    mass_markers_list = markers.sort_markers_by_mass(set_of_markers)
     list_of_assignments=[]
     for spectrum in list_of_spectra:
         list_of_assignments.extend(assign_spectrum(spectrum, mass_markers_list, set_of_markers, error, B, threshold, allsolutions, minimum_number_of_peaks))
-
     # completion of assignments
     for a in list_of_assignments:
         list_of_taxa=[]
@@ -349,7 +346,7 @@ def assign_all_spectra(list_of_spectra, set_of_markers, error, taxonomy, B, thre
                 a.hca_name = B.name[a.hca]
    
     create_main_result_file(output, list_of_assignments, taxonomy, config_markers)
-    create_detail_result_file(output_detail, list_of_assignments, taxonomy,B)
+    create_detail_result_file(detail, list_of_assignments, taxonomy,B)
     #create_spectral_file(output, list_of_assignments, list_of_spectra)
-    create_json_result_file(output, list_of_assignments)
+    create_json_result_file(jsonf, list_of_assignments)
     

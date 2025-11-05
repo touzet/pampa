@@ -20,8 +20,9 @@ def logger_and_outputdir_configuration(output, command_line):
     else:
         output_file=output_file[:-4]+".tsv"
     report_file="report_"+output_file.replace("tsv", "txt")
-    output_detail=os.path.join(output_dir, "detail_"+output_file+".tsv")
-    return output_dir, output_file, report_file, output_detail
+    output_detail="detail_"+output_file[:-4]+".tsv"
+    output_json=output_file[:-4]+".json"
+    return output_dir, output_file, report_file, output_detail, output_json
 
 def check_config(config):
     if config is None:
@@ -52,14 +53,21 @@ def check_limit(limit):
         elif os.path.getsize(limit) == 0:
             message.warning("File "+limit+" is empty. No limit applied.")
             
-def check_taxonomy(taxonomy):
+def check_taxonomy(taxonomy, mandatory=False):
     if taxonomy:
         if not os.path.isfile(taxonomy):
-            message.warning("File "+taxonomy+" not found. Ignored.")
-            taxonomy=None
+            if mandatory:
+                message.escape("File "+taxonomy+" not found (-t). Stopping execution")
+            else:
+                message.warning("File "+taxonomy+" not found (-t). Ignored.")
+                taxonomy=None
         elif  os.path.getsize(taxonomy) == 0:
-            message.warning("File "+taxonomy+" is empty. Ignored.")
-            taxonomy=None
+            if mandatory:
+                message.escape("File "+taxonomy+" is empty (-t). Stopping execution")
+            else:
+                message.warning("File "+taxonomy+" is empty (-t). Ignored.")
+                taxonomy=None
+
 
 def check_sequences(fasta, fasta_dir, mandatory=True):
     if fasta and fasta_dir:
@@ -72,8 +80,8 @@ def check_sequences(fasta, fasta_dir, mandatory=True):
         if os.path.getsize(fasta) == 0:
             message.escape("File "+fasta+" is empty. Stopping execution")
     if fasta_dir:
-        if not os.path.isdir(directory):
-            message.escape("Directory "+directory+" not found (-d). Stopping execution")
+        if not os.path.isdir(fasta_dir):
+            message.escape("Directory "+fasta_dir+" not found (-d). Stopping execution")
             
 def check_spectra(spectra, mandatory=True):
     if spectra is None :
@@ -104,7 +112,7 @@ def useless_parameters(list_of_parameters):
             message.warning("Useless parameter: "+p[1]+" "+str(p[0])+". Ignored.")
             
 
-def check_and_update_parameters_classify(spectra, taxonomy, peptide_table, fasta, fasta_dir, limit, deamidation, error, neighbour, all, mammals, config):
+def check_and_update_parameters_classify(spectra, taxonomy, peptide_table, fasta, fasta_dir, limit, deamidation, error, neighbour, all, mammals, birds, config):
     """
     Parameters checking and fixing. Configuration of loggers
     """
@@ -112,19 +120,33 @@ def check_and_update_parameters_classify(spectra, taxonomy, peptide_table, fasta
     check_limit(limit)
     check_spectra_and_error(spectra, error)
 
-    if mammals and (peptide_table or fasta or fasta_dir):
-        message.warning("Parameters -p, -f and -d are not compatible with --mammals. Applying --mammals parameter.")
-        peptide_table=None
-        fasta=None
-        fasta_dir=None
-
     if mammals :
-        if not os.path.isfile("Taxonomy/taxonomy_mammals.tsv"):
-            message.escape("The file Taxonomy/taxonomy_mammals.tsv is not found.")
-        if not os.path.isfile("Peptide_tables/table_mammals.tsv"):
-            message.escape("Peptide_tables/table_mammals.tsv is missing.")
-        taxonomy="Taxonomy/taxonomy_mammals.tsv"
-        peptide_table=["Peptide_tables/table_mammals.tsv"]
+        if peptide_table or fasta or fasta_dir:
+            message.warning("Parameters -p, -f and -d overwrite the --mammals option. Applying your parameter.")
+        else:
+            if not os.path.isfile("Peptide_tables/table_mammals.tsv"):
+                message.escape("Peptide_tables/table_mammals.tsv is missing.")
+            peptide_table = ["Peptide_tables/table_mammals.tsv"]
+        if  taxonomy :
+            message.warning("Parameter -t overwrites the --mammals option. Applying your taxonomy.")
+        else:
+            if not os.path.isfile("Taxonomy/taxonomy_mammals.tsv"):
+                message.escape("The file Taxonomy/taxonomy_mammals.tsv is not found.")
+            taxonomy = "Taxonomy/taxonomy_mammals.tsv"
+
+    if birds :
+        if peptide_table or fasta or fasta_dir:
+            message.warning("Parameters -p, -f and -d overwrite the --birds option. Applying your parameter.")
+        else:
+            if not os.path.isfile("Peptide_tables/table_birds.tsv"):
+                message.escape("Peptide_tables/table_birds.tsv is missing.")
+            peptide_table = ["Peptide_tables/table_birds.tsv"]
+        if  taxonomy :
+            message.warning("Parameter -t overwrites the --birds option. Applying your taxonomy.")
+        else:
+            if not os.path.isfile("Taxonomy/taxonomy_birds.tsv"):
+                message.escape("The file Taxonomy/taxonomy_birds.tsv is not found.")
+            taxonomy = "Taxonomy/taxonomy_birds.tsv"
 
     check_taxonomy(taxonomy)
     
@@ -140,24 +162,23 @@ def check_and_update_parameters_classify(spectra, taxonomy, peptide_table, fasta
             new_table=None
     elif fasta or fasta_dir:
         check_sequences(fasta, fasta_dir)
-        new_table=os.path.join(output_dir, "table_"+output_file)
     else:
-        message.escape("Missing information for marker peptides (-p, -f or -d). Stopping execution")
+        message.escape("Missing parameter for marker peptides (-p, -f or -d). Stopping execution")
     
-    return (spectra, taxonomy, peptide_table, fasta, fasta_dir, limit, deamidation, error, neighbour, all, new_table, config)
+    return (spectra, taxonomy, peptide_table, fasta, fasta_dir, limit, deamidation, error, neighbour, all, config)
 
 
-def check_and_update_parameters_craft(homology, deamidation, allpeptides, fillin, selection, peptide_table, fasta, fasta_dir, spectra, resolution, limit, taxonomy, config):
+def check_and_update_parameters_craft(homology, deamidation, allpeptides, fillin, selection, reconstruction, peptide_table, fasta, fasta_dir, spectra, resolution, limit, taxonomy, config, placentals, target):
     """
     Parameters checking and fixing for PAMPA CRAFT.
     Configuration of loggers
     """
     
-    param=sum([homology, deamidation, allpeptides, fillin, selection])
+    param=sum([homology, deamidation, allpeptides, fillin, selection, reconstruction])
     if param==0:
-         message.escape("Missing parameter: --homology, --allpeptides, --fillin, --deamidation, or --selection. Stopping execution")
+         message.escape("Missing parameter: --homology, --allpeptides, --fillin, --deamidation, --selection or reconstruction. Stopping execution")
     if param>1:
-        message.escape("Parameters --homology, --allpeptides, --deamidation, --selection and --fillin are mutually exclusive.")
+        message.escape("Parameters --homology, --allpeptides, --deamidation, --selection, --fillin and --reconstruction are mutually exclusive.")
     
     config=check_config(config)
     check_limit(limit)
@@ -187,7 +208,38 @@ def check_and_update_parameters_craft(homology, deamidation, allpeptides, fillin
     if selection:
         check_peptide_table(peptide_table)
         check_spectra_and_error(spectra, resolution)
-        useless_parameters([(fasta,-'f'), (fasta_dir,'-d'), (taxonomy,'-t')])
-            
-    return (homology, deamidation, allpeptides, fillin, selection, peptide_table, fasta, fasta_dir, spectra, resolution, limit, taxonomy, config)
+        useless_parameters([(fasta,'-f'), (fasta_dir,'-d'), (taxonomy,'-t')])
+
+    if reconstruction:
+        if target is None:
+            message.escape("Missing parameter: --target")
+        if placentals:
+            if not os.path.isfile("Matrices/matrix_placentals_COL1A1_X.csv"):
+                message.escape("Matrices/matrix_placentals_COL1A1_Y.csv is missing.")
+            if not os.path.isfile("Matrices/matrix_placentals_COL1A1_X.csv"):
+                message.escape("Matrices/matrix_placentals_COL1A1_Y.csv is missing.")
+            if not os.path.isfile("Matrices/matrix_placentals_COL1A2_X.csv"):
+                message.escape("Matrices/matrix_placentals_COL1A2_X.csv is missing.")
+            if not os.path.isfile("Matrices/matrix_placentals_COL1A2_Y.csv"):
+                message.escape("Matrices/matrix_placentals_COL1A2_Y.csv is missing.")
+            if not os.path.isfile("Gamma/gamma_placentals_COL1A2.csv"):
+                message.escape("Gamma/gamma_placentals_COL1A2.csv is missing.")
+            if not os.path.isfile("Gamma/gamma_placentals_COL1A1.csv"):
+                message.escape("Gamma/gamma_placentals_COL1A1.csv is missing.")
+            if (fasta or fasta_dir):
+                message.warning("Parameters -d and -f overwrite the --placental mode.\n Using your FASTA sequences to compute substitution and gamma matrices.")
+            if peptide_table:
+                message.warning("Parameter -p overwrites the --placental mode. Using your peptide table.")
+            else:
+                peptide_table = ["Peptide_tables/table_placentals.tsv"]
+            if taxonomy:
+                message.warning("Parameter -t overwrites the --placental mode. Using your taxonomy.")
+            else:
+                taxonomy = "Taxonomy/taxonomy_mammals.tsv"
+        check_peptide_table(peptide_table)
+        check_taxonomy(taxonomy,True)
+        check_spectra_and_error(spectra, resolution)
+        check_sequences(fasta, fasta_dir, False)
+
+    return (homology, deamidation, allpeptides, fillin, selection, reconstruction, peptide_table, fasta, fasta_dir, spectra, resolution, limit, taxonomy, config, placentals, target)
 

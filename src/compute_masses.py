@@ -8,11 +8,11 @@ Everything that is related to the computation of peptide masses
 from pyteomics import mass
 import copy
 import re
-import sys
+
 
 from src import markers 
 from src import utils as ut
-
+from src import collagen as collagen
 
 HYDROXYPROLINE=15.994915 # proline (P)
 DEAMIDATION=0.984016 # asparagine (N) and glutamine (Q)
@@ -32,30 +32,41 @@ def peptide_mass(sequence):
     # formula = Formula(sequence)
     # mass = formula.isotope.mass
 
+def number_of_H(PTM_string):
+    if 'H' in PTM_string:
+        re_proline=re.compile('[0-9]*H')
+        m = re_proline.search(PTM_string)
+        proline=int(m.group().replace('H',''))
+    else:
+        proline=0
+    return proline
+
+def number_of_D(PTM_string):
+    if 'D' in PTM_string:
+        re_deamidation=re.compile('[0-9]*D')
+        m = re_deamidation.search(PTM_string)
+        deamidation=int(m.group().replace('D',''))
+    else:
+        deamidation=0
+    return deamidation
+
+def number_of_C(PTM_string):
+    if 'C' in PTM_string:
+        re_carboxylation=re.compile('[0-9]*C')
+        m = re_carboxylation.search(PTM_string)
+        carboxylation=int(m.group().replace('C',''))
+    else:
+        carboxylation=0
+    return carboxylation
 
 def PTM_mass(PTM_string):
     mass=0
     # proline oxydation
-    proline="0"
-    if 'H' in PTM_string:
-        re_proline=re.compile('[0-9]*H')
-        m = re_proline.search(PTM_string)
-        proline=m.group().replace('H','')
-        mass+= int(proline) * HYDROXYPROLINE 
+    mass+= number_of_H(PTM_string) * HYDROXYPROLINE
     # deamidation
-    deamidation="0"
-    if 'D' in PTM_string:
-        re_deamidation=re.compile('[0-9]*D')
-        m = re_deamidation.search(PTM_string)
-        deamidation=m.group().replace('D','')
-        mass+= int(deamidation) * DEAMIDATION
+    mass+= number_of_D(PTM_string) * DEAMIDATION
     #carboxylation
-    carboxylation="0"
-    if 'C' in PTM_string:
-        re_carboxylation=re.compile('[0-9]*C')
-        m = re_carboxylation.search(PTM_string)
-        carboxylation=m.group().replace('C','')
-        mass+= int(carboxylation) * CARBOXYLATION
+    mass+= number_of_C(PTM_string) * CARBOXYLATION
     return mass
 
 def peptide_mass_with_PTM(sequence, PTM_string):
@@ -99,6 +110,24 @@ def proline_range(sequence):
         return period_proline, period_proline+1
     
 
+def update_PTM(new_sequence, source_sequence, set_of_source_PTM):
+    set_of_new_PTM=set()
+    deamidation = 'Q' not in new_sequence and 'N' not in new_sequence
+    for source_PTM in set_of_source_PTM:
+        new_P_pattern = collagen.P_pattern(new_sequence)
+        old_P_pattern = collagen.P_pattern(source_sequence)
+        nb_H = number_of_H(source_PTM)
+        if new_P_pattern[0] > old_P_pattern[0]:
+             nb_H += 1
+        elif new_P_pattern[0] < old_P_pattern[0]:
+            nb_H =  max(0, nb_H - 1)
+        new_PTM=str(nb_H)+'H'
+        set_of_new_PTM.add(new_PTM)
+        if deamidation & number_of_D(source_PTM) > 0 :
+            new_PTM = new_PTM + '1D'
+            set_of_new_PTM.add(new_PTM)
+    return set_of_new_PTM
+
 def add_PTM_or_masses_to_markers(set_of_markers, more_hydroxyprolines=False, deamidation=False):
     """
     Compute PTM and masses when there are missing. Existing values are kept.
@@ -111,19 +140,18 @@ def add_PTM_or_masses_to_markers(set_of_markers, more_hydroxyprolines=False, dea
 
     """
     set_of_new_markers=set()
-    set_of_deprecated_markers=set()
     list_of_codes=[]
-    for marker in set_of_markers:
-        sequence=marker.sequence()
+    for m in set_of_markers:
+        sequence=m.sequence()
         if sequence is None:
-            set_of_new_markers.add(marker)
+            set_of_new_markers.add(m)
             continue
-        if marker.code() is None:
+        if m.code() is None:
             if sequence not in list_of_codes:
                     list_of_codes.append(sequence)
-            marker.field["Marker"]='m'+str(list_of_codes.index(sequence))
-        if marker.mass() is None:
-            if marker.PTM() is None:
+            m.field["Marker"]='m'+str(list_of_codes.index(sequence))
+        if m.mass() is None :
+            if m.PTM() is None :
                 min_P, max_P=proline_range(sequence)
                 if more_hydroxyprolines:
                     if min_P>0:
@@ -135,17 +163,15 @@ def add_PTM_or_masses_to_markers(set_of_markers, more_hydroxyprolines=False, dea
                     mass_list_deamidation=[(ma[0]+"1D", ma[1]+DEAMIDATION) for ma in mass_list]
                     mass_list = mass_list + mass_list_deamidation
                 for ma in mass_list:
-                    new_marker=markers.Marker()
-                    new_marker=copy.deepcopy(marker)
+                    new_marker=copy.deepcopy(m)
                     new_marker.field["PTM"]=ma[0]
                     new_marker.field["Mass"]=ma[1]
                     set_of_new_markers.add(new_marker)
-                set_of_deprecated_markers.add(marker)
             else:
-                mass=peptide_mass_with_PTM(sequence,marker.PTM())
-                marker.field["Mass"]=mass
-                    
-    return set_of_markers.union(set_of_new_markers) - set_of_deprecated_markers
+                mass=peptide_mass_with_PTM(sequence,m.PTM())
+                m.field["Mass"]=mass
+    set_of_markers = {m for m in set_of_markers if m.PTM() is not None}
+    return set_of_markers.union(set_of_new_markers)
     
      
 def compatible_mass(sequence, PTM, mass, resolution):
@@ -169,7 +195,7 @@ def compatible_mass(sequence, PTM, mass, resolution):
             return True, ma[0], ma[1]
     return False, None, None
                
-def add_deamidation(set_of_markers, set_of_codes):
+def add_deamidation(set_of_markers, set_of_codes=set()):
     if len(set_of_codes)==0:
         set_of_codes={m.code() for m in set_of_markers}
     set_of_new_markers=set()
@@ -184,3 +210,4 @@ def add_deamidation(set_of_markers, set_of_codes):
                 new_marker.field["Comment"]=new_marker.comment()+ " + deamidation"
                 set_of_new_markers.add(new_marker)
     return set_of_new_markers
+

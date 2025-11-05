@@ -10,7 +10,6 @@ from src import taxonomy
 from src import sequences 
 from src import markers
 from src import collagen
-from src import config
 
 def hamming_distance(seq1, seq2):
     if len(seq1)!=len(seq2):
@@ -27,7 +26,7 @@ def find_markers_single_sequence(seq, set_of_digested_peptides, dict_of_model_ma
     # for each marker of dict_of_model_markers (characterized by a *code*) find the best location in the sequence seq.
     # output: set of markers
 
-    helical_start=sequences.helical_region(seq)[0]
+    helical_start=collagen.helical_region(seq)[0]
     set_of_found_codes=set() # contains the set of codes for  model markers found in the current sequence
     set_of_raw_digested_peptides={pep.sequence() for pep in set_of_digested_peptides}
     
@@ -56,7 +55,7 @@ def find_markers_single_sequence(seq, set_of_digested_peptides, dict_of_model_ma
     #markers found with exact match in some other organism 
     for marker_seq in dict_of_model_markers:
         pos=(seq.sequence()).find(marker_seq)
-        if (pos>=0):
+        if pos>=0:
             set_of_codes={s[1] for s in dict_of_model_markers[marker_seq] if seq.protein()==s[2] }
             for code in set_of_codes:
                 if code not in set_of_found_codes:
@@ -78,7 +77,7 @@ def find_markers_single_sequence(seq, set_of_digested_peptides, dict_of_model_ma
             if d<len(marker_seq)/10+1:
                 d2=collagen.Pmask_distance((seq.sequence())[pos:pos+l], marker_seq)
                 for  code in set_of_codes:
-                    if (code not in found_markers) :
+                    if code not in found_markers :
                         found_markers[code]=(pos,d,d2, marker_seq)
                     elif d<found_markers[code][1] or (d==found_markers[code][1] and d2<found_markers[code][2]):
                         found_markers[code]=(pos,d,d2, marker_seq)
@@ -92,20 +91,21 @@ def find_markers_single_sequence(seq, set_of_digested_peptides, dict_of_model_ma
         for model_marker in dict_of_model_markers[marker_seq]:
             if model_marker[1]!=code:
                 continue
-            dict={}
-            dict["OX"]=seq.taxid()
-            dict["OS"]=seq.taxon_name()
-            dict["SeqID"]=seq.seqid()
-            dict["Sequence"]=new_sequence
-            dict["Begin"]= pos+1
-            dict["Length"]=l
+            dict = {
+                'OX':seq.taxid(),
+                'OS':seq.taxon_name(),
+                'SeqID':seq.seqid(),
+                'Sequence':new_sequence,
+                'Begin': pos+1,
+                'Length':l,
+                'End' : pos + l,
+                'Rank': "species",
+                'Marker' : model_marker[1],
+                'GN' : model_marker[2],
+                'Status' : "Genetic",
+            }
             if helical_start is not None and pos>helical_start:
                 dict["Hel"]=pos-helical_start+2
-            dict["End"]=pos+l
-            dict["Rank"]="species"
-            dict["Marker"]=model_marker[1]
-            dict["GN"]=model_marker[2]
-            dict["Status"]="Genetic"
             if new_sequence not in set_of_raw_digested_peptides:
                 dict["Digestion"]="No"
             else:

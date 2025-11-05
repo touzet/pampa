@@ -1,6 +1,4 @@
 import re
-from src import markers 
-from src import sequences
 from src import taxonomy as ta
 from src import message
 from src import utils 
@@ -75,3 +73,10 @@ def extract_taxonomical_constraints(list_of_constraints):
         return None
     else:
         return constraint
+
+def deamidated_codes(list_of_constraints):
+    set_of_codes=set()
+    for constraint in list_of_constraints:
+        if 'Deamidation' in constraint:
+         set_of_codes.update(constraint['Deamidation'])
+    return set_of_codes

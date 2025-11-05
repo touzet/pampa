@@ -2,6 +2,11 @@
    utils.py
 """
 
+def pretty_concatenate(s):
+    words = s.split()
+    words = [w.capitalize() for w in words]
+    return ''.join(words)
+
 def pretty_print(s):
     if s==None:
         return ""
@@ -40,8 +45,6 @@ def floating(s):
         raise ValueError()
     return fl
 
-
- 
 # remove all whitespaces of a string and switch to upper cases
 def standard_upper(s):
     if not isinstance(s, str):
@@ -87,7 +90,6 @@ def is_PTM(PTM_string, set_of_PTM):
           if len(found_number)==0 or (int(found_number)>0 and char not in set_of_PTM):
             return False
           found_number=""
-    
     return True
     
 def image(set_of_masses):
@@ -108,14 +110,13 @@ def update_dictoset(mydict, k,v):
     else:
         mydict[k]=v
         
-
+# change the name: remove dictoset
 def increment_dictoset(mydict, k):
     if k in mydict:
         mydict[k]=mydict[k]+1
     else:
         mydict[k]=1
-                
- 
+
 def create_dual_list(mydict):
     """
     create a dual list for dictionary mydict.

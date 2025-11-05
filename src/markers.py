@@ -19,7 +19,20 @@ class Marker(object):
 
     def __str__(self):
         return str(self.field)
-        
+
+    def __eq__(self, other):
+        if not isinstance(other, Marker):
+            return False
+        if other.field != self.field:
+            return False
+        for key, value in self.field.items():
+            if other.field[key] != value:
+                return False
+        return True
+
+    def __hash__(self):
+        return hash(frozenset(self.field.items()))
+
     def sequence(self):
         return self.field.get("Sequence")
                     
@@ -33,10 +46,13 @@ class Marker(object):
         return self.field.get("OS")
         
     def PTM(self):
-        return self.field.get("PTM")
+        if "PTM" not in self.field:
+            return None
+        else:
+            return self.field.get("PTM")
 
     def mass(self):
-        if "Mass" not in self.field or float(self.field["Mass"])==0.0:
+        if "Mass" not in self.field or len(str(self.field["Mass"]))==0 or float(self.field["Mass"])==0.0:
             return None
         else:
             return float(self.field["Mass"])
@@ -534,4 +550,12 @@ def find_sequences_from_mass(set_of_markers, set_of_sequences, resolution):
                 
     return set_of_new_markers
 
+
+def sort_markers_by_mass(set_of_markers):
+    dict_mass={}
+    for m in set_of_markers:
+        ut.update_dictoset(dict_mass, m.mass(), {m})
+    mass_list=[(key, dict_mass[key]) for key in dict_mass]
+    mass_list.sort(key=lambda x:x[0])
+    return mass_list
 
