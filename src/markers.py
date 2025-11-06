@@ -10,6 +10,7 @@ from  src import utils as ut
 from src import sequences
 from src import compute_masses
 from src import message
+from src import collagen
 #from src import limit 
 
     
@@ -431,14 +432,14 @@ def find_positions_from_sequence(m, matching_sequences):
                 message.warning("Begin position modified in marker "+str(m)+". ")
             if m.end() is not None and m.end()!=pos + len(seq.sequence()) :
                 message.warning("End position modified in marker "+str(m)+". ")
-            helix=pos + 2 - sequences.helical_region(seq)[0]
+            helix=pos + 2 - collagen.helical_region(seq)[0]
             if m.helical() is not None and m.helical()!=helix:
                 message.warning("Helical position modified in marker "+str(m)+". ")
             dict={x:m.field[x] for x in m.field}
             dict["OX"]=seq.taxid()
             dict["OS"]=seq.taxon_name()
             dict["GN"]=seq.protein()
-            dict["Hel"]= pos - sequences.helical_region(seq)[0] +2
+            dict["Hel"]= pos - collagen.helical_region(seq)[0] +2
             dict["SeqID"]= seq.seqid()
             dict["Begin"]=pos+1
             dict["End"]= pos + len(m.sequence())
@@ -461,16 +462,16 @@ def find_sequence_from_positions(m, matching_sequences):
             begin=m.begin()
             length=m.length()
             end=m.begin()+m.length()-1
-            helical=m.begin() - sequences.helical_region(seq)[0] + 1
+            helical=m.begin() - collagen.helical_region(seq)[0] + 1
         if m.begin() and m.end():
             begin=m.begin()
             end=m.end()
             length=m.end()-m.begin()+1
-            helical=m.begin() - sequences.helical_region(seq)[0] + 1
+            helical=m.begin() - collagen.helical_region(seq)[0] + 1
         if m.helical() and m.length():
             length=m.length()
             helical=m.helical()
-            begin=sequences.helical_region(seq)[0] +m.helical() -1
+            begin=collagen.helical_region(seq)[0] +m.helical() -1
             end=begin+m.length()-1
         peptide_sequence=seq.sequence()[begin-1:end]
         dict={x:m.field[x] for x in m.field}
