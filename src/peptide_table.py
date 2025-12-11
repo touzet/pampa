@@ -169,7 +169,7 @@ def build_peptide_table_from_set_of_markers(set_of_markers, outfile_name, sorted
     set_of_codes=[m.code() for m in set_of_markers]
     list_of_codes=utils.sort_headers(sorted_markers,set_of_codes)
     list_of_markers=list(set_of_markers)
-    list_of_markers.sort(key=cmp_to_key(partial(marker_order, list_of_codes=list_of_codes)))
+    #list_of_markers.sort(key=cmp_to_key(partial(marker_order, list_of_codes=list_of_codes)))
     for m in list_of_markers:
         dict={h:m.field[key] for key in m.field for  h in sorted_headers if utils.equiv(h,utils.restitute_field(key))}
         writer.writerow(dict)
