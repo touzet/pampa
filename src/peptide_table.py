@@ -7,7 +7,6 @@
 """              
 
 import csv
-from functools import cmp_to_key, partial
 import pandas as pd
 
 from src import markers as ma
@@ -54,6 +53,8 @@ def process_fields_of_a_row(row):
    
 def check_marker(row, index, file=None, warning_on=False):
     clean_row = process_fields_of_a_row(row)
+    if not clean_row:
+        return set()
     if warning_on :
         # this one should be elsewhere
         # if "Mass" not in clean_row and "Sequence" not in clean_row:
@@ -64,7 +65,6 @@ def check_marker(row, index, file=None, warning_on=False):
         if "OS" not in clean_row and "OX" not in clean_row:
             message.warning("File "+file+", line "+str(index)+": missing taxid and taxon name. Ignored.")
             return set()
-            
         if "PTM" in clean_row and not utils.is_PTM(row.get("PTM"),{'H', 'D', 'P'}): # config
             message.warning("File "+file+", line "+str(index)+": wrong PTM, "+clean_row["PTM"]+ ". Ignored.")
             del clean_row["PTM"]
@@ -87,8 +87,10 @@ def check_marker(row, index, file=None, warning_on=False):
         message.warning("File "+file+", line "+str(index)+": wrong peptide length, "+str(clean_row["Length"])+ ". Ignored.")
         del clean_row["Length"]
     try:
-        if "Begin" in clean_row:
+        if "Begin" in clean_row :
             clean_row["Begin"]=integer(clean_row["Begin"])
+        if "Start" in clean_row :
+            clean_row["Begin"] = integer(clean_row["Start"])
     except ValueError:
         message.warning("File "+file+", line "+str(index)+": wrong begin position, "+clean_row["Begin"]+ ". Ignored.")
         del clean_row["Begin"]
@@ -98,19 +100,23 @@ def check_marker(row, index, file=None, warning_on=False):
     except ValueError:
         message.warning("File "+file+", line "+str(index)+": wrong end position, "+clean_row["End"]+ ". Ignored.")
         del clean_row["End"]
-                  
+    if "OX" in clean_row:
+        clean_row["OX"]= str(int(clean_row["OX"])) if isinstance(clean_row["OX"], float) else str(int(float(clean_row["OX"])))           # round toward 0
+    #integer(clean_row["OX"])
     if "SeqID" not in clean_row :
         new_marker=ma.Marker(field=clean_row)
         return {new_marker}
-        
-    seqids=clean_row["SeqID"].split()
+    seqids=clean_row["SeqID"].split() #Benoit
     new_markers=set()
-    for id in seqids:
-        clean_row["SeqID"]=utils.standard(id)
+    for seqid in seqids:
+        clean_row["SeqID"]=utils.standard(seqid)
         new_marker=ma.Marker(field=clean_row)
         new_markers.add(new_marker)
     return new_markers
-  
+
+def add_magic_number(m, i):
+    m.field["magic_number"] = "["+str(i)+"]"
+
 def parse_peptide_table(peptide_table_file_name, warning_on):
     # Read the TSV file
     df = pd.read_csv(peptide_table_file_name, sep="\t")
@@ -122,8 +128,12 @@ def parse_peptide_table(peptide_table_file_name, warning_on):
     list_of_headers= list(map(rename_field,list(map(utils.clean,df.columns.tolist()))))
     list_of_markers = df.to_dict(orient='records')
     set_of_markers=set()
+    magic_number=1
     for index,m in enumerate(list_of_markers):
         new_markers=check_marker(m,index+1,peptide_table_file_name)
+        for n_m in new_markers:
+            add_magic_number(n_m, magic_number)
+            magic_number+=1
         set_of_markers.update(new_markers)
     if len(set_of_markers)==0:
         message.warning("File "+peptide_table_file_name+": no valid data found.")
@@ -132,6 +142,7 @@ def parse_peptide_table(peptide_table_file_name, warning_on):
 
 def parse_peptide_tables(list_of_peptide_tables, list_of_constraints, taxonomy, warning_on=True):
     set_of_markers=set()
+    list_of_headers=[]
     for peptide_table  in list_of_peptide_tables:
         set_of_new_markers, list_of_headers=parse_peptide_table(peptide_table, warning_on)
         set_of_markers.update(set_of_new_markers)
@@ -157,21 +168,48 @@ def marker_order(m1, m2, list_of_codes):
         return 1
     return 0
     
-    
-def build_peptide_table_from_set_of_markers(set_of_markers, outfile_name, sorted_headers=[], sorted_markers=[]):
+def merge_headers(user_headers, reference_headers, set_of_markers):
+    all_headers={h for m in set_of_markers for h in m.field}
+    shared_headers= set(user_headers).intersection(set(reference_headers))
+    new_headers=   all_headers.difference(set(user_headers))
+    #list_of_new_headers=[h for h in reference_headers if h in new_headers ]
+    dict_of_headers={}
+    current_h="0"
+    dict_of_headers["0"]=[]
+    for h in reference_headers:
+        if h in shared_headers:
+            current_h=h
+            dict_of_headers[h]=[h]
+        if h in new_headers:
+            dict_of_headers[current_h].append(h)
+    out_list=[]
+    for h in ["0"]+user_headers:
+        if h in shared_headers | set('0'):
+            out_list.extend(dict_of_headers[h])
+    return out_list
+
+
+
+def build_peptide_table_from_set_of_markers(set_of_markers, outfile_name, sorted_headers = None, sorted_markers = None):
     set_of_headers={utils.restitute_field(key) for m in set_of_markers for key in m.field}
-    sorted_headers=list(map(utils.restitute_field, sorted_headers))
-    sorted_headers=utils.sort_headers(sorted_headers, set_of_headers)
+    if sorted_headers is None:
+        sorted_headers = []
+    else:
+        sorted_headers=list(map(utils.restitute_field, sorted_headers))
+        sorted_headers=utils.sort_headers(sorted_headers, set_of_headers)
     TSV_file = open(outfile_name, "w")
     writer = csv.DictWriter(TSV_file, fieldnames=sorted_headers, delimiter="\t")
     writer.writeheader()
     # ordering markers
     set_of_codes=[m.code() for m in set_of_markers]
-    list_of_codes=utils.sort_headers(sorted_markers,set_of_codes)
+    if sorted_markers is not None:
+        list_of_codes=utils.sort_headers(sorted_markers,set_of_codes)
+    else:
+        list_of_codes=[]
     list_of_markers=list(set_of_markers)
     #list_of_markers.sort(key=cmp_to_key(partial(marker_order, list_of_codes=list_of_codes)))
     for m in list_of_markers:
-        dict={h:m.field[key] for key in m.field for  h in sorted_headers if utils.equiv(h,utils.restitute_field(key))}
+        dict={h:str(m.field[key]) for key in m.field for  h in sorted_headers if utils.equiv(h,utils.restitute_field(key))}
         writer.writerow(dict)
     TSV_file.close()
     

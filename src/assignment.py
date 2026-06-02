@@ -4,10 +4,63 @@
 import json
 import math
 from scipy.stats import binom
+import numpy as np
 import csv
 from src import utils
 from src import markers
+from src import isotopes as iso
 
+def matching_peaks(mass, resolution, spectrum):
+    # TMP
+    potential_peaks=[]
+    for peak in spectrum:
+        if utils.matching_masses(mass, peak.mass, resolution):
+            potential_peaks.append(peak)
+    return potential_peaks
+
+# search next index current_j >=j such that
+# peak matches with mass_markers_list[current_j]
+def skip_j(peak,j,mass_markers_list, resolution):
+    marker_mass = mass_markers_list[j][0]
+    overtook = peak.mass + 1 < marker_mass
+    if overtook:
+        return False, j, j
+    matching = utils.matching_masses(marker_mass, peak.mass, resolution)
+    min_j, max_j=j, j
+    overtook=False
+    while not matching and min_j<len(mass_markers_list)-1 and not overtook:
+        min_j+=1
+        marker_mass = mass_markers_list[min_j][0]
+        matching=utils.matching_masses(marker_mass, peak.mass, resolution)
+        if peak.mass + 1 < mass_markers_list[min_j][0]:
+           overtook=True
+    if not matching:
+        return False, min_j-1, min_j-1
+    max_j = min_j+1
+    while utils.matching_masses(mass_markers_list[max_j][0], peak.mass, resolution):
+        max_j+=1
+    return True, min_j, max_j
+#missing case: end of mass_list
+
+# mass_markers_list: list of pairs (mass, set_of_markers), sorted by increasing mass
+def find_matching_peaks_and_markers(spectrum, mass_markers_list, resolution, isotopes=False):
+    spectrum.sort()  # peaks are sorted according to their mass
+    peak_to_markers={} #key: peak, value: set of markers
+    j=0
+    for i, peak in enumerate(spectrum):
+        match, min_j, max_j=skip_j(peak, j, mass_markers_list, resolution)
+        if match:
+            if isotopes:
+                for current_j in range(min_j, max_j + 1):
+                    isotope, markers=iso.check_isotope_pattern2(spectrum, i, mass_markers_list, current_j, resolution)
+                    if isotope:
+                        utils.update_dictoset(peak_to_markers, peak, markers)
+            else:
+                for current_j in range(min_j,max_j+1):
+                    markers= mass_markers_list[current_j][1]
+                    utils.update_dictoset(peak_to_markers, peak, markers)
+        j=min_j
+    return peak_to_markers
 
 class Annotated_peak(object):
     def __init__(self, mass=0, intensity=0, marker=None):
@@ -72,7 +125,7 @@ def pvalue_f(k,n,p_success):
     return binom.sf(k-1,n, p_success)
 
 # mass_markers_list: list of pairs (mass, set_of_markers), sorted by increasing mass
-def find_matching_peaks_and_markers(spectrum, mass_markers_list, resolution):
+def find_matching_peaks_and_markers_old(spectrum, mass_markers_list, resolution):
     spectrum.sort()  # peaks are sorted according to their mass
     peak_to_markers={} #key: peak, value: set of markers   
     current_j = 0
@@ -100,34 +153,45 @@ def is_included(v,w):
 def is_better(v,w):
     masses_of_v={(a.mass):a.intensity for a in v}
     masses_of_w={(a.mass):a.intensity for a in w}
-    
     IV={masses_of_v[k] for k  in masses_of_v.keys() - masses_of_w.keys()}
     IW ={masses_of_w[k] for k in masses_of_w.keys() - masses_of_v.keys()}
     if len(IV) == 0 or len(IW)==0:
         return False
     else:
         return  min(IV)>max(IW)
-    
+
+
+
 def no_assignment(spectrum):
     return [Assignment(spectrum.name)]
     
-def assign_spectrum(spectrum, mass_markers_list, set_of_markers, resolution, taxonomy, threshold, allsolutions, minimum_number_of_peaks):
+def assign_spectrum(spectrum, mass_markers_list, set_of_markers, resolution, taxonomy, threshold, allsolutions, minimum_number_of_peaks, isotopes):
    # mass_taxid_name_list: contains the list of markers sorted by mass
-    peak_to_markers=find_matching_peaks_and_markers(spectrum, mass_markers_list, resolution)
+    peak_to_markers = find_matching_peaks_and_markers(spectrum, mass_markers_list, resolution, isotopes)
     if len(peak_to_markers)<minimum_number_of_peaks:
         return no_assignment(spectrum)
+    taxid_to_codes={}
     taxid_to_annotated_peaks={}
     for peak in peak_to_markers:
         for m in peak_to_markers[peak]:
             utils.update_dictoset(taxid_to_annotated_peaks, m.taxid(), {Annotated_peak(peak.mass, peak.intensity, m)})
-            
-    max_number_of_markers=max({len(v) for v in taxid_to_annotated_peaks.values()}) # incorrect, à revoir
+            utils.update_dictoset(taxid_to_codes, m.taxid(), {m.code()+" "+str(m.mass())})
+    excluded_taxid = set()
+    for taxid in taxid_to_codes:
+        if  len(taxid_to_codes[taxid])<minimum_number_of_peaks:
+            excluded_taxid.add(taxid)
+    for taxid in excluded_taxid:
+        del taxid_to_codes[taxid]
 
-    if max_number_of_markers < minimum_number_of_peaks:
+    if len(taxid_to_codes)==0 :
         return no_assignment(spectrum)
 
+    max_number_of_markers=max({len(v) for v in taxid_to_codes.values()})
+
+    #max_number_of_markers=max({len(v) for v in taxid_to_annotated_peaks.values()}) # incorrect, à revoir
+    if max_number_of_markers < minimum_number_of_peaks:
+        return no_assignment(spectrum)
     # Remove included taxid and equivalent taxid
-    excluded_taxid=set()
     equivalent_taxid={}
     for taxid in taxid_to_annotated_peaks:
         if len(taxid_to_annotated_peaks[taxid])<minimum_number_of_peaks:
@@ -165,6 +229,7 @@ def assign_spectrum(spectrum, mass_markers_list, set_of_markers, resolution, tax
         if taxid_to_pvalue[taxid]<best_pvalue:
             best_pvalue=taxid_to_pvalue[taxid]
             best_score=taxid_to_score[taxid]
+
     set_of_optimal_taxid={taxid for taxid in taxid_to_pvalue if taxid_to_pvalue[taxid]==best_pvalue or taxid_to_score[taxid]>=best_score*threshold/100}
     
     if not allsolutions and threshold==100:
@@ -326,11 +391,13 @@ def create_detail_result_file(detail, list_of_assignments, taxonomy, B):
         f2.write(s+"\n")
     f2.close()
 
-def assign_all_spectra(list_of_spectra, set_of_markers, error, taxonomy, B, threshold, allsolutions, minimum_number_of_peaks, config_markers, output, detail, jsonf):
+
+
+def assign_all_spectra(list_of_spectra, set_of_markers, error, taxonomy, B, threshold, allsolutions, minimum_number_of_peaks, config_markers, output, detail, jsonf, isotopes):
     mass_markers_list = markers.sort_markers_by_mass(set_of_markers)
     list_of_assignments=[]
     for spectrum in list_of_spectra:
-        list_of_assignments.extend(assign_spectrum(spectrum, mass_markers_list, set_of_markers, error, B, threshold, allsolutions, minimum_number_of_peaks))
+        list_of_assignments.extend(assign_spectrum(spectrum, mass_markers_list, set_of_markers, error, B, threshold, allsolutions, minimum_number_of_peaks, isotopes))
     # completion of assignments
     for a in list_of_assignments:
         list_of_taxa=[]

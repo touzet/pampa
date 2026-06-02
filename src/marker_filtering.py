@@ -1,12 +1,6 @@
-import copy
-import os
-from os import listdir
-from os.path import join
+
 
 from src import utils 
-from src import mass_spectrum as ms
-from src import compute_masses
-from src import sequences
 from src import markers
 
 
@@ -17,7 +11,7 @@ from src import markers
 def compare_set_of_markers_for_one_spectrum(mass_list, spectrum, resolution):
     spectrum.sort()  
     peak_list=[None for m in mass_list]
-    residual_list=[None for m in mass_list]
+    #residual_list=[None for m in mass_list]
     current_j = 0
     for peak in spectrum.peaks:
         for j in range(current_j,len(mass_list)):

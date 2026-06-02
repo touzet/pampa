@@ -22,7 +22,6 @@ class Peak(object):
         self.mass = mass
         self.intensity = intensity
 
-
     def __str__(self):
         return f"mass : {self.mass}; intensity : {self.intensity} "
 
@@ -33,13 +32,12 @@ class Peak(object):
         return hash((self.mass, self.intensity))
 
 class Spectrum(object):
-    def __init__(self, name="", peaks=[], taxid=""):
+    def __init__(self, name="", peaks=None, taxid=""):
         self.name = name
-        self.peaks = peaks
+        self.peaks=list(peaks) if peaks is not None else []
         self.taxid = taxid
         self.max_intensity =0.0
         self.median = 0.0
-
 
     def __str__(self):
         if len(self.taxid)==0:
@@ -51,7 +49,7 @@ class Spectrum(object):
         return len(self.peaks)
 
     def __getitem__(self,i):
-        return (self.peaks)[i]
+        return self.peaks[i]
 
     def sort(self):
         self.peaks.sort(key=lambda x: x.mass)
@@ -115,25 +113,20 @@ def peak_parser_csv(peak_file_name, name):
     Raises:
         NameError: if the file is not a csv file
     """
-
     peak_list = []
-    f= open (peak_file_name)
-    next(f)
-    line=1
-    try:
-        for row in f:
-            peak = re.split(',|;', row) # to check
-            if len(peak)>1:
-                new_peak=Peak( float(peak[0]), float(peak[1]))
-                peak_list.append(new_peak)
-            elif len(peak)==1:
-                new_peak=Peak( float(peak[0]), 0.0)
-                peak_list.append(new_peak)
-            line += 1
-    except  : 
-        message.warning("File "+peak_file_name+", line "+str(line)+":  wrong format. File ignored." )
-        return Spectrum(name,peak_list,"")
-    
+    with open(peak_file_name) as f:
+        next(f)
+        for line, row in enumerate(f, start=2):
+            try:
+                peak = re.split('[,;]', row) # re.split(',|;', row) # to check
+                x = float(peak[0])
+                y = float(peak[1]) if len(peak) > 1 else 0.0
+                if x<0 or y<0:
+                    raise ValueError
+                peak_list.append(Peak(x, y))
+            except Exception:
+                message.warning(f"File {peak_file_name} is incorrect (wrong format). File ignored.")
+                return []
     return [Spectrum(name,peak_list,"")]
 
 
@@ -152,11 +145,13 @@ def peak_parser_mgf(peak_file_name,name):
     peak_list = []
     try:
         f = mgf.read(peak_file_name)
-        mass_array = f[0]["m/z array"] #pour avoir les m/z des pics
-        intensity_array = f[0]["intensity array"] #pour avoir l'intensité des pics
-    except  : 
-        message.warning("File "+peak_file_name+" is incorrect (wrong format). File ignored." )
-        return Spectrum(name,peak_list,"")
+        mass_array = f[0]["m/z array"]  # m/z values of peaks
+        intensity_array = f[0]["intensity array"]  # peak intensities
+    except Exception:
+        message.warning(
+            f"File {peak_file_name} is incorrect (wrong format). File ignored."
+        )
+        return Spectrum(name, peak_list, "")
 
     for mass, intensity in zip(mass_array.tolist(), intensity_array.tolist()):
         peak = Peak(float(mass), float(intensity))
@@ -236,9 +231,8 @@ def parser(file_path,name):
 
     """
     if os.path.getsize(file_path) == 0:
-        message.warning("File "+file_path+" is empty.")
+        message.warning(f"File {file_path} is empty.")
         return []
-        
     _, ext = os.path.splitext(file_path)
     if ext == ".csv" or ext == ".CSV" or ext == ".txt" or ext == ".TXT": # csv file 
         list_of_spectra = peak_parser_csv(file_path,name)
@@ -247,7 +241,7 @@ def parser(file_path,name):
     elif ext == ".mzML": # mzML file
         list_of_spectra = peak_parser_mzml(file_path,name)
     else:
-        message.warning("File "+file_path+" is not recognized (unknown format). Accepted formats are csv, mgf and mzML. File ignored.")
+        message.warning(f"File {file_path} is not recognized (unknown format). Accepted formats are csv, mgf and mzML. File ignored.")
         return []
 
     return list_of_spectra
@@ -258,8 +252,7 @@ def parse_spectra_files(spectra_dir_name):
     for f in spectra_dir:
         file_name = os.path.join(spectra_dir_name, f)
         list_of_spectra_tmp=parser(file_name,f)
-        if len(list_of_spectra_tmp)>0:
-            list_of_spectra.extend(list_of_spectra_tmp)
+        list_of_spectra.extend(list_of_spectra_tmp)
     if len(list_of_spectra)==0:
         message.escape("No valid spectra found.\n Please refer to the warning.log file for more detail.")
     list_of_spectra.sort(key=lambda x: x.name)

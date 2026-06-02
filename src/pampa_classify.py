@@ -1,14 +1,9 @@
 #!/usr/bin/env python3
 
 import argparse
-import sys
-import time
-import os
 
 # local import
-
 from src import classify
-
 
 def main():
     parser = argparse.ArgumentParser(#formatter_class=CustomFormatter,

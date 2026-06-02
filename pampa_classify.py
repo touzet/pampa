@@ -16,8 +16,9 @@ def main():
     group1.add_argument("-e", dest="error", help="Error margin tolerance for the observation (in Dalton or ppm). Recommended values: 0.02 for maldi FT and 0.1 for maldi TOF.", type=float)
     group1.add_argument("-o", dest="output", help="Output path (should include the output file name)", type=str)
     group2=parser.add_argument_group('\nTaxonomic model, basic usage')
-    group2.add_argument("--mammals", help="use PAMPA model for mammals.", action='store_true')
-    group2.add_argument("--birds", help="use PAMPA model for birds.", action='store_true')
+    group2.add_argument("--mammals", help="use taxonomic model for mammals.", action='store_true')
+    group2.add_argument("--birds", help="use taxonomic model for birds.", action='store_true')
+    group2.add_argument("--placentals", help="use taxonomic model for placentals.", action='store_true')
     group3=parser.add_argument_group('\nTaxonomic model, advanced usage')
     group3.add_argument("-p", dest="peptide_table",nargs='+', help="Peptide table(s) (TSV file(s))", type=str)
     group3.add_argument("-f", dest="fasta", help="Fasta sequences", type=str)
@@ -32,9 +33,10 @@ def main():
     group6.add_argument("-a", dest="all", action='store_true', help="Provide all solutions within the percentage margin specified with option  -n, and not only suboptimal solutions.  Default is False.", required=False, default=False)
     group6.add_argument("--web", dest="web",  action='store_true', help=argparse.SUPPRESS, required=False)
     group6.add_argument("-c", dest="config", help="Config file (json). Default is config.json", type=str, required=False)
+    group6.add_argument("-i", dest="isotopes", help="Full isotopic clusters.", action='store_true', required=False)
     args = parser.parse_args()
     
-    classify.main(" ".join(sys.argv), args.spectra,  args.taxonomy, args.peptide_table, args.fasta, args.directory, args.limit, args.deamidation, args.error, args.neighbour, args.all, args.output,args.mammals, args.birds, args.web, args.config)
+    classify.main(" ".join(sys.argv), args.spectra,  args.taxonomy, args.peptide_table, args.fasta, args.directory, args.limit, args.deamidation, args.error, args.neighbour, args.all, args.output,args.mammals, args.placentals, args.birds, args.web, args.config, args.isotopes)
  
 if __name__ == "__main__":
     main()

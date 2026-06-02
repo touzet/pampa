@@ -6,14 +6,17 @@ sequences.py
 """
 from pyteomics import parser
 
-from src import markers, collagen
+from src import markers, collagen, utils
 
 class Sequence(object):
-    def __init__(self, field={}):
-        self.field = field
+    def __init__(self, field=None):
+        if field is None:
+            self.field={}
+        else:
+            self.field = field
 
     def __len__(self):
-        return (len(self.field["Sequence"]))
+        return len(self.field["Sequence"])
         
     def __str__(self):
         return str(self.field)
@@ -34,57 +37,62 @@ class Sequence(object):
         return self.field.get("Sequence")
 
 
-def raw_in_silico_digestion(seq, config_digestion):
+def raw_in_silico_digestion(seq, config_digestion, min_length=None, max_length=None):
     """ build a set of peptides from a sequence by in silico digestion"""
-    min_length=config_digestion["min_peptide_length"]
-    max_length=config_digestion["max_peptide_length"]
+    if min_length is None:
+        min_length=config_digestion["min_peptide_length"]
+    if max_length is None:
+        max_length=config_digestion["max_peptide_length"]
     enzyme=config_digestion["enzyme"]
     number_of_misscleavages=config_digestion["number_of_missed_cleavages"]
     set_of_peptides=parser.icleave(seq, parser.expasy_rules[enzyme], number_of_misscleavages, min_length, max_length)
     return {y for (x,y) in set_of_peptides}
 
 
-def in_silico_digestion(set_of_sequences, config_digestion, mature=True):
+def in_silico_digestion(set_of_sequences, config_digestion, min_length=None, max_length=None, mature=True):
     """ build a set of markers from a set of sequences by in silico digestion"""
-    min_length=config_digestion["min_peptide_length"]
-    max_length=config_digestion["max_peptide_length"]
+    if min_length is None:
+        min_length=config_digestion["min_peptide_length"]
+    if max_length is None:
+        max_length=config_digestion["max_peptide_length"]
     enzyme=config_digestion["enzyme"]
     number_of_misscleavages=config_digestion["number_of_missed_cleavages"]
     set_of_markers=set()
     for s in set_of_sequences:
-        min=None
+        min_pos, max_pos=None, None
         if mature:
-            (min,max)=collagen.helical_region(s)
-        if min==None:
+            (min_pos,max_pos)=collagen.helical_region(s)
+        if min_pos is None:
             helical=False
-            (min,max)=(0,len(s))
+            (min_pos,max_pos)=(0,len(s))
         else:
-            (min,max)=(min-1, max-1)
-            helical=True               
-        mature_seq=s.sequence()[min:max]
+            helical = True
+            (min_pos,max_pos)=(min_pos-1, max_pos-1)
+        mature_seq=s.sequence()[min_pos:max_pos]
+        not_collagen=False
+        for j in range(0,len(mature_seq),3):
+            if mature_seq[j] not in {'G','X'}: ## to change
+                not_collagen=True
         set_of_peptides=  parser.icleave(mature_seq, parser.expasy_rules[enzyme], number_of_misscleavages, min_length, max_length)
         for (pos, peptide) in set_of_peptides:
-            if ('Z' in peptide or 'B' in peptide or 'X' in peptide): ## amino acids
+            if not utils.is_aa_sequence(peptide) or (helical and not collagen.is_collagen_peptide(peptide)):
                 continue
-            dict={}
-            dict["Sequence"]=peptide
-            dict["OX"]=s.taxid()
-            dict["OS"]=s.taxon_name()
-            dict["GN"]=s.protein()
-            dict["Rank"]="species"
-            if helical :
-               dict["Hel"]=pos+1
-            dict["SeqID"]=s.seqid()
-            dict["Length"]=len(peptide)
-            dict["Begin"]=min+pos+1
-            dict["End"]=min+pos+len(peptide)
-            dict["Status"]="Genetics"
-            dict["Digestion"]="Yes"
-            if mature:
-                dict["Comment"]="in silico digestion - mature"
-            else:
-                dict["Comment"]="in silico digestion "
-            new_marker=markers.Marker(field=dict)
+            dict_marker = {
+                "Sequence": peptide,
+                "OX": s.taxid(),
+                "OS": s.taxon_name(),
+                "GN": s.protein(),
+                "Rank": "species",
+                "SeqID": s.seqid(),
+                "Length": len(peptide),
+                "Begin": min_pos + pos + 1,
+                "End": min_pos + pos + len(peptide),
+                "Status": "Genetics",
+                "Digestion": "Yes",
+            }
+            if helical:
+                dict_marker["Hel"] = pos + 1
+            new_marker=markers.Marker(field=dict_marker)
             set_of_markers.add(new_marker)
     return set_of_markers
 
@@ -94,22 +102,6 @@ def is_digested_peptide(peptide, config_digestion):
     return peptide[0]!='P'
 
 
-#deprecated
-def mature_sequence(seq):
-    HUMAN_COL1A1_START="QLSYGYDEKSTGGISVPGPMGPSGPRGLPG"
-    CHICKEN_COL1A1_START="QMSYGYDEKSAGVAVPGPMGPAGPRGLPG"
-    HUMAN_COL1A1_END="PGPPSAGFDFSFLPQPPQEKAHDGGRYYRA"
-    CHICKEN_COL1A1_END="PGPPSGGFDLSFLPQPPQEKAHDGGRYYRA"
-    HUMAN_COL1A2_START="QYDGKGVGLGPGPMGLMGPRGPPGAAGAPG"
-    CHICKEN_COL1A2_START="QYDPSKAADFGPGPMGLMGPRGPPGASGPPG"
-    HUMAN_COL1A2_END="GPPGPPGPPGPPGVSGGGYDFGYDGDFYRA"
-    CHICKEN_COL1A2_END="GPPGPPGPPGPPGPNGGGYEVGFDAEYYR"
-    HUMAN_COL1A1_MATURE="QLSYGYDEKSTGGISVPGPMGPSGPRGLPGPPGAPGPQGFQGPPGEPGEPGASGPMGPRGPPGPPGKNGDDGEAGKPGRPGERGPPGPQGARGLPGTAGLPGMKGHRGFSGLDGAKGDAGPAGPKGEPGSPGENGAPGQMGPRGLPGERGRPGAPGPAGARGNDGATGAAGPPGPTGPAGPPGFPGAVGAKGEAGPQGPRGSEGPQGVRGEPGPPGPAGAAGPAGNPGADGQPGAKGANGAPGIAGAPGFPGARGPSGPQGPGGPPGPKGNSGEPGAPGSKGDTGAKGEPGPVGVQGPPGPAGEEGKRGARGEPGPTGLPGPPGERGGPGSRGFPGADGVAGPKGPAGERGSPGPAGPKGSPGEAGRPGEAGLPGAKGLTGSPGSPGPDGKTGPPGPAGQDGRPGPPGPPGARGQAGVMGFPGPKGAAGEPGKAGERGVPGPPGAVGPAGKDGEAGAQGPPGPAGPAGERGEQGPAGSPGFQGLPGPAGPPGEAGKPGEQGVPGDLGAPGPSGARGERGFPGERGVQGPPGPAGPRGANGAPGNDGAKGDAGAPGAPGSQGAPGLQGMPGERGAAGLPGPKGDRGDAGPKGADGSPGKDGVRGLTGPIGPPGPAGAPGDKGESGPSGPAGPTGARGAPGDRGEPGPPGPAGFAGPPGADGQPGAKGEPGDAGAKGDAGPPGPAGPAGPPGPIGNVGAPGAKGARGSAGPPGATGFPGAAGRVGPPGPSGNAGPPGPPGPAGKEGGKGPRGETGPAGRPGEVGPPGPPGPAGEKGSPGADGPAGAPGTPGPQGIAGQRGVVGLPGQRGERGFPGLPGPSGEPGKQGPSGASGERGPPGPMGPPGLAGPPGESGREGAPGAEGSPGRDGSPGAKGDRGETGPAGPPGAPGAPGAPGPVGPAGKSGDRGETGPAGPAGPVGPVGARGPAGPQGPRGDKGETGEQGDRGIKGHRGFSGLQGPPGPPGSPGEQGPSGASGPAGPRGPPGSAGAPGKDGLNGLPGPIGPPGPRGRTGDAGPVGPPGPPGPPGPPGPPSAGFDFSFLPQPPQEKAHDGGRYYRA"
-    HUMAN_COL1A2_MATURE="QYDGKGVGLGPGPMGLMGPRGPPGAAGAPGPQGFQGPAGEPGEPGQTGPAGARGPAGPPGKAGEDGHPGKPGRPGERGVVGPQGARGFPGTPGLPGFKGIRGHNGLDGLKGQPGAPGVKGEPGAPGENGTPGQTGARGLPGERGRVGAPGPAGARGSDGSVGPVGPAGPIGSAGPPGFPGAPGPKGEIGAVGNAGPAGPAGPRGEVGLPGLSGPVGPPGNPGANGLTGAKGAAGLPGVAGAPGLPGPRGIPGPVGAAGATGARGLVGEPGPAGSKGESGNKGEPGSAGPQGPPGPSGEEGKRGPNGEAGSAGPPGPPGLRGSPGSRGLPGADGRAGVMGPPGSRGASGPAGVRGPNGDAGRPGEPGLMGPRGLPGSPGNIGPAGKEGPVGLPGIDGRPGPIGPAGARGEPGNIGFPGPKGPTGDPGKNGDKGHAGLAGARGAPGPDGNNGAQGPPGPQGVQGGKGEQGPPGPPGFQGLPGPSGPAGEVGKPGERGLHGEFGLPGPAGPRGERGPPGESGAAGPTGPIGSRGPSGPPGPDGNKGEPGVVGAVGTAGPSGPSGLPGERGAAGIPGGKGEKGEPGLRGEIGNPGRDGARGAPGAVGAPGPAGATGDRGEAGAAGPAGPAGPRGSPGERGEVGPAGPNGFAGPAGAAGQPGAKGERGAKGPKGENGVVGPTGPVGAAGPAGPNGPPGPAGSRGDGGPPGMTGFPGAAGRTGPPGPSGISGPPGPPGPAGKEGLRGPRGDQGPVGRTGEVGAVGPPGFAGEKGPSGEAGTAGPPGTPGPQGLLGAPGILGLPGSRGERGLPGVAGAVGEPGPLGIAGPPGARGPPGAVGSPGVNGAPGEAGRDGNPGNDGPPGRDGQPGHKGERGYPGNIGPVGAAGAPGPHGPVGPAGKHGNRGETGPSGPVGPAGAVGPRGPSGPQGIRGDKGEPGEKGPRGLPGLKGHNGLQGLPGIAGHHGDQGAPGSVGPAGPRGPAGPSGPAGKDGRTGHPGTVGPAGIRGPQGHQGPAGPPGPPGPPGPPGVSGGGYDFGYDGDFYRA"
-    CHICKEN_COL1A1_MATURE="QMSYGYDEKSAGVAVPGPMGPAGPRGLPGPPGAPGPQGFQGPPGEPGEPGASGPMGPRGPAGPPGKNGDDGEAGKPGRPGQRGPPGPQGARGLPGTAGLPGMKGHRGFSGLDGAKGQPGPAGPKGEPGSPGENGAPGQMGPRGLPGERGRPGPSGPAGARGNDGAPGAAGPPGPTGPAGPPGFPGAAGAKGETGPQGARGSEGPQGSRGEPGPPGPAGAAGPAGNPGADGQPGAKGATGAPGIAGAPGFPGARGPSGPQGPSGAPGPKGNSGEPGAPGNKGDTGAKGEPGPAGVQGPPGPAGEEGKRGARGEPGPAGLPGPAGERGAPGSRGFPGADGIAGPKGPPGERGSPGAVGPKGSPGEAGRPGEAGLPGAKGLTGSPGSPGPDGKTGPPGPAGQDGRPGPAGPPGARGQAGVMGFPGPKGAAGEPGKPGERGAPGPPGAVGAAGKDGEAGAQGPPGPTGPAGERGEQGPAGAPGFQGLPGPAGPPGEAGKPGEQGVPGNAGAPGPAGARGERGFPGERGVQGPPGPQGPRGANGAPGNDGAKGDAGAPGAPGNEGPPGLEGMPGERGAAGLPGAKGDRGDPGPKGADGAPGKDGLRGLTGPIGPPGPAGAPGDKGEAGPPGPAGPTGARGAPGDRGEPGPPGPAGFAGPPGADGQPGAKGETGDAGAKGDAGPPGPAGPTGAPGPAGZVGAPGPKGARGSAGPPGATGFPGAAGRVGPPGPSGNIGLPGPPGPAGKZGSKGPRGETGPAGRPGEPGPAGPPGPPGEKGSPGADGPIGAPGTPGPQGIAGQRGVVGLPGQRGERGFPGLPGPSGEPGKQGPSGASGERGPPGPMGPPGLAGPPGEAGREGAPGAEGAPGRDGAAGPKGDRGETGPAGPPGAPGAPGAPGPVGPAGKNGDRGETGPAGPAGPPGPAGARGPAGPQGPRGDKGETGEQGDRGMKGHRGFSGLQGPPGPPGAPGEQGPSGASGPAGPRGPPGSAGAAGKDGLNGLPGPIGPPGPRGRTGEVGPVGPPGPPGPPGPPGPPSGGFDLSFLPQPPQEKAHDGGRYYRA"
-    CHICKEN_COL1A2_MATURE="QYDPSKAADFGPGPMGLMGPRGPPGASGPPGPPGFQGVPGEPGEPGQTGPQGPRGPPGPPGKAGEDGHPGKPGRPGERGVAGPQGARGFPGTPGLPGFKGIRGHNGLDGQKGQPGTPGTKGEPGAPGENGTPGQPGARGLPGERGRIGAPGPAGARGSDGSAGPTGPAGPIGAAGPPGFPGAPGAKGEIGPAGNVGPTGPAGPRGEIGLPGSSGPVGPPGNPGANGLPGAKGAAGLPGVAGAPGLPGPRGIPGPPGPAGPSGARGLVGEPGPAGAKGESGNKGEPGAAGPPGPPGPSGEEGKRGSNGEPGSAGPPGPAGLRGVPGSRGLPGADGRAGVMGPAGNRGASGPVGAKGPNGDAGRPGEPGLMGPRGLPGQPGSPGPAGKEGPVGFPGADGRVGPIGPAGNRGEPGNIGFPGPKGPTGEPGKPGEKGNVGLAGPRGAPGPEGNNGAQGPPGVTGNQGAKGETGPAGPPGFQGLPGPSGPAGEAGKPGERGLHGEFGVPGPAGPRGERGLPGESGAVGPAGPIGSRGPSGPPGPDGNKGEPGNVGPAGAPGPAGPGGIPGERGVAGVPGGKGEKGAPGLRGDTGATGRDGARGLPGAIGAPGPAGGAGDRGEGGPAGPAGPAGARGIPGERGEPGPVGPSGFAGPPGAAGQPGAKGERGPKGPKGETGPTGAIGPIGASGPPGPVGAAGPAGPRGDAGPPGMTGFPGAAGRVGPPGPAGITGPPGPPGPAGKDGPRGLRGDVGPVGRTGEQGIAGPPGFAGEKGPSGEAGAAGPPGTPGPQGILGAPGILGLPGSRGERGLPGIAGATGEPGPLGVSGPPGARGPSGPVGSPGPNGAPGEAGRDGNPGNDGPPGRDGAPGFKGERGAPGNPGPSGALGAPGPHGQVGPSGKPGNRGDPGPVGPVGPAGAFGPRGLAGPQGPRGEKGEPGDKGHRGLPGLKGHNGLQGLPGLAGQHGDQGPPGNNGPAGPRGPPGPSGPPGKDGRNGLPGPIGPAGVRGSHGSQGPAGPPGPPGPPGPPGPNGGGYEVGFDAEYYR"
-    return
-        
 
 
 

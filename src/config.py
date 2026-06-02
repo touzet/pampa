@@ -2,7 +2,7 @@
 
 import json
 
-def parse_config_file(file_name="config.json"):
+def parse_config_file(file_name):
     with open(file_name) as json_file:
         data = json.load(json_file)
     return data
@@ -19,13 +19,29 @@ def config_headers(file_name):
     
 def config_markers(file_name):
     data=parse_config_file(file_name)
-    return data["marker_order"]
+    return data.get("marker_order")
 
 def config_minimum_number_of_peaks(file_name):
-    return int(parse_config_file(file_name)["min_number_of_peaks"])
+    data=parse_config_file(file_name)
+    nb=data.get("min_number_of_peaks")
+    if nb is None:
+        return 0
+    else:
+        return int(nb)
 
 def config_selection_peaks(file_name):
-    return float(parse_config_file(file_name)["min_proportion_of_peaks"])
+    data=parse_config_file(file_name)
+    nb=data.get("min_proportion_of_peaks")
+    if nb is None:
+        return 0.0
+    else:
+        return float(nb)
+
+def config_taxonomy(file_name):
+    return parse_config_file(file_name)["taxonomy"]
+
+def config_peptide_table(file_name):
+    return parse_config_file(file_name)["peptide_table"]
 
 def config_matrices_and_co(file_name):
     return parse_config_file(file_name)["substitution_matrices"], parse_config_file(file_name)["gamma_matrices"], parse_config_file(file_name)["conserved"]
