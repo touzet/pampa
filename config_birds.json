@@ -1,0 +1,16 @@
+{
+    "taxonomy_ranks": ["Phylum", "Class", "superorder", "order", "Suborder","Family", "Subfamily", "Genus", "Species", "Subspecies" ],
+    "peptide_table_order":["Rank", "TaxID", "OX", "OS", "taxon name", "taxon", "common name", "Sequence", "PTM", "Mass", "Marker", "GN", "Gene", "Hel", "Length", "SeqID", "Begin", "End", "Status", "Digestion", "Comment"],
+    "enzyme": "trypsin",
+    "number_of_missed_cleavages": 1,
+    "min_peptide_length":12,
+    "max_peptide_length":33,
+    "min_number_of_peaks": 5,
+    "min_proportion_of_peaks": 0.7,
+    "marker_order": ["COL1A2-10", "COL1A2-175", "COL1A2-292", "COL1A2-454", "COL1A2-502", "COL1A2-604", "COL1A2-625", "COL1A2-625a", "COL1A2-658", "COL1A2-757", "COL1A2-889", "COL1A2-978"],
+    "peptide_table": ["Peptide_tables/table_birds.tsv"],
+    "taxonomy": "Taxonomy/taxonomy_birds.tsv",
+    "substitution_matrices" : ["Matrices/matrix_birds_COL1A2_X.csv", "Matrices/matrix_birds_COL1A2_Y.csv"],
+    "gamma_matrices" :  ["Gamma/gamma_birds_COL1A2.csv"],
+    "conserved" : "Conserved/conserved_birds.json"
+}
