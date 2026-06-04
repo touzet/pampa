@@ -122,7 +122,7 @@ def main():
                     message.escape("No valid peptide markers found.\n")
                 list_of_spectra=ms.parse_spectra_files(spectra)
                 config_selection=conf.config_selection_peaks(config)
-                rep.create_report_allpeptides(fasta, fasta_dir, set_of_sequences, config_digestion, limit, list_of_constraints, web, spectra, list_of_spectra, error, config_selection)
+                rep.create_report_allpeptides(fasta, fasta_dir, set_of_sequences, config_digestion, limit, list_of_constraints, deamidation, web, spectra, list_of_spectra, error, config_selection)
                 minimal_number_of_spectra=max(1, len(list_of_spectra)*config_selection)
                 set_of_new_markers=marker_filtering.filter_set_of_markers(set_of_markers, list_of_spectra, error, minimal_number_of_spectra)
                 supplement.add_marker_comment(set_of_new_markers, "In silico digestion, and MALDI filtering.")

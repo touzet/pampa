@@ -45,7 +45,7 @@ def filter_set_of_markers(set_of_markers, list_of_spectra, resolution, min_nb_sp
     for m in dict_markers:
         found_spectra=dict_markers[m]
         if len(found_spectra)>=min_nb_spectra:
-            m=markers.update_comment(m, str(len(found_spectra))+"/"+str(len(list_of_spectra))+" spectra :" + str(found_spectra)+ " + ")
+            markers.update_comment(m, str(len(found_spectra))+"/"+str(len(list_of_spectra))+" spectra :" + str(found_spectra)+ " + ")
             m.field["Status"]="MS"
             set_of_confirmed_markers.add(m)
     return set_of_confirmed_markers

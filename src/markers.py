@@ -757,6 +757,6 @@ def find_overlapping_markers(set_of_markers):
         key=lambda x: (x[1], x[2])
     )
     for p1, p2 in zip(list_of_positions, list_of_positions[1:]):
-        if p1[2] >= p2[1]:
+        if p1[1] >= p2[0]:
             overlap_list.append((p1[0], p2[0], p2[1]-p1[1]))
     return overlap_list

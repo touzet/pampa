@@ -2,8 +2,8 @@ import os
 import time
 import sys
 
-from src import taxonomy
 # local import
+from src import taxonomy
 from src import markers
 from src import utils
 
@@ -186,7 +186,7 @@ def print_deamidation(deamidation, pep_table=False):
     else:
         print("  Deamidation : None \n")
 
-def create_report_classify(spectra_dir, list_of_spectra, taxonomy, taxonomy_tree, peptide_table, fasta, fasta_dir, set_of_sequences, set_of_markers, limit, list_of_constraints, deamidation, error, neighbour, all, new_table, config_digestion, config_nb_of_peaks, web):
+def create_report_classify(spectra_dir, list_of_spectra, taxo, taxonomy_tree, peptide_table, fasta, fasta_dir, set_of_sequences, set_of_markers, limit, list_of_constraints, deamidation, error, neighbour, all, new_table, config_digestion, config_nb_of_peaks, web):
     # TO DO: display constraints
     print ("PAMPA CLASSIFY\n")
     print_title("MASS SPECTRA")
@@ -223,19 +223,19 @@ def create_report_classify(spectra_dir, list_of_spectra, taxonomy, taxonomy_tree
     print_error(error)
     print_deamidation(deamidation, peptide_table)
     print("")
-    if taxonomy :
+    if taxo :
         print_title("TAXONOMY")
-        print_file(taxonomy, 'Taxonomy', web)
+        print_file(taxo, 'Taxonomy', web)
         #ta.table_print(taxonomy_tree)
         print("")
 
-def create_report_homology(peptide_table, set_of_markers, list_of_new_markers, fasta, fasta_dir, set_of_sequences, taxonomy,  config_digestion, limit, list_of_constraints, deamidation, web):
+def create_report_homology(peptide_table, set_of_markers, list_of_new_markers, fasta, fasta_dir, set_of_sequences, taxo,  config_digestion, limit, list_of_constraints, deamidation, web):
     print("PAMPA CRAFT, mode HOMOLOGY\n")
     print_title("INPUT FILES")
     print_fasta(fasta, fasta_dir, web)
     print_peptide_tables(peptide_table, web)
     print_file(limit, 'Limit', web)
-    print_file(taxonomy, 'Taxonomy', web)
+    print_file(taxo, 'Taxonomy', web)
     print("")
     print_title("FASTA SEQUENCES")
     print_set_of_sequences(set_of_sequences)
@@ -306,11 +306,11 @@ def create_report_allpeptides(fasta, fasta_dir, set_of_sequences, config_digesti
     print_error(error)
         
     
-def create_report_supplement(peptide_table, fasta, fasta_dir,set_of_markers, web, taxonomy, set_of_sequences=None):
+def create_report_supplement(peptide_table, fasta, fasta_dir,set_of_markers, web, taxo, set_of_sequences=None):
     #print_markers_with_hidden_numbers(set_of_markers, peptide_table, web)
-    if taxonomy:
+    if taxo:
         print_title("TAXONOMY")
-        print_file(taxonomy, 'Taxonomy', web)
+        print_file(taxo, 'Taxonomy', web)
         print("")
     if set_of_sequences:
         print_title("FASTA SEQUENCES")
