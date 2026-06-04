@@ -56,11 +56,13 @@ class Marker(object):
             return self.field.get("PTM")
 
     def mass(self):
-        if "Mass" not in self.field or len(str(self.field["Mass"]))==0 or float(self.field["Mass"])==0.0:
+        value = self.field.get("Mass")
+        if value is None :
+          return None
+        if len(str(value)) == 0 :
             return None
-        else:
-            return float(self.field["Mass"])
-        
+        return value
+
     def comment(self):
         if "Comment" in self.field:
             return self.field["Comment"]

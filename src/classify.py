@@ -56,7 +56,6 @@ def main(command_line, spectra, taxonomy, peptide_table, fasta, fasta_dir, limit
         if len(set_of_markers)==0:
             message.escape("No valid peptide marker found.\nPlease refer to the warning.log file to trace back the errors.")
         set_of_markers.update(compute_masses.add_deamidation(set_of_markers, set_of_codes_for_deamidation))
-            
         set_of_markers=markers.sort_and_merge(set_of_markers)
        
         # parsing taxonomy and filtering markers accordingly

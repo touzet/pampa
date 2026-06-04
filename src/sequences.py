@@ -6,7 +6,7 @@ sequences.py
 """
 from pyteomics import parser
 
-from src import markers, collagen, utils
+from src import markers, collagen, supplement, utils
 
 class Sequence(object):
     def __init__(self, field=None):
@@ -94,6 +94,7 @@ def in_silico_digestion(set_of_sequences, config_digestion, min_length=None, max
                 dict_marker["Hel"] = pos + 1
             new_marker=markers.Marker(field=dict_marker)
             set_of_markers.add(new_marker)
+    supplement.add_marker_names(set_of_markers)
     return set_of_markers
 
 def is_digested_peptide(peptide, config_digestion):

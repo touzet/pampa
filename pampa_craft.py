@@ -127,7 +127,7 @@ def main():
                 set_of_new_markers=marker_filtering.filter_set_of_markers(set_of_markers, list_of_spectra, error, minimal_number_of_spectra)
                 supplement.add_marker_comment(set_of_new_markers, "In silico digestion, and MALDI filtering.")
             list_of_markers=markers.sort_and_merge(set_of_new_markers)
-            supplement.add_marker_names(list_of_markers)
+            #supplement.add_marker_names(list_of_markers)
             pt.build_peptide_table_from_set_of_markers(list_of_markers,output, config_headers)
             deamidation=False
 
@@ -238,7 +238,7 @@ def main():
 
         if deamidation:
             set_of_markers, list_of_headers=pt.parse_peptide_tables(peptide_table, None, None)
-            set_of_markers.update(compute_masses.add_deamidation(set_of_markers, deamidation, set_of_codes_for_deamidation))
+            set_of_markers.update(compute_masses.add_deamidation(set_of_markers, set_of_codes_for_deamidation))
             pt.build_peptide_table_from_set_of_markers(set_of_markers,output, list_of_headers, config_markers)
             rep.create_report_deamidation(peptide_table, set_of_markers, set_of_codes_for_deamidation, web)
 
