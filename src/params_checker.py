@@ -6,7 +6,7 @@ from src import config as conf
 
 def logger_and_outputdir_configuration(output, command_line):
     if output is None:
-        rep.create_report_header(command_line, "report.txt")
+        rep.create_report_header(command_line, "report.txt",True)
         message.configure("")
         message.escape("Missing parameter: output (-o).")
     output_dir, output_file = os.path.split(output)

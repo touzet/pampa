@@ -28,7 +28,7 @@ def main(command_line, spectra, taxonomy, peptide_table, fasta, fasta_dir, limit
         report=os.path.join(output_dir, report_file)
         detail=os.path.join(output_dir, detail_file)
         jsonf=os.path.join(output_dir, output_json)
-        rep.create_report_header(command_line, report)
+        rep.create_report_header(command_line, report, web)
         
         (spectra, taxonomy, peptide_table, fasta, fasta_dir, limit, deamidation, error, neighbour, allsolutions, config_file) = params_checker.check_and_update_parameters_classify(spectra, taxonomy, peptide_table, fasta, fasta_dir, limit, deamidation, error, neighbour, allsolutions, mammals, placentals, birds, config_file)
 

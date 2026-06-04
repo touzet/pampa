@@ -67,12 +67,11 @@ def main():
     output = ""
     report = "report.txt"
     web = args.web
-
     try:
         output_dir, output_file, report_file, _ , _= params_checker.logger_and_outputdir_configuration(args.output, " ".join(sys.argv))
         output=os.path.join(output_dir, output_file)
         report=os.path.join(output_dir, report_file)
-        rep.create_report_header(" ".join(sys.argv), report)
+        rep.create_report_header(" ".join(sys.argv), report, web)
         (homology, deamidation, allpeptides, fillin, selection, reconstruction, peptide_table, fasta, fasta_dir,
          spectra, error, limit, taxonomy, config, placentals, birds, custom,
          target,targetfile) = params_checker.check_and_update_parameters_craft(args.homology, args.deamidation, args.allpeptides,

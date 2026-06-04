@@ -350,14 +350,15 @@ def create_report_reconstruction(peptide_table, set_of_markers, target,  targetf
         print ("  ", taxonomy_tree.name[taxid], " ["+taxid+"]")
     print("")
 
-def create_report_header(command_line, report):
+def create_report_header(command_line, report, web):
     sys.stdout=open(report, 'w')
     print("=====================================================================\n")
     print("                              P A M P A                              \n")
     print("=====================================================================\n")
     print (time.ctime())
-    print("")
-    print(command_line)
+    if not web:
+        print("")
+        print(command_line)
     print("")
     
 
