@@ -25,74 +25,74 @@ def logger_and_outputdir_configuration(output, command_line):
     output_json=output_file[:-4]+".json"
     return output_dir, output_file, report_file, output_detail, output_json
 
-def check_config(config):
-    if config is None:
-        if not os.path.isfile("config.json"):
-            message.escape("File config.json not found. Stopping execution.")
-        else:
-            return "config.json"
-    if not os.path.isfile(config):
-        if not os.path.isfile("config.json"):
-            message.warning("User file "+config+" not found (-c).")
-            message.escape("Default file config.json not found. Stopping execution.")
-        else:
-            message.warning("File "+config+" not found (-c). Using config.json instead.")
-            return "config.json"
-    return config
-
-def check_model(birds, placentals, mammals, peptide_table, taxonomy, config):
+# output: name of the config_file associatd to the taxonomic model
+def taxonomic_model(mammals, placentals, birds):
     param = sum([placentals, birds, mammals])
+    if param == 0:
+        return None
     if param > 1:
         message.escape(
             "Taxonomic models placentals, birds and mammals are mutually exclusive. Stopping execution.")
-    if param == 0 and not config:
-        message.escape(
-            "No taxonomic model provided. Stopping execution.")
     if placentals:
         model = "placentals"
     elif birds:
         model = "birds"
-    elif mammals:
+    else : #mammals:
         model = "mammals"
-    if config:
-        message.warning(f"Parameter -c overwrites the --{model} mode. Using your config file {config} instead.")
-    else:
-        config = "config_" + model + ".json"
-    if peptide_table:
-        message.warning(f"Parameter -p overwrites the --{model} mode. Using your peptide table.")
-    else:
-        peptide_table = conf.config_peptide_table(config)
-    if taxonomy:
-        message.warning(f"Parameter -t overwrites the --{model} mode. Using your taxonomy.")
-    else:
-        taxonomy = conf.config_taxonomy(config)
-    return config, peptide_table, taxonomy
+    config = "config_" + model + ".json"
+    return  check_file_warning(config)
 
-def check_model_classify(birds, placentals, mammals, peptide_table, taxonomy, fasta, fasta_dir,config):
-    param = sum([placentals, birds, mammals])
-    if param > 1:
+def check_config(config, config_taxo=None):
+    if config is not None:
+        if not os.path.isfile(config):
+            message.escape(f"File {config} not found. Stopping execution.")
+        else:
+            return config
+    if config_taxo is None:
+        if not os.path.isfile("config.json"):
+            message.escape("File config.json not found. Stopping execution.")
+        else:
+            return "config.json"
+    else:
+        return config_taxo
+
+def check_taxonomic_model(config, peptide_table, taxo):
+    new_peptide_table = None
+    new_taxo = None
+    print("config :", config)
+    if config:
+        new_peptide_table=conf.config_peptide_table(config)
+        new_taxo=conf.config_taxonomy(config)
+        if new_peptide_table is None or new_taxo is None:
+            message.warning("File "+config+" not found. Stopping execution.")
+    if new_taxo and taxo:
+        message.warning(f"Taxonomic model: parameter -t ({taxo}) ignored.")
+    if new_taxo:
+        taxo = new_taxo
+    if new_peptide_table and peptide_table:
+        message.warning(f"Taxonomic model: parameter -p ({peptide_table}) ignored.")
+    if new_peptide_table:
+        peptide_table = new_peptide_table
+    return peptide_table, taxo
+
+
+
+
+def check_model_classify(config, peptide_table, taxo, fasta, fasta_dir):
+    if fasta and fasta_dir:
         message.escape(
-            "Taxonomic models placentals, birds and mammals are mutually exclusive. Stopping execution.")
-    if param==1:
-        if placentals:
-            model = "placentals"
-        elif birds:
-            model = "birds"
-        elif mammals:
-            model = "mammals"
-        if config:
-            message.warning("Parameter -c overwrites the --" + model + " mode. Using your config file "+ config+" instead.")
-        else:
-            config = "config_" + model + ".json"
-        if peptide_table or fasta or fasta_dir:
-            message.warning("Parameter -p, -f and -d overwrite the --" + model + " mode. Using your peptide table.")
-        else:
-            peptide_table = conf.config_peptide_table(config)
-        if taxonomy:
-            message.warning("Parameter -t overwrites the --" + model + " mode. Using your taxonomy.")
-        else:
-            taxonomy = conf.config_taxonomy(config)
-    return config, peptide_table, taxonomy
+            f"Parameters -f {fasta} and -d {fasta_dir} are mutually exclusive. Stopping execution.")
+    peptide_table, taxo = check_taxonomic_model(config, peptide_table, taxo)
+    if not  (fasta or fasta_dir or peptide_table):
+        message.escape("No taxonomic model provided. Stopping execution.")
+    if not (fasta or fasta_dir):
+        return peptide_table, taxo, fasta, fasta_dir
+    if (fasta or fasta_dir) and peptide_table:
+        message.escape(
+            f"Parameters -f {fasta}, -d {fasta_dir} are incompatible with any other taxonomic model (-p, --mammals, --placentals or --birds). Ignored." )
+        fasta = None
+        fasta_dir = None
+    return peptide_table, taxo, fasta, fasta_dir
 
 
 
@@ -129,6 +129,12 @@ def check_gamma(config_gamma):
 def check_conserved(config_conserved):
     if not os.path.isfile(config_conserved):
         message.escape("File "+config_conserved+ " not found. Stopping execution.")
+
+def check_file_warning(filename):
+    if not os.path.isfile(filename):
+        message.warning(f"File {filename} not found. Ignored.")
+        return None
+    return filename
 
 def check_file_escape(filename, parameter):
     if not os.path.isfile(filename):
@@ -202,38 +208,27 @@ def useless_parameters(list_of_parameters):
             message.warning("Useless parameter: "+p[1]+" "+str(p[0])+". Ignored.")
             
 
-def check_and_update_parameters_classify(spectra, taxonomy, peptide_table, fasta, fasta_dir, limit, deamidation, error, neighbour, allpeptides, mammals, placentals, birds, config):
+def check_and_update_parameters_classify(spectra, taxo, peptide_table, fasta, fasta_dir, limit, deamidation, error, neighbour, allpeptides, mammals, placentals, birds, config):
     """
     Parameters checking and fixing. Configuration of loggers
     """
-    param = sum([placentals, birds, mammals])
-    if param>0:
-        config, peptide_table, taxonomy = check_model_classify(birds, placentals, mammals, config, peptide_table, taxonomy, fasta, fasta_dir)
-    else:
-        if peptide_table:
-            if fasta or fasta_dir:
-                message.escape(
-                    "Options -p (peptide_table), -f (fasta) and -d (directory of fasta files) are mutually incompatible. Stopping execution")
-            else:
-                check_peptide_table(peptide_table)
-        elif fasta or fasta_dir:
-            check_sequences(fasta, fasta_dir)
-        else:
-            message.escape("Missing parameter for marker peptides (-p, -f or -d). Stopping execution")
-
-    config=check_config(config)
+    config_taxo=taxonomic_model(mammals, placentals, birds)
+    peptide_table, taxo, fasta, fasta_dir = check_model_classify(config_taxo, peptide_table, taxo, fasta, fasta_dir)
+    if peptide_table:
+        check_peptide_table(peptide_table)
+    elif fasta or fasta_dir:
+        check_sequences(fasta, fasta_dir)
+    config=check_config(config, config_taxo)
     check_limit(limit)
     check_spectra_and_error(spectra, error)
-    taxonomy=check_taxonomy(taxonomy)
-    
+    taxo=check_taxonomy(taxo)
     if neighbour not in range(101):
         neighbour=100
         message.warning("Parameter -n (neighbouring): value is 100")
+    return spectra, taxo, peptide_table, fasta, fasta_dir, limit, deamidation, error, neighbour, allpeptides, config
 
-    return spectra, taxonomy, peptide_table, fasta, fasta_dir, limit, deamidation, error, neighbour, allpeptides, config
 
-
-def check_and_update_parameters_craft(homology, deamidation, allpeptides, fillin, selection, reconstruction, peptide_table, fasta, fasta_dir, spectra, resolution, limit, taxonomy, config, placentals, birds, mammals, custom, target, targetfile):
+def check_and_update_parameters_craft(homology, deamidation, allpeptides, fillin, selection, reconstruction, peptide_table, fasta, fasta_dir, spectra, resolution, limit, taxo, config, placentals, birds, mammals, custom, target, targetfile):
     """
     Parameters checking and fixing for PAMPA CRAFT.
     Configuration of loggers
@@ -247,17 +242,20 @@ def check_and_update_parameters_craft(homology, deamidation, allpeptides, fillin
     check_limit(limit)
 
     if homology :
-        config, peptide_table, taxonomy = check_model(birds, placentals, mammals, config, peptide_table, taxonomy)
-        config = check_config(config)
+        config_taxo=taxonomic_model(mammals, placentals, birds)
+        peptide_table, taxo = check_taxonomic_model(config_taxo, peptide_table, taxo)
+        if not peptide_table :
+            message.escape("No taxonomic model provided. Stopping execution")
+        config = check_config(config,config_taxo)
         check_peptide_table(peptide_table)
         check_sequences(fasta, fasta_dir)
-        taxonomy=check_taxonomy(taxonomy)
+        taxo=check_taxonomy(taxo)
         useless_parameters([(spectra, '-s'), (resolution,'-e')])
         
     if deamidation and param==0:
         config = check_config(config)
         check_peptide_table(peptide_table)
-        useless_parameters([(fasta, '-f'), (fasta_dir,'-d'), (taxonomy, '-t'), (spectra,'-s'), (resolution,'-e')])
+        useless_parameters([(fasta, '-f'), (fasta_dir,'-d'), (taxo, '-t'), (spectra,'-s'), (resolution,'-e')])
 
     if allpeptides:
         config=check_config(config)
@@ -269,7 +267,7 @@ def check_and_update_parameters_craft(homology, deamidation, allpeptides, fillin
         config = check_config(config)
         check_peptide_table(peptide_table)
         check_sequences(fasta, fasta_dir, False)
-        taxonomy=check_taxonomy(taxonomy)
+        taxo=check_taxonomy(taxo)
         check_error(resolution, False)
         useless_parameters([(spectra,'-s')])
          
@@ -277,11 +275,12 @@ def check_and_update_parameters_craft(homology, deamidation, allpeptides, fillin
         config = check_config(config)
         check_peptide_table(peptide_table)
         check_spectra_and_error(spectra, resolution)
-        useless_parameters([(fasta,'-f'), (fasta_dir,'-d'), (taxonomy,'-t')])
+        useless_parameters([(fasta,'-f'), (fasta_dir,'-d'), (taxo,'-t')])
 
     if reconstruction:
-        config, peptide_table, taxonomy = check_model(birds, placentals, mammals, config, peptide_table, taxonomy)
-        config = check_config(config)
+        config_taxo=taxonomic_model(mammals, placentals, birds)
+        peptide_table, taxo = check_taxonomic_model(config_taxo, peptide_table, taxo)
+        config = check_config(config,config_taxo)
         if not target and not targetfile:
             message.escape("Missing parameter: -x or -X (target species). Stopping execution")
         if targetfile:
@@ -294,8 +293,8 @@ def check_and_update_parameters_craft(homology, deamidation, allpeptides, fillin
         check_gamma(config_gamma)
         check_conserved(config_conserved)
         check_peptide_table(peptide_table)
-        taxonomy=check_taxonomy(taxonomy,True)
+        taxo=check_taxonomy(taxo,True)
         check_spectra_and_error(spectra, resolution)
 
-    return homology, deamidation, allpeptides, fillin, selection, reconstruction, peptide_table, fasta, fasta_dir, spectra, resolution, limit, taxonomy, config, placentals, birds, custom, target, targetfile
+    return homology, deamidation, allpeptides, fillin, selection, reconstruction, peptide_table, fasta, fasta_dir, spectra, resolution, limit, taxo, config, placentals, birds, custom, target, targetfile
 

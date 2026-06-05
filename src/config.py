@@ -41,7 +41,7 @@ def config_taxonomy(file_name):
     return parse_config_file(file_name)["taxonomy"]
 
 def config_peptide_table(file_name):
-    return parse_config_file(file_name)["peptide_table"]
+    return parse_config_file(file_name).get("peptide_table")
 
 def config_matrices_and_co(file_name):
     return parse_config_file(file_name)["substitution_matrices"], parse_config_file(file_name)["gamma_matrices"], parse_config_file(file_name)["conserved"]
