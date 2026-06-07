@@ -317,7 +317,7 @@ def supplement_taxonomic_information(set_of_markers, taxo):
                 else:
                     m.field["OS"]=taxo.name[m.taxid()]
                     if taxo.common_name[m.taxid()] is not None and len(taxo.common_name[m.taxid()]) > 0:
-                        m.field["Common Name"] = taxo.common_name[m.taxid()]
+                        m.field["Common name"] = taxo.common_name[m.taxid()]
                     m.field["Rank"] = taxo.rank[m.taxid()]
             else:
                 pass
@@ -346,7 +346,7 @@ def add_taxonomy_ranks(set_of_markers, t, headers):
             FINISHED=True
         else:
             if "common name" in headers:
-                m.field["Common Name"]=t.common_name[m.taxid()]
+                m.field["Common name"]=t.common_name[m.taxid()]
             if "rank" in headers:
                 m.field["Rank"]=t.rank[m.taxid()]
             parent=t.parent[m.taxid()]
