@@ -59,7 +59,6 @@ def check_config(config, config_taxo=None):
 def check_taxonomic_model(config, peptide_table, taxo):
     new_peptide_table = None
     new_taxo = None
-    print("config :", config)
     if config:
         new_peptide_table=conf.config_peptide_table(config)
         new_taxo=conf.config_taxonomy(config)

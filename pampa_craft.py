@@ -167,6 +167,7 @@ def main():
             supplement.add_marker_names(set_of_markers)
             taxo.supplement_taxonomic_information(set_of_markers, full_taxonomy)
             supplement.add_taxid(set_of_markers, set_of_sequences, full_taxonomy)
+            set_of_markers=markers.clean_markers(set_of_markers)
             #list_of_markers=list(set_of_new_markers | set_of_complete_markers)
             list_of_markers=markers.sort_and_merge(set_of_markers)
             taxo.add_taxonomy_ranks(list_of_markers, full_taxonomy, headers)
@@ -241,7 +242,7 @@ def main():
             pt.build_peptide_table_from_set_of_markers(set_of_markers,output, list_of_headers, config_markers)
             rep.create_report_deamidation(peptide_table, set_of_markers, set_of_codes_for_deamidation, web)
 
-        rep.create_report_footer(output_dir, output, report)
+        rep.create_report_footer(output_dir, output, report, web)
 
         if not web:
             print("")
@@ -257,7 +258,7 @@ def main():
                 print("Please refer to the warning.log file or the report file for details.\n\n")
         
     except message.InputError:
-        rep.create_report_footer(output_dir, output, report)
+        rep.create_report_footer(output_dir, output, report, web)
         if not web:
            print("\n   An error occurred with your input. Stopping execution.")
            print(f"   Please refer to the warning.log file or the {report} file for more detail.\n\n")

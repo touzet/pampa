@@ -760,3 +760,6 @@ def find_overlapping_markers(set_of_markers):
         if p1[1] >= p2[0]:
             overlap_list.append((p1[0], p2[0], p2[1]-p1[1]))
     return overlap_list
+
+def clean_markers(set_of_markers):
+    return {m for m in set_of_markers if "ToRemove" not in m.field}

@@ -193,7 +193,7 @@ def merge_headers(user_headers, reference_headers, set_of_markers):
 
 
 def build_peptide_table_from_set_of_markers(set_of_markers, outfile_name, sorted_headers = None, sorted_markers = None):
-    set_of_headers={utils.restitute_field(key) for m in set_of_markers for key in m.field if key!="magic_number"}
+    set_of_headers={utils.restitute_field(key) for m in set_of_markers for key in m.field if key not in {"magic_number", "ToRemove"}}
     if sorted_headers is None:
         sorted_headers = []
     else:

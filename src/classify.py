@@ -71,7 +71,7 @@ def main(command_line, spectra, taxonomy, peptide_table, fasta, fasta_dir, limit
 
         # report creation
         rep.create_report_classify(spectra, list_of_spectra, taxonomy, final_taxonomy, peptide_table, fasta, fasta_dir, set_of_sequences, set_of_markers, limit, list_of_constraints, deamidation, error, neighbour, all, new_table, config_digestion, config_nb_of_peaks, web)
-        rep.create_report_footer(output_dir, output, report)
+        rep.create_report_footer(output_dir, output, report, web)
 
         # species identification
         assignment.assign_all_spectra(list_of_spectra, set_of_markers, error, taxonomy, final_taxonomy, neighbour, allsolutions, config_nb_of_peaks, config_markers, output, detail, jsonf, isotopes)
@@ -93,7 +93,7 @@ def main(command_line, spectra, taxonomy, peptide_table, fasta, fasta_dir, limit
 
 
     except message.InputError:
-        rep.create_report_footer(output_dir, output, report)
+        rep.create_report_footer(output_dir, output, report, web)
         if not web:
            print("\n   An error occurred with your input. Stopping execution.")
            print("   Please refer to the warning.log file or the "+report+" file for more detail.")

@@ -56,9 +56,10 @@ def print_set_of_markers(set_of_markers):
             matrix[list_of_species.index((m.taxon_name(), m.taxid()))+1][list_of_codes.index(str(m.code())+"-"+str(m.PTM()))+2]=""
     for i in range(len(list_of_species)):
         species=utils.pretty_print(list_of_species[i][0])
-        s= (species[:taxon_length] if len(species) > taxon_length else species)
+        s= "   "+(species[:taxon_length] if len(species) > taxon_length else species)
         if list_of_species[i][1] is not None:
             s= (s +" (taxID:"+utils.pretty_print(list_of_species[i][1])+")").ljust(taxon_length+taxid_length+10)
+        s=s+" "
         for j in range(len(list_of_codes)):
             if len(matrix[i+1][j+2])>0 :
                 s=s+matrix[i+1][j+2]+" "
@@ -362,7 +363,7 @@ def create_report_header(command_line, report, web):
     print("")
     
 
-def create_report_footer(output_dir, output, report):
+def create_report_footer(output_dir, output, report, web):
     if os.path.getsize(os.path.join(output_dir,'warning.log')) > 0 and os.path.getsize(os.path.join(output_dir,'error.log'))==0:
         print_title("WARNINGS")
         with open(os.path.join(output_dir,'warning.log'), 'r') as file:
@@ -377,8 +378,8 @@ def create_report_footer(output_dir, output, report):
         print("\n* * * * *   NO OUTPUT FILE  * * * * *")
     else:
         print_title("OUTPUT FILES")
-        print("  Main result file (TSV) : "+output)
-        print("  Report (this file)     : "+report)
+        print("  Main result file (TSV) : "+os.path.basename(output))
+        print("  Report (this file)     : "+os.path.basename(report))
     print("")
     sys.stdout = sys.__stdout__
     
