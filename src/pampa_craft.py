@@ -2,8 +2,6 @@
 
 import argparse
 import os
-import time
-import sys
 
 # local import
 from src import markers
@@ -11,7 +9,6 @@ from src import sequences as seq
 from src import homology as homo
 from src import fasta_parsing as fa
 from src import peptide_table as pt
-from src import compute_masses
 from src import marker_filtering
 from src import mass_spectrum
 from src import message

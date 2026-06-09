@@ -2,18 +2,22 @@
    utils.py
 """
 
+def pretty_concatenate(s):
+    words = s.split()
+    words = [w.capitalize() for w in words]
+    return ''.join(words)
+
 def pretty_print(s):
-    if s==None:
+    if s is None:
         return ""
     else:
         return str(s)
 
 # remove whitespaces from the beginning and end of a string
 def clean(s):
-    if not isinstance(s, str):
-        return s
-    if s==None:
+    if s is None:
         return None
+    s=str(s)
     s= s.strip()
     if len(s)==0:
         return None
@@ -24,7 +28,7 @@ def clean(s):
 def standard(s):
     if not isinstance(s, str):
         return s
-    if s==None:
+    if s is None:
         return None
     s=s.replace(" ","")
     if len(s)==0:
@@ -33,15 +37,13 @@ def standard(s):
         return s
 
 def floating(s):
-    if s=="nan" or s==None:
+    if s=="nan" or s is None:
         return None
     fl=float(s)
     if fl<0:
         raise ValueError()
     return fl
 
-
- 
 # remove all whitespaces of a string and switch to upper cases
 def standard_upper(s):
     if not isinstance(s, str):
@@ -68,6 +70,13 @@ def is_aa_sequence(sequence):
         return False
     return all(aa in 'ACDEFGHIKLMNPQRSTVWY' for aa in sequence)
 
+
+def margin_tolerance(mass, resolution):
+    if resolution<1.1:
+        return resolution
+    else:
+        return resolution*mass/1000000 #ppm
+
 def matching_masses(theoretical_peak, experimental_peak, resolution):
     delta= abs(float(theoretical_peak) - float(experimental_peak))
     if resolution<1.1:
@@ -76,8 +85,8 @@ def matching_masses(theoretical_peak, experimental_peak, resolution):
         return delta/theoretical_peak<=resolution/1000000 #ppm
 
 def is_PTM(PTM_string, set_of_PTM):
-    """ test wether the PTM expression is valid """
-    if PTM_string==None:
+    """ test whether the PTM expression is valid """
+    if PTM_string is None:
         return True 
     found_number=""
     for char in PTM_string:
@@ -87,7 +96,6 @@ def is_PTM(PTM_string, set_of_PTM):
           if len(found_number)==0 or (int(found_number)>0 and char not in set_of_PTM):
             return False
           found_number=""
-    
     return True
     
 def image(set_of_masses):
@@ -99,7 +107,7 @@ def image(set_of_masses):
 
 def update_dictoset(mydict, k,v):
     """
-    mydict is a dictionnary whose values are sets (of elements).
+    mydict is a dictionary whose values are sets (of elements).
     k is a key (new or not) and v is a set of elements that should all be added
     to the set of values attached to k
     """
@@ -108,14 +116,13 @@ def update_dictoset(mydict, k,v):
     else:
         mydict[k]=v
         
-
+# change the name: remove dictoset
 def increment_dictoset(mydict, k):
     if k in mydict:
         mydict[k]=mydict[k]+1
     else:
         mydict[k]=1
-                
- 
+
 def create_dual_list(mydict):
     """
     create a dual list for dictionary mydict.
@@ -148,7 +155,7 @@ def create_mass_Xid_list_from_dict(Xid_to_mass_dict):
     for x, set_of_masses in Xid_to_mass_dict.items(): 
         for m in set_of_masses:
             tmp_mass_list.append((m,x))
-    tmp_mass_list.sort(key=lambda x: x[0])
+    tmp_mass_list.sort(key=lambda element: element[0])
     mass_Xid_list=[]
     current_element=tmp_mass_list[0]
     s={current_element[1]}
@@ -206,7 +213,8 @@ def restitute_field(field):
     restitute={
         "OX": "TaxID",
         "OS": "Taxon name",
-        "GN": "Gene"
+        "GN": "Gene",
+        "Begin": "Start"
         }
     if field in restitute:
         return restitute[field]

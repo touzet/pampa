@@ -5,7 +5,6 @@ import os
 class InputError(Exception):
     pass
 
-
 logging.basicConfig(stream=io.StringIO(), level=logging.DEBUG)
 
 # Create logger
@@ -43,11 +42,11 @@ def configure(output_dir):
     logger.addHandler(debug_handler)
 
 def escape(s):
-    logger.error("\n"+s+"\n")
+    logger.error("\nERROR - "+s+"\n")
     raise InputError
 
 def warning(s):
-    logger.warning(s)
+    logger.warning("WARNING - "+s+"\n")
 
 def debug(s):
     logger.debug(s)
