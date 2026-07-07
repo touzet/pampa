@@ -20,27 +20,29 @@ def matching_peaks(mass, resolution, spectrum):
 
 # search next index current_j >=j such that
 # peak matches with mass_markers_list[current_j]
-def skip_j(peak,j,mass_markers_list, resolution):
+def skip_j(peak, j, mass_markers_list, resolution):
     len_mass=len(mass_markers_list)
     marker_mass = mass_markers_list[j][0]
     overtook = peak.mass + 1 < marker_mass
     if overtook:
         return False, j, j
     matching = utils.matching_masses(marker_mass, peak.mass, resolution)
-    min_j, max_j=j, j
-    overtook=False
+    min_j, max_j= j, j
+    #overtook=False
     while not matching and min_j<len_mass-1 and not overtook:
         min_j+=1
         marker_mass = mass_markers_list[min_j][0]
         matching=utils.matching_masses(marker_mass, peak.mass, resolution)
-        if peak.mass + 1 < mass_markers_list[min_j][0]:
-           overtook=True
+        if matching:
+            print("match ", marker_mass, peak.mass, resolution)
+        overtook= peak.mass + 1 < mass_markers_list[min_j][0]
     if not matching:
         return False, min_j-1, min_j-1
-    max_j = min_j+1
+    max_j = min_j + 1
     while max_j<len_mass and utils.matching_masses(mass_markers_list[max_j][0], peak.mass, resolution):
-        max_j+=1
-    return True, min_j, min(max_j, len_mass-1)
+        print("add ", mass_markers_list[max_j][0])
+        max_j +=1
+    return True, min_j, min(max_j-1, len_mass-1)
 
 # mass_markers_list: list of pairs (mass, set_of_markers), sorted by increasing mass
 def find_matching_peaks_and_markers(spectrum, mass_markers_list, resolution, isotopes=False):
@@ -48,7 +50,7 @@ def find_matching_peaks_and_markers(spectrum, mass_markers_list, resolution, iso
     peak_to_markers={} #key: peak, value: set of markers
     j=0
     for i, peak in enumerate(spectrum):
-        match, min_j, max_j=skip_j(peak, j, mass_markers_list, resolution)
+        match, min_j, max_j = skip_j(peak, j, mass_markers_list, resolution)
         if match:
             if isotopes:
                 for current_j in range(min_j, max_j + 1):
@@ -58,6 +60,8 @@ def find_matching_peaks_and_markers(spectrum, mass_markers_list, resolution, iso
             else:
                 for current_j in range(min_j,max_j+1):
                     markers= mass_markers_list[current_j][1]
+                    for f in markers:
+                        print(peak.mass, mass_markers_list[current_j][0], f.taxid())
                     utils.update_dictoset(peak_to_markers, peak, markers)
         j=min_j
     return peak_to_markers
@@ -67,7 +71,7 @@ class Annotated_peak(object):
         self.mass = mass
         self.intensity = intensity  # list of (peak,name,ptm)
         self.marker = marker 
-        
+
     def __eq__(self, other):
         return self.mass == other.mass and self.marker.code() == other.marker.code()
 
@@ -167,7 +171,12 @@ def no_assignment(spectrum):
     
 def assign_spectrum(spectrum, mass_markers_list, set_of_markers, resolution, taxonomy, threshold, allsolutions, minimum_number_of_peaks, isotopes):
    # mass_taxid_name_list: contains the list of markers sorted by mass
+    print("----------\n" + spectrum.name +  "\n----------\n")
     peak_to_markers = find_matching_peaks_and_markers(spectrum, mass_markers_list, resolution, isotopes)
+    for peak in peak_to_markers:
+        print(str(peak.mass)+"->")
+        for m in peak_to_markers[peak]:
+            print(m.code(), m.taxid(), " ** ")
     if len(peak_to_markers)<minimum_number_of_peaks:
         return no_assignment(spectrum)
     taxid_to_codes={}
@@ -219,7 +228,7 @@ def assign_spectrum(spectrum, mass_markers_list, set_of_markers, resolution, tax
         number_of_matching_masses=taxid_to_score[taxid]
         if number_of_matching_masses==0:
             taxid_to_pvalue[taxid]=1
-        elif number_of_matching_masses<5:
+        elif number_of_matching_masses<5: # TO DO: update
             taxid_to_pvalue[taxid]=1/number_of_matching_masses
         else:
             total_number_of_masses=len({m.mass() for m in set_of_markers if m.taxid()==taxid})# à initialiser avant pour plus d'efficacite
@@ -395,6 +404,10 @@ def create_detail_result_file(detail, list_of_assignments, taxonomy, B):
 
 def assign_all_spectra(list_of_spectra, set_of_markers, error, taxonomy, B, threshold, allsolutions, minimum_number_of_peaks, config_markers, output, detail, jsonf, isotopes):
     mass_markers_list = markers.sort_markers_by_mass(set_of_markers)
+    for mass, ms in mass_markers_list:
+        print(mass)
+        for m in ms:
+            print('  '+str(m.taxid()))
     list_of_assignments=[]
     for spectrum in list_of_spectra:
         list_of_assignments.extend(assign_spectrum(spectrum, mass_markers_list, set_of_markers, error, B, threshold, allsolutions, minimum_number_of_peaks, isotopes))

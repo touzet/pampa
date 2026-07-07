@@ -118,7 +118,7 @@ def peak_parser_csv(peak_file_name, name):
         next(f)
         for line, row in enumerate(f, start=2):
             try:
-                peak = re.split('[,;]', row) # re.split(',|;', row) # to check
+                peak = re.split('[,;\t]', row) # re.split(',|;', row) # to check
                 x = float(peak[0])
                 y = float(peak[1]) if len(peak) > 1 else 0.0
                 if x<0 or y<0:
