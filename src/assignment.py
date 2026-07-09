@@ -4,7 +4,6 @@
 import json
 import math
 from scipy.stats import binom
-import numpy as np
 import csv
 from src import utils
 from src import markers
@@ -20,27 +19,27 @@ def matching_peaks(mass, resolution, spectrum):
 
 # search next index current_j >=j such that
 # peak matches with mass_markers_list[current_j]
-def skip_j(peak,j,mass_markers_list, resolution):
+def skip_j(peak, j, mass_markers_list, resolution):
     len_mass=len(mass_markers_list)
     marker_mass = mass_markers_list[j][0]
     overtook = peak.mass + 1 < marker_mass
     if overtook:
         return False, j, j
     matching = utils.matching_masses(marker_mass, peak.mass, resolution)
-    min_j, max_j=j, j
-    overtook=False
+    min_j, max_j= j, j
+    #overtook=False
     while not matching and min_j<len_mass-1 and not overtook:
         min_j+=1
         marker_mass = mass_markers_list[min_j][0]
         matching=utils.matching_masses(marker_mass, peak.mass, resolution)
-        if peak.mass + 1 < mass_markers_list[min_j][0]:
-           overtook=True
+        overtook= peak.mass + 1 < mass_markers_list[min_j][0]
     if not matching:
         return False, min_j-1, min_j-1
-    max_j = min_j+1
+    max_j = min_j + 1
     while max_j<len_mass and utils.matching_masses(mass_markers_list[max_j][0], peak.mass, resolution):
-        max_j+=1
-    return True, min_j, min(max_j, len_mass-1)
+        max_j +=1
+    return True, min_j, min(max_j-1, len_mass-1)
+
 
 # mass_markers_list: list of pairs (mass, set_of_markers), sorted by increasing mass
 def find_matching_peaks_and_markers(spectrum, mass_markers_list, resolution, isotopes=False):
