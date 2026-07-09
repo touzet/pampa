@@ -32,6 +32,8 @@ def peptide_mass(sequence):
     # mass = formula.isotope.mass
 
 def number_of_H(PTM_string):
+    if PTM_string is None:
+        return 0
     if 'H' in PTM_string:
         re_proline=re.compile('[0-9]*H')
         m = re_proline.search(PTM_string)
@@ -41,6 +43,8 @@ def number_of_H(PTM_string):
     return proline
 
 def number_of_D(PTM_string):
+    if PTM_string is None:
+        return 0
     if 'D' in PTM_string:
         re_deamidation=re.compile('[0-9]*D')
         m = re_deamidation.search(PTM_string)
@@ -50,6 +54,8 @@ def number_of_D(PTM_string):
     return deamidation
 
 def number_of_C(PTM_string):
+    if PTM_string is None:
+        return 0
     if 'C' in PTM_string:
         re_carboxylation=re.compile('[0-9]*C')
         m = re_carboxylation.search(PTM_string)
